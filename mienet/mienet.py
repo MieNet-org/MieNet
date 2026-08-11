@@ -34,16 +34,16 @@ class MieNet:
             Which AI model to load. Defualt is 'all', which loads all models. User can input
             model names to load a specific model.
         default_model_location : str, optional
-            Location of opacity data. If none, MieNet defaults are used.
+            Location of opacity models. If none, MieNet defaults are used.
         mute : bool, optional
             If True, MieNet will produce no diagnostic outputs and runs quietly.
         """
 
         # ==== General preparations ===============================================================
-        # Load species data from files
+        # Load species models from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
-        # save ai initialisation state
+        # save ai initialization state
         self.use_ai = use_ai
         self.load_ai_model = load_ai_model
         # save mute preference
@@ -55,9 +55,9 @@ class MieNet:
             # models location
             if default_model_location is not None:
                 self.model_path = default_model_location
-            # default data location
+            # default models location
             else:
-                self.model_path = os.path.dirname(__file__) + '/models/'
+                self.model_path = os.path.join(os.path.dirname(__file__), '/../models/')
 
             # only load models if the model files exist
             models = glob.glob(self.model_path + '*.keras')
@@ -66,13 +66,16 @@ class MieNet:
                 self.low_waves, self.high_waves, self.low_models, self.mid_models, self.high_models, self.species \
                     = initialize_ai_models(load_ai_model, self.model_path)
 
+            else:
+                raise ValueError("No model files found")
+
         # ==== List of default datasets
-        # user input data location
+        # user input models location
         if default_model_location is not None:
             self.data_path = default_model_location
-        # default data location
+        # default models location
         else:
-            self.data_path = os.path.dirname(__file__) + '/../data/'
+            self.data_path = os.path.dirname(__file__) + '/../models/'
 
         # ==== Load predetermined grid dataset
         # default datasets
@@ -305,7 +308,7 @@ class MieNet:
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 
-        # ==== Load data for each species from files and get refractive index =====================
+        # ==== Load models for each species from files and get refractive index =====================
         ref_index = read_in_refindex(species_list, wavelength, self.files)
 
         # ==== Combination of all wavelengths and particle size ===================================

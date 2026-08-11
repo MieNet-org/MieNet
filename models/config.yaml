@@ -1,8 +1,10 @@
-MODEL1:
+MODEL1: #change model names
 
+  # instead of low_wave or high_wave use:
+  # dependencies: {'low_wave': 1, 'high_wave': 100}
   low_wave: 1
   high_wave: 100
-
+  # architecture: 'six_network' (or whatever the name of the func usedin architecture funcs file)
   species:
     - 'TiO2'
     - 'Fe'

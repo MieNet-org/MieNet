@@ -49,7 +49,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
         # open that dataset
         ds = grid[best_dataset[0]]['ds']
     else:
-        # ==== check data grid
+        # ==== check models grid
         ds = xr.open_dataset(grid_file, engine="h5netcdf")
         for specs in ds.attrs['species']:
             if specs not in volume_mixing_ratios:
@@ -57,7 +57,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
                                  "ratio of " + specs)
 
 
-    # ==== read out data
+    # ==== read out models
     # define arguments for interpolation from xarray
     args = {
         'wavelength': wavelength,
@@ -122,7 +122,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         print(f'[INFO] Starting grid calculation ...')
 
     # ==== get shape of output array and prepare coordinates of dataset
-    shape = [len(particle_sizes), len(wavelengths)]  # shape of data array
+    shape = [len(particle_sizes), len(wavelengths)]  # shape of models array
     dims = ['particle_size', 'wavelength']  # name of dimensions
     vmrs = np.linspace(0, 1, vmr_data_points)  # vmr spacing
     coords = {
@@ -142,7 +142,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         dims.append('VMR_' + spec)
         coords['VMR_' + spec] = np.linspace(0, 1, vmr_data_points)
 
-    # ==== data array
+    # ==== models array
     qext = np.zeros(shape)
     qsca = np.zeros(shape)
     asym = np.zeros(shape)
@@ -239,7 +239,7 @@ def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
     # ==== Loop over all files
     for grid_file in grid_files:
         try:
-            # get data and assign it to the dictionary
+            # get models and assign it to the dictionary
             ds = xr.open_dataset(grid_file, engine="h5netcdf")
             self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
             if not self.mute:

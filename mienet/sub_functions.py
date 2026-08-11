@@ -22,20 +22,20 @@ def read_in_refindex(species, wavelength, files):
     Return
     ------
     ref_index : np.ndarray of size (N, M, 2)
-        Refractive index data: real, and imaginary part.
+        Refractive index models: real, and imaginary part.
     """
 
     # prepare output
     ref_index = np.zeros((len(species), len(wavelength), 2))
     for s, spec in enumerate(species):
 
-        # ==== Load data from files =====================================================
+        # ==== Load models from files =====================================================
 
         # find species in files
         data = None
         for file in files:
             if spec in file:
-                # get data using pandas
+                # get models using pandas
                 content = pd.read_csv(file, sep=r'\s+', header=None, usecols=[1, 2, 3])
                 # convert to array and flip vertically so wavelength increases
                 data = np.flip(content.to_numpy(), axis=0)
@@ -49,8 +49,8 @@ def read_in_refindex(species, wavelength, files):
 
         # loop over all wavelengths
         for wav, wave in enumerate(wavelength):
-            # if desired wavelength is smaller than data, use the smallest wavelength
-            # data available
+            # if desired wavelength is smaller than models, use the smallest wavelength
+            # models available
             if wave < float(data[0, 0]):
                 ref_index[s, wav, 0] = float(data[0, 1])
                 ref_index[s, wav, 1] = float(data[0, 2])
@@ -170,7 +170,7 @@ def get_model_info(model_path):
         low_wave[model] = model_info['low_wave']
         high_wave[model] = model_info['high_wave']
 
-    return files, species, low_wave, high_wave
+    return files, species, low_wave, high_wave # return models_dict instead
 
 def initialize_ai_models(load_ai_model, model_path):
     '''
