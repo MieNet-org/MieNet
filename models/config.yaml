@@ -1,10 +1,8 @@
-MODEL1: #change model names
+MODEL1:
 
-  # instead of low_wave or high_wave use:
-  # dependencies: {'low_wave': 1, 'high_wave': 100}
-  low_wave: 1
-  high_wave: 100
-  # architecture: 'six_network' (or whatever the name of the func usedin architecture funcs file)
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
   species:
     - 'TiO2'
     - 'Fe'
@@ -17,8 +15,8 @@ MODEL1: #change model names
 
 MODEL2:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
 
   species:
     - 'TiO2'
@@ -32,8 +30,8 @@ MODEL2:
 
 MODEL3:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
 
   species:
     - 'SiO2'
@@ -47,8 +45,8 @@ MODEL3:
 
 MODEL4:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
 
   species:
     - 'SiO2'
