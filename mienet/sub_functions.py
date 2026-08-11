@@ -151,26 +151,28 @@ def get_model_info(model_path):
 
     Returns
     -------
-    List of files that correspond to the network.
+    Models dictionary containing:
+        List of model files
+        List of species
+        Name of Architecture function
+        Dictionary of dependencies
 
     '''
     config_yaml = model_path + 'config.yaml'
     with open(config_yaml, 'r') as f:
         config = yaml.safe_load(f)
 
-    files = {}
-    species = {}
-    low_wave = {}
-    high_wave = {}
+    models_dict = {}
 
     for model in config.keys():
         model_info = config[model]
-        files[model] = model_info['files']
-        species[model] = model_info['species']
-        low_wave[model] = model_info['low_wave']
-        high_wave[model] = model_info['high_wave']
+        models_dict[model] = {}
+        models_dict[model]['files'] = model_info['files']
+        models_dict[model]['species'] = model_info['species']
+        models_dict[model]['architecture'] = model_info['architecture']
+        models_dict[model]['dependencies'] = model_info['dependencies']
 
-    return files, species, low_wave, high_wave # return models_dict instead
+    return models_dict
 
 def initialize_ai_models(load_ai_model, model_path):
     '''
@@ -185,61 +187,52 @@ def initialize_ai_models(load_ai_model, model_path):
 
     Returns
     ----------
-    low_waves, high_waves: Dictionaries
-        Lower/higher wavelength cutoffs for each mixture (returned for 'all')
-    low_models, mid_models, high_models: Dictionaries
-        Loaded models in each wavelength range for each mixture (returned for 'all')
-    low_wave, high_wave: floats
-        Lower/higher wavelength cutoffs (returned for a specified model)
-    low_model, mid_model, high_model: tensorflow models
-        Loaded models in each wavelength range (returned for a specified model)
-    best_model: tuple
-        The specified mixture and its species (returned for a specified model)
+    Models dictionary containing:
+        List of model files
+        List of species
+        List of Tensorflow models
+        Name of Architecture function
+        Dictionary of dependencies
     '''
     from tensorflow.keras.models import load_model
 
     # read  config file
-    model_files, species, low_waves, high_waves = get_model_info(model_path)
+    models_dict = get_model_info(model_path)
 
     # load all models by default if one is not specified
     if load_ai_model == 'all':
 
-        # prepare output
-        low_models = {}
-        mid_models = {}
-        high_models = {}
-
         # load all models for each mixture
-        for model in low_waves.keys():
+        for model in models_dict.keys():
 
-            # only load models that files are downloaded for
-            if os.path.isfile(model_path + model_files[model][0]):
+            # prepare model list for dictionary
+            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
 
-                low_models[model] = load_model(
-                    model_path + model_files[model][0]
-                )
-                mid_models[model] = load_model(
-                    model_path + model_files[model][1]
-                )
-                high_models[model] = load_model(
-                    model_path + model_files[model][2]
-                )
+            for i, file in enumerate(models_dict[model]['files']):
 
+                # only load files that are downloaded
+                if os.path.isfile(os.path.join(model_path + file)):
+                    model_list[i] = load_model(os.path.join(model_path + file))
+
+            models_dict[model]['models'] = model_list
+
+    # load specified model
     else:
 
-        # load models for each wavelength range
-        low_models = load_model(
-            model_path + model_files[load_ai_model][0]
-        )
-        mid_models = load_model(
-            model_path + model_files[load_ai_model][1]
-        )
-        high_models = load_model(
-            model_path + model_files[load_ai_model][2]
-        )
+        # save only desired mixture in the models dictionary
+        models_dict = models_dict[load_ai_model]
 
-        low_waves = low_waves[load_ai_model]
-        high_waves = high_waves[load_ai_model]
-        species = species[load_ai_model]
+        model_list = np.empty(len(models_dict['files']), dtype = object)
 
-    return low_waves, high_waves, low_models, mid_models, high_models, species
+        for i, file in enumerate(models_dict['files']):
+
+            # load files
+            if os.path.isfile(os.path.join(model_path + file)):
+                model_list[i] = load_model(os.path.join(model_path + file))
+
+            else:
+                raise ValueError(f'Model files for mixture {load_ai_model} not found.')
+
+        models_dict['models'] = model_list
+
+    return models_dict
