@@ -3,6 +3,8 @@
 
 import os
 import glob
+from platform import architecture
+
 import numpy as np
 import miepython as mie
 
@@ -63,8 +65,7 @@ class MieNet:
             models = glob.glob(self.model_path + '*.keras')
             if models:
                 # load models
-                self.low_waves, self.high_waves, self.low_models, self.mid_models, self.high_models, self.species \
-                    = initialize_ai_models(load_ai_model, self.model_path)
+                self.models_dict = initialize_ai_models(load_ai_model, self.model_path)
 
             else:
                 raise ValueError("No model files found")
@@ -110,10 +111,15 @@ class MieNet:
 
         if self.load_ai_model == 'all':
 
+            # create species dictionary for all models
+            species = {}
+            for model in self.models_dict.keys():
+                species[model] = self.models_dict[model]['species']
+
             # find all models that include all species
             l_set = set(volume_mixing_ratios.keys())
             valid_models = {
-                name: data for name, data in self.species.items()
+                name: data for name, data in species.items()
                 if l_set.issubset(data)
             }
             # check if there are no matching models
@@ -130,15 +136,11 @@ class MieNet:
                     volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
 
             # get info for the model
-            low_wave = self.low_waves[best_model[0]]
-            high_wave = self.high_waves[best_model[0]]
-            low_model = self.low_models[best_model[0]]
-            mid_model = self.mid_models[best_model[0]]
-            high_model = self.high_models[best_model[0]]
+            model_dict = self.models_dict[best_model[0]]
 
         else:
             # model info
-            best_model = [self.load_ai_model, self.species]
+            best_model = [self.load_ai_model, self.models_dict['species']]
 
             # add zero array to vmr dictionary if using less than the total amount of species
             if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -151,11 +153,7 @@ class MieNet:
                 raise ValueError("Incorrect AI model initialized for this mixture")
 
             # get info for chosen model
-            low_wave = self.low_waves
-            high_wave = self.high_waves
-            low_model = self.low_models
-            mid_model = self.mid_models
-            high_model = self.high_models
+            model_dict = self.models_dict
 
         # ==== Input checks =======================================================================
 
@@ -213,21 +211,18 @@ class MieNet:
         scattering = np.zeros((len(inputs), 1))
         asymmetry = np.zeros((len(inputs), 1))
 
-        # masks for each wavelength range
-        low_mask = inputs[:, 0] <= np.log10(low_wave)
-        mid_mask = ((inputs[:, 0] > np.log10(low_wave)) & (inputs[:, 0] < np.log10(high_wave)))
-        high_mask = inputs[:, 0] >= np.log10(high_wave)
+        # get architecture-dependent masks
+        import architecture_functions
+        arch = self.models_dict['architecture']
+        arch_func = getattr(architecture_functions, arch)
 
-        # predict coefficients for each wavelength range
-        if low_mask.any():
-            extinction[low_mask], scattering[low_mask], asymmetry[low_mask] \
-                = low_model.predict(inputs[low_mask])
-        if mid_mask.any():
-            extinction[mid_mask], scattering[mid_mask], asymmetry[mid_mask] \
-                = mid_model.predict(inputs[mid_mask])
-        if high_mask.any():
-            extinction[high_mask], scattering[high_mask], asymmetry[high_mask] \
-                = high_model.predict(inputs[high_mask])
+        masks = arch_func(inputs, model_dict['dependencies'])
+
+        # predict outputs
+        for i, mask in enumerate(masks):
+            if mask.any():
+                extinction[mask], scattering[mask], asymmetry[mask] = \
+                self.models_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
         qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size)))
