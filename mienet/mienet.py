@@ -213,7 +213,7 @@ class MieNet:
 
         # get architecture-dependent masks
         import architecture_functions
-        arch = self.models_dict['architecture']
+        arch = model_dict['architecture']
         arch_func = getattr(architecture_functions, arch)
 
         masks = arch_func(inputs, model_dict['dependencies'])
@@ -222,7 +222,7 @@ class MieNet:
         for i, mask in enumerate(masks):
             if mask.any():
                 extinction[mask], scattering[mask], asymmetry[mask] = \
-                self.models_dict['models'][i].predict(inputs[mask])
+                model_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
         qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size)))
@@ -352,5 +352,4 @@ class MieNet:
             get_models(self.model_path)
 
             # load models
-            self.low_waves, self.high_waves, self.low_models, self.mid_models, self.high_models, self.species \
-                = initialize_ai_models(self.load_ai_model, self.model_path)
+            self.models_dict = initialize_ai_models(self.load_ai_model, self.model_path)
