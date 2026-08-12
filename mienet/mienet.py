@@ -3,11 +3,10 @@
 
 import os
 import glob
-from platform import architecture
-
 import numpy as np
 import miepython as mie
 
+from .grid import grid_efficiencies
 from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
 from .mixing_theory import mixing_theory
 from .data_handling import get_models
@@ -49,6 +48,8 @@ class MieNet:
         # save ai initialization state
         self.use_ai = use_ai
         self.load_ai_model = load_ai_model
+        # save efficiency calc state
+        self.auto = False
         # save mute preference
         self.mute = mute
 
@@ -110,7 +111,7 @@ class MieNet:
         if self.load_ai_model == 'all':
 
             # find all models that include all species
-            best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
+            best_model = select_best_dataset('model', self.auto, volume_mixing_ratios, self.models_dict)
 
             # add zero array to vmr dictionary if using less than the total amount of species
             if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -322,6 +323,51 @@ class MieNet:
             asymmetry = g_temp.reshape(len(wavelength), len(particle_size)).T
 
         return extinction, scattering, asymmetry
+
+    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
+        """
+        Calculate mie coefficients using mie fastest method available.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray or float of size N
+            Wavelength of the light [micron]
+        particle_size : np.ndarray or float of size M
+            Size of the cloud particle [micron]
+        volume_mixing_ratios : dict of np.ndarray or float of size M for each species
+            Fraction of each cloud material given as float or array
+        theory : str, optional
+            Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+
+        Return
+        ------
+        optical properties : np.ndarray of size (M, N)
+            extinction coefficient, scattering coefficient, and asymmetries parameter
+        """
+        auto = True
+
+        # check grids
+        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+
+        # use grid if it exists
+        if best_dataset[0] is not None:
+            extinction, scattering, asymmetry = grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios)
+            return extinction, scattering, asymmetry
+
+        # check models if no grids
+        else:
+            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
+
+            # use model if it exists
+            if best_model[0] is not None:
+                extinction, scattering, asymmetry = self.ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios)
+                return extinction, scattering, asymmetry
+
+            # use full calculations if no models or grids exsist
+            else:
+                extinction, scattering, asymmetry = self.efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory)
+                return extinction, scattering, asymmetry
+
 
     def download_models(self):
         '''

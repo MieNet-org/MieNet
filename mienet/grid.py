@@ -38,7 +38,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
         grid = self.default_grids
 
         # select best grid for the given species
-        best_dataset = select_best_dataset('grid', volume_mixing_ratios, grid)
+        best_dataset = select_best_dataset('grid', self.auto, volume_mixing_ratios, grid)
 
         # open that dataset
         ds = grid[best_dataset[0]]['ds']
