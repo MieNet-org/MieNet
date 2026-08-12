@@ -8,7 +8,7 @@ from platform import architecture
 import numpy as np
 import miepython as mie
 
-from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models
+from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
 from .mixing_theory import mixing_theory
 from .data_handling import get_models
 from . import architecture_functions
@@ -109,23 +109,8 @@ class MieNet:
 
         if self.load_ai_model == 'all':
 
-            # create species dictionary for all models
-            species = {}
-            for model in self.models_dict.keys():
-                species[model] = self.models_dict[model]['species']
-
             # find all models that include all species
-            l_set = set(volume_mixing_ratios.keys())
-            valid_models = {
-                name: data for name, data in species.items()
-                if l_set.issubset(data)
-            }
-            # check if there are no matching models
-            if not valid_models:
-                raise ValueError("No network for " + str(l_set) + " is available.")
-
-            # Now pick the model with the smallest total size
-            best_model = min(valid_models.items(), key=lambda item: len(item[1]))
+            best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
 
             # add zero array to vmr dictionary if using less than the total amount of species
             if len(volume_mixing_ratios.keys()) != len(best_model[1]):

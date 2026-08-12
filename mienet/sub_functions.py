@@ -236,3 +236,39 @@ def initialize_ai_models(load_ai_model, model_path):
         models_dict['models'] = model_list
 
     return models_dict
+
+def select_best_dataset(type, volume_mixing_ratios, datasets):
+    '''
+    Choose best grid or model.
+
+    Parameters
+    ----------
+    type : String
+        Either 'model' or 'grid'
+    volume_mixing_ratios: Dictionary
+        Species in each mixture with respective volume mixing ratios.
+    datasets: Dictionary
+        Dictionary with information about each model/grid.
+
+    Returns
+    ----------
+    best_dataset : tuple, (name, species)
+        name: str of model/grid name
+        species: list of species name
+    '''
+    # find all dataset that include all species
+    l_set = set(volume_mixing_ratios.keys())
+    valid_datasets = {
+        name: data['species'] for name, data in datasets.items()
+        if l_set.issubset(data['species'])
+    }
+
+    # check if there are no matching datasets
+    if not valid_datasets:
+        raise ValueError("No default" + f'{type}' + "for" + str(l_set) +
+                         " is available. Please provide one.")
+
+    # Now pick the dataset with the smallest total size
+    best_dataset = min(valid_datasets.items(), key=lambda item: len(item[1]))
+
+    return best_dataset
