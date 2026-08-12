@@ -1,7 +1,12 @@
 MODEL1:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'TiO2'
+    - 'Fe'
+    - 'Mg2SiO4'
 
   files:
     - 'vmodel100rad_logmodel1_low.keras'
@@ -10,8 +15,13 @@ MODEL1:
 
 MODEL2:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'TiO2'
+    - 'Fe'
+    - 'MgSiO3'
 
   files:
     - 'vmodelens_logmodel1_low.keras'
@@ -20,8 +30,13 @@ MODEL2:
 
 MODEL3:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+    - 'Mg2SiO4'
 
   files:
     - 'vmodelsil_logmodel1_low.keras'
@@ -30,8 +45,13 @@ MODEL3:
 
 MODEL4:
 
-  low_wave: 1
-  high_wave: 100
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+    - 'Fe'
 
   files:
     - 'vmodelmeteor_log_model2_low.keras'

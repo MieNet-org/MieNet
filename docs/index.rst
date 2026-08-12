@@ -11,9 +11,9 @@ Welcome to MieNet
 
 MieNet is a software package to calculate the opacities of heterogenouse cloud particles. To accelerate the otherwise slow calcualtions, it provides three methods:
 
-- 'Full': Perform effective refractive indice and Mie theory calculation.
+- 'Full': Perform effective refractive indices and Mie theory calculation.
 - 'Grid': Precalculate opacity grids provide fast approximation to cloud particle opacities.
-- 'AI': Convoluted Neural Networks trained to deliver high accuracy at a fraction of the computation time.
+- 'AI': Artificial Neural Networks trained to deliver high accuracy at a fraction of the computation time.
 
 Fully trained models are provided on `Zenodo <LINK TO ZENODO>`_, or can be trained by yourself according to your needs. MieAi is under active development and contributions are welcommed. If you want to run MieAI checkout the `quick start guide <Install_And_Quick_Start.ipynb>`_.
 
