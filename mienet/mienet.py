@@ -59,7 +59,7 @@ class MieNet:
                 self.model_path = default_model_location
             # default models location
             else:
-                self.model_path = os.path.join(os.path.dirname(__file__), '/../models/')
+                self.model_path = os.path.join(os.path.dirname(__file__), '../models/')
 
             # only load models if the model files exist
             models = glob.glob(self.model_path + '*.keras')
@@ -73,7 +73,7 @@ class MieNet:
             self.data_path = default_model_location
         # default models location
         else:
-            self.data_path = os.path.dirname(__file__) + '/../models/'
+            self.data_path = os.path.join(os.path.dirname(__file__), '../models/')
 
         # ==== Load predetermined grid dataset
         # default datasets
