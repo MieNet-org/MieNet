@@ -208,9 +208,9 @@ class MieNet:
                 model_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
-        qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size)))
-        qsca = 10**scattering[:, 0].reshape((len(wavelength), len(particle_size)))
-        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size)))
+        qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
+        qsca = 10**scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
+        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size))).T
 
         return qext, qsca, asym
 
