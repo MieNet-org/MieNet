@@ -11,6 +11,7 @@ import miepython as mie
 from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models
 from .mixing_theory import mixing_theory
 from .data_handling import get_models
+from . import architecture_functions
 
 
 class MieNet:
@@ -209,7 +210,6 @@ class MieNet:
         asymmetry = np.zeros((len(inputs), 1))
 
         # get architecture-dependent masks
-        import architecture_functions
         arch = model_dict['architecture']
         arch_func = getattr(architecture_functions, arch)
 
