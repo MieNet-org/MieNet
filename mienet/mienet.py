@@ -67,9 +67,6 @@ class MieNet:
                 # load models
                 self.models_dict = initialize_ai_models(load_ai_model, self.model_path)
 
-            else:
-                raise ValueError("No model files found")
-
         # ==== List of default datasets
         # user input models location
         if default_model_location is not None:
