@@ -22,20 +22,20 @@ def read_in_refindex(species, wavelength, files):
     Return
     ------
     ref_index : np.ndarray of size (N, M, 2)
-        Refractive index data: real, and imaginary part.
+        Refractive index models: real, and imaginary part.
     """
 
     # prepare output
     ref_index = np.zeros((len(species), len(wavelength), 2))
     for s, spec in enumerate(species):
 
-        # ==== Load data from files =====================================================
+        # ==== Load models from files =====================================================
 
         # find species in files
         data = None
         for file in files:
             if spec in file:
-                # get data using pandas
+                # get models using pandas
                 content = pd.read_csv(file, sep=r'\s+', header=None, usecols=[1, 2, 3])
                 # convert to array and flip vertically so wavelength increases
                 data = np.flip(content.to_numpy(), axis=0)
@@ -49,8 +49,8 @@ def read_in_refindex(species, wavelength, files):
 
         # loop over all wavelengths
         for wav, wave in enumerate(wavelength):
-            # if desired wavelength is smaller than data, use the smallest wavelength
-            # data available
+            # if desired wavelength is smaller than models, use the smallest wavelength
+            # models available
             if wave < float(data[0, 0]):
                 ref_index[s, wav, 0] = float(data[0, 1])
                 ref_index[s, wav, 1] = float(data[0, 2])
@@ -141,29 +141,143 @@ def calculate_subradii(particle_size, vmr):
 
     return sub_rad, vmr
 
-def get_model_info(model_name):
+def get_model_info(model_path):
     '''
     Get neural network files and information.
 
     Parameters
     ----------
-    model_name: string
+    model_path: string
 
     Returns
     -------
-    List of files that correspond to the network.
+    Models dictionary containing:
+        List of model files
+        List of species
+        Name of Architecture function
+        Dictionary of dependencies
 
     '''
-    config_yaml = os.path.dirname(__file__) + '/config.yaml'
+    config_yaml = model_path + 'config.yaml'
     with open(config_yaml, 'r') as f:
         config = yaml.safe_load(f)
 
-    try:
-        model_info = config[model_name]
-        files = model_info['files']
-        low_wave = model_info['low_wave']
-        high_wave = model_info['high_wave']
-        scale = model_info['scale']
-        return files, low_wave, high_wave, scale
-    except KeyError:
-        raise ValueError(f"Network '{model_name}' not found in config")
+    models_dict = {}
+
+    for model in config.keys():
+        model_info = config[model]
+        models_dict[model] = {}
+        models_dict[model]['files'] = model_info['files']
+        models_dict[model]['species'] = model_info['species']
+        models_dict[model]['architecture'] = model_info['architecture']
+        models_dict[model]['dependencies'] = model_info['dependencies']
+
+    return models_dict
+
+def initialize_ai_models(load_ai_model, model_path):
+    '''
+    Load ai tensorflow models.
+
+    Parameters
+    ----------
+    load_model : String
+        Either 'all' to load every model or the model name
+    model_names: Dictionary
+        Dictionary of species in each mixture
+
+    Returns
+    ----------
+    Models dictionary containing:
+        List of model files
+        List of species
+        List of Tensorflow models
+        Name of Architecture function
+        Dictionary of dependencies
+    '''
+    from tensorflow.keras.models import load_model
+
+    # read  config file
+    models_dict = get_model_info(model_path)
+
+    # load all models by default if one is not specified
+    if load_ai_model == 'all':
+
+        # load all models for each mixture
+        for model in models_dict.keys():
+
+            # prepare model list for dictionary
+            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
+
+            for i, file in enumerate(models_dict[model]['files']):
+
+                # only load files that are downloaded
+                if os.path.isfile(os.path.join(model_path + file)):
+                    model_list[i] = load_model(os.path.join(model_path + file))
+
+            models_dict[model]['models'] = model_list
+
+    # load specified model
+    else:
+
+        # save only desired mixture in the models dictionary
+        models_dict = models_dict[load_ai_model]
+
+        model_list = np.empty(len(models_dict['files']), dtype = object)
+
+        for i, file in enumerate(models_dict['files']):
+
+            # load files
+            if os.path.isfile(os.path.join(model_path + file)):
+                model_list[i] = load_model(os.path.join(model_path + file))
+
+            else:
+                raise ValueError(f'Model files for mixture {load_ai_model} not found.')
+
+        models_dict['models'] = model_list
+
+    return models_dict
+
+def select_best_dataset(type, auto, vmrs, datasets):
+    '''
+    Choose best grid or model.
+
+    Parameters
+    ----------
+    type : String
+        Either 'model' or 'grid'
+    auto: Boolean
+        True if using auto_efficiencies function for fastest calculation.
+    volume_mixing_ratios: Dictionary
+        Species in each mixture with respective volume mixing ratios.
+    datasets: Dictionary
+        Dictionary with information about each model/grid.
+
+    Returns
+    ----------
+    best_dataset : tuple, (name, species)
+        name: str of model/grid name
+        species: list of species name
+    '''
+    # find all dataset that include all species
+    l_set = set(vmrs.keys())
+    valid_datasets = {
+        name: data['species'] for name, data in datasets.items()
+        if l_set.issubset(data['species'])
+    }
+
+    # check if there are matching datasets
+    if valid_datasets:
+
+        # Now pick the dataset with the smallest total size
+        best_dataset = min(valid_datasets.items(), key=lambda item: len(item[1]))
+
+    else:
+        if auto == 'False':
+            # raise value error if no datasets for the type of efficiency function called
+            raise ValueError("No default" + f'{type}' + "for" + str(l_set) +
+                                 " is available. Please provide one.")
+
+        else:
+            best_dataset = (None, None)
+
+    return best_dataset
