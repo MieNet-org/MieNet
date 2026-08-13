@@ -6,6 +6,8 @@ from time import time
 from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
+from .sub_functions import select_best_dataset
+
 
 def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
                       grid_file=None):
@@ -34,22 +36,14 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
     if grid_file is None:
         # select mixing theory
         grid = self.default_grids
-        # find all dataset that include all species
-        l_set = set(volume_mixing_ratios.keys())
-        valid_datasets = {
-            name: data['species'] for name, data in grid.items()
-            if l_set.issubset(data['species'])
-        }
-        # check if there are no matching grids
-        if not valid_datasets:
-            raise ValueError("No default grid for " + str(l_set) +
-                             " is available. Please provide one via grid_file.")
-        # Now pick the dataset with the smallest total size
-        best_dataset = min(valid_datasets.items(), key=lambda item: len(item[1]))
+
+        # select best grid for the given species
+        best_dataset = select_best_dataset('grid', self.auto, volume_mixing_ratios, grid)
+
         # open that dataset
         ds = grid[best_dataset[0]]['ds']
     else:
-        # ==== check data grid
+        # ==== check models grid
         ds = xr.open_dataset(grid_file, engine="h5netcdf")
         for specs in ds.attrs['species']:
             if specs not in volume_mixing_ratios:
@@ -57,7 +51,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
                                  "ratio of " + specs)
 
 
-    # ==== read out data
+    # ==== read out models
     # define arguments for interpolation from xarray
     args = {
         'wavelength': wavelength,
@@ -122,7 +116,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         print(f'[INFO] Starting grid calculation ...')
 
     # ==== get shape of output array and prepare coordinates of dataset
-    shape = [len(particle_sizes), len(wavelengths)]  # shape of data array
+    shape = [len(particle_sizes), len(wavelengths)]  # shape of models array
     dims = ['particle_size', 'wavelength']  # name of dimensions
     vmrs = np.linspace(0, 1, vmr_data_points)  # vmr spacing
     coords = {
@@ -142,7 +136,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         dims.append('VMR_' + spec)
         coords['VMR_' + spec] = np.linspace(0, 1, vmr_data_points)
 
-    # ==== data array
+    # ==== models array
     qext = np.zeros(shape)
     qsca = np.zeros(shape)
     asym = np.zeros(shape)
@@ -217,7 +211,7 @@ def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
 
     Parameters
     ----------
-    self : MieAi class
+    self : MieNet class
     file_name : If given, only this file is loaded, if None, data_path will be checked.
     ds_grid : xarray.Dataset from produce_efficiency_grid, also requires ds_grid_name
     ds_grid_name : string, name under which ds_grid is saved
@@ -236,10 +230,10 @@ def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
     else:
         grid_files = [file_name]
 
-    # ==== Looop over all files
+    # ==== Loop over all files
     for grid_file in grid_files:
         try:
-            # get data and assign it to the dictionary
+            # get models and assign it to the dictionary
             ds = xr.open_dataset(grid_file, engine="h5netcdf")
             self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
             if not self.mute:
