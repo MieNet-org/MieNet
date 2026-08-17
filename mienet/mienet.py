@@ -9,7 +9,7 @@ import miepython as mie
 from .grid import grid_efficiencies
 from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
 from .mixing_theory import mixing_theory
-from .data_handling import get_models
+from .model_handling import get_models, generate_training_set
 from . import architecture_functions
 
 
