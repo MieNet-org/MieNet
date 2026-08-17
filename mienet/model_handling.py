@@ -8,7 +8,6 @@ import os
 import shutil
 import numpy as np
 import xarray as xr
-from .mienet import MieNet
 
 def get_models(data_location):
     '''
@@ -78,9 +77,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         raise ValueError('Training set generation is complete, no more space in training set:' + store_path)
 
     # ==== Calculations ================================================================================================
-    ma = MieNet() # initialize MieNet
-
-    # create particle size sample
+   # create particle size sample
     particle_size_sample = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points) # radius sample, fixed grid
 
     while ds.attrs['idx'] < set_size:
@@ -99,7 +96,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
 
         # calculate outputs
         extinction, scattering, asymmetry = \
-            ma.efficiencies(wavelength_sample, particle_size_sample, ratio_dict, theory = mixing_theory)
+            self.efficiencies(wavelength_sample, particle_size_sample, ratio_dict, theory = mixing_theory)
 
         # ==== Save training set =======================================================================================
 
