@@ -80,7 +80,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     ma = MieNet() # initialize MieNet
 
     # create particle size sample
-    particle_size_sample = np.logspace(particle_size_range[0], particle_size_range[1], radii_points) # radius sample, fixed grid
+    particle_size_sample = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points) # radius sample, fixed grid
 
     while ds.attrs['idx'] < set_size:
 
@@ -94,7 +94,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
             ratio_dict[item] = a0 + ratio_samples[0, i]
 
         # create wavelength sample
-        wavelength_sample = np.random.uniform(wavelength_range[0], wavelength_range[1], size = N)
+        wavelength_sample = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = N)
 
         # calculate outputs
         extinction, scattering, asymmetry = \
