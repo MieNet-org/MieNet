@@ -32,7 +32,7 @@ def get_models(data_location):
 
     return data_location
 
-def generate_training_set(self, file_name, species, wave_points, radii_points, wavelength_range, particle_size_range, mixing_theory = 'LLL'):
+def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory = 'LLL'):
     """
     Generate a neural network training set.
 
@@ -42,19 +42,17 @@ def generate_training_set(self, file_name, species, wave_points, radii_points, w
         Name for the training set file
     species : list[str]
         List of species to include in the training set
-    wave_points : int
-        Number of wavelength points
-    radii_points : int
-        Number of radii points
     wavelength_range : tuple
-        (wavelength_min, wavelength_max)
+        (wavelength_min, wavelength_max, number_of_wavelengths)
     particle_size_range : tuple
-        (particle_size_min, particle_size_max)
+        (particle_size_min, particle_size_max, number_of_particle_sizes)
     mixing_theory : str (optional)
         Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
     """
     # ==== Setup and Checks ============================================================================================
     store_path = self.model_path + file_name + '.nc'
+    wave_points = wavelength_sample[2] # number of wavelength points
+    radii_points = particle_size_sample[2] # number of particle size points
     set_size = wave_points * radii_points # total training set size
     num_params = 5 + (len(species) - 1) # number of parameters in training set
 
@@ -101,6 +99,8 @@ def generate_training_set(self, file_name, species, wave_points, radii_points, w
         # calculate outputs
         extinction, scattering, asymmetry = \
             ma.efficiencies(wavelength_sample, particle_size_sample, ratio_dict, theory = mixing_theory)
+
+        # ==== Save training set =======================================================================================
 
         # xarray inputs
         sol = np.zeros((radii_points, num_params))
