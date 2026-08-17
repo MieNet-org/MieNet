@@ -42,9 +42,9 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         Name for the training set file
     species : list[str]
         List of species to include in the training set
-    wavelength_range : tuple
+    wavelength_sample : tuple
         (wavelength_min, wavelength_max, number_of_wavelengths)
-    particle_size_range : tuple
+    particle_size_sample : tuple
         (particle_size_min, particle_size_max, number_of_particle_sizes)
     mixing_theory : str (optional)
         Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
@@ -78,7 +78,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
 
     # ==== Calculations ================================================================================================
    # create particle size sample
-    particle_size_sample = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points) # radius sample, fixed grid
+    particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points) # radius sample, fixed grid
 
     while ds.attrs['idx'] < set_size:
 
@@ -86,24 +86,24 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         alpha = [0.5] * len(species) # controls distribution
         N = 1 # size of wavelength and volume mixing ratios
         ratio_samples = np.random.dirichlet(alpha, size = N)
-        a0 = np.zeros(radii_points) # zero array so vmr and radius_sample are same length
+        a0 = np.zeros(radii_points) # zero array so vmr and radius_range are same length
         ratio_dict = {} # prepare vmr dictionary
         for i, item in enumerate(species):
             ratio_dict[item] = a0 + ratio_samples[0, i]
 
         # create wavelength sample
-        wavelength_sample = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = N)
+        wavelength_range = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = N)
 
         # calculate outputs
         extinction, scattering, asymmetry = \
-            self.efficiencies(wavelength_sample, particle_size_sample, ratio_dict, theory = mixing_theory)
+            self.efficiencies(wavelength_range, particle_size_range, ratio_dict, theory = mixing_theory)
 
         # ==== Save training set =======================================================================================
 
         # xarray inputs
         sol = np.zeros((radii_points, num_params))
-        sol[:, 0] = wavelength_sample
-        sol[:, 1] = particle_size_sample
+        sol[:, 0] = wavelength_range
+        sol[:, 1] = particle_size_range
         for i, item in enumerate(species[:-1]):
             sol[:, 2 + i] = a0 + ratio_samples[0, i]
         sol[:, -3] = extinction[:,0]
