@@ -8,6 +8,7 @@ import os
 import shutil
 import numpy as np
 import xarray as xr
+from .mienet import MieNet
 
 def get_models(data_location):
     '''
