@@ -8,6 +8,7 @@ import os
 import shutil
 import numpy as np
 import xarray as xr
+import matplotlib.pyplot as plt
 
 def get_models(data_location):
     '''
@@ -34,7 +35,11 @@ def get_models(data_location):
 
 def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory = 'LLL'):
     """
-    Generate a neural network training set.
+    Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be formatted as:
+    (wavelength, particle_size, vmr1, vmr2, ..., extinction, scattering, asymmetry).
+    The first use of this function will create the xarray dataset and start generating and saving the data. Further
+    uses of this function with the same input parameters will continue generating and saving data in the same xarray
+    dataset until the dataset is full.
 
     Parameters
     ----------
@@ -74,11 +79,12 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
 
     # check if training set is finished generating
     if ds.attrs['idx'] >= set_size:
-        raise ValueError('Training set generation is complete, no more space in training set:' + store_path)
+        raise ValueError('Training set generation is complete, no more space in training set:' + store_path +
+                         ' Please provide a new filename to generate more data.')
 
     # ==== Calculations ================================================================================================
-   # create particle size sample
-    particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points) # radius sample, fixed grid
+   # create particle size sample from a fixed grid
+    particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points)
 
     while ds.attrs['idx'] < set_size:
 
@@ -158,9 +164,9 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
 
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
     if os.path.exists(self.model_path + model_params['name'] + '.keras'):
-        raise ValueError('Model with this name already exists')
+        raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
     if 'layers' not in model_params:
-        raise ValueError('Number of hidden layers not specified')
+        raise ValueError('Number of hidden layers not specified.')
     if 'nodes' not in model_params:
         model_params['nodes'] = 100
     if 'activation_function' not in model_params:
@@ -211,9 +217,6 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
 
     # ==== PLOT LOSS AND ACCURACY ======================================================================================
     if plot_training == True:
-
-        # import matplotlib
-        import matplotlib.pyplot as plt
 
         # Allow plotting
         self.mute = False
