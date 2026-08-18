@@ -23,7 +23,7 @@ class MieNet:
 
     # ==== Import functions from sub-files ========================================================
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
-    from .model_handling import generate_training_set
+    from .model_handling import generate_training_set, train_ai_model
 
     def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model = 'all'):
         """

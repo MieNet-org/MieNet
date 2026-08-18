@@ -64,7 +64,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
                 'idx': range(set_size),
                 'dim': ['wavelength', 'particle_size'] + species[:-1] + ['extinction', 'scattering', 'asymmetry']
             },
-            attrs = {'idx': 0}
+            attrs = {'idx': 0, 'species': species}
         )
         ds.to_netcdf(store_path)
 
@@ -114,3 +114,136 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds['data'][ds.attrs['idx']:ds.attrs['idx'] + radii_points] = sol
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
+
+def train_ai_model(self, training_set, model_params, plot_training = False):
+    """
+    Train a neural network with TensorFlow.
+
+    Parameters
+    ----------
+    training_set : array_like
+        (Wavelength, Particle Size, VMR1, VMR2,..., Extinction, Scattering, Asymmetry)
+    model_params : dict
+        {'name': str(name to give to model),
+        'layers': int(number of hidden layers),
+        'nodes' (optional): int(number of nodes per hidden layer),
+        'activation_function' (optional): str(activation function),
+        'optimizer' (optional): str(optimizer),
+        'loss' (optional): str(loss function),
+        'metrics' (optional): str(metric function),
+        'batch_size' (optional): int(batch size),
+        'epochs' (optional): int(number of epochs),}
+    plot_training : boolean, optional
+        Whether or not to plot the training loss and accuracy
+    """
+    # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
+    from tensorflow import keras
+
+    # define number of inputs and set size
+    num_inputs = training_set.shape[1] - 3 # number of model inputs
+    set_size = training_set.shape[0]
+    N = int(0.9 * set_size)  # split into training and validation set
+
+    # training inputs and outputs
+    training_inputs = training_set[:N, :num_inputs]
+    training_extinction = training_set[:N, -3]
+    training_scattering = training_set[:N, -2]
+    training_asymmetry = training_set[:N, -1]
+
+    # validation inputs and outputs
+    validation_inputs = training_set[N:, :num_inputs]
+    validation_extinction = training_set[N:, -3]
+    validation_scattering = training_set[N:, -2]
+    validation_asymmetry = training_set[N:, -1]
+
+    # ==== DEFAULT MODEL PARAMETERS ====================================================================================
+    if os.path.exists(self.model_path + model_params['name'] + '.keras'):
+        raise ValueError('Model with this name already exists')
+    if 'layers' not in model_params:
+        raise ValueError('Number of hidden layers not specified')
+    if 'nodes' not in model_params:
+        model_params['nodes'] = 100
+    if 'activation_function' not in model_params:
+        model_params['activation_function'] = 'gelu'
+    if 'optimizer' not in model_params:
+        model_params['optimizer'] = 'adam'
+    if 'loss' not in model_params:
+        model_params['loss'] = 'mse'
+    if 'metrics' not in model_params:
+        model_params['metrics'] = 'mae'
+    if 'batch_size' not in model_params:
+        model_params['batch_size'] = 32
+    if 'epochs' not in model_params:
+        model_params['epochs'] = 10
+
+    # ==== DEFINE MODEL STRUCTURE ======================================================================================
+    # inputs
+    inputs = keras.Input(shape=(num_inputs,), name='inputs')
+
+    # layers
+    hidden = keras.layers.Dense(model_params['nodes'], activation = model_params['activation_function'])(inputs)
+    for i in range(model_params['layers'] - 1):
+        hidden = keras.layers.Dense(model_params['nodes'], activation = model_params['activation_function'])(hidden)
+
+    # outputs
+    output1 = keras.layers.Dense(1, name='extinction')(hidden)
+    output2 = keras.layers.Dense(1, name='scattering')(hidden)
+    output3 = keras.layers.Dense(1, name='asymmetry')(hidden)
+
+    # make model
+    model = keras.Model(inputs, outputs=[output1, output2, output3])
+
+    # ==== TRAIN AND SAVE MODEL ========================================================================================
+
+    # compile model for training
+    model.compile(optimizer = model_params['optimizer'],
+                  loss = [model_params['loss']] * 3,
+                  metrics = [model_params['metrics']] * 3)
+
+    # train model
+    history = model.fit(training_inputs, [training_extinction, training_scattering, training_asymmetry],
+                           validation_data = (validation_inputs,
+                                              [validation_extinction, validation_scattering, validation_asymmetry]),
+                           batch_size = model_params['batch_size'], epochs = model_params['epochs'])
+
+    # save model
+    model.save(self.model_path + model_params['name'] + '.keras')
+
+    # ==== PLOT LOSS AND ACCURACY ======================================================================================
+    if plot_training == True:
+
+        # import matplotlib
+        import matplotlib.pyplot as plt
+
+        # Allow plotting
+        self.mute = False
+
+        epoch = range(1, model_params['epochs'] + 1)
+
+        plt.figure()
+        plt.plot(epoch, history.history['extinction_mae'], label='Extinction', color='blue')
+        plt.plot(epoch, history.history['scattering_mae'], color='green', label='Scattering')
+        plt.plot(epoch, history.history['asymmetry_mae'], color='#57B9FF', label='Asymmetry')
+        plt.plot(epoch, history.history['val_extinction_mae'], label='Val. Extinction', alpha=0.5, color='blue')
+        plt.plot(epoch, history.history['val_scattering_mae'], label='Val. Scattering', color='green', alpha=0.5)
+        plt.plot(epoch, history.history['val_asymmetry_mae'], label='Val. Asymmetry', color='#57B9FF', alpha=0.5)
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title(f'Model {model_params['name']} Accuracy')
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+
+        plt.figure()
+        plt.plot(epoch, history.history['extinction_loss'], label='Extinction', color='blue')
+        plt.plot(epoch, history.history['scattering_loss'], color='green', label='Scattering')
+        plt.plot(epoch, history.history['asymmetry_loss'], color='#57B9FF', label='Asymmetry')
+        plt.plot(epoch, history.history['val_extinction_loss'], label='Val. Extinction', alpha=0.5, color='blue')
+        plt.plot(epoch, history.history['val_scattering_loss'], label='Val. Scattering', color='green', alpha=0.5)
+        plt.plot(epoch, history.history['val_asymmetry_loss'], label='Val. Asymmetry', color='#57B9FF', alpha=0.5)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title(f'Model {model_params['name']} Loss')
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
