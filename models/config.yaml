@@ -8,6 +8,8 @@ MODEL1:
     - 'Fe'
     - 'Mg2SiO4'
 
+  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+
   files:
     - 'vmodel100rad_logmodel1_low.keras'
     - 'vmodel100rad_logmodel1_mid.keras'
@@ -22,6 +24,8 @@ MODEL2:
     - 'TiO2'
     - 'Fe'
     - 'MgSiO3'
+
+  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
 
   files:
     - 'vmodelens_logmodel1_low.keras'
@@ -38,6 +42,8 @@ MODEL3:
     - 'MgSiO3'
     - 'Mg2SiO4'
 
+  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+
   files:
     - 'vmodelsil_logmodel1_low.keras'
     - 'vmodelsil_logmodel1_mid.keras'
@@ -52,6 +58,8 @@ MODEL4:
     - 'SiO2'
     - 'MgSiO3'
     - 'Fe'
+
+  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
 
   files:
     - 'vmodelmeteor_log_model2_low.keras'
