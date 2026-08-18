@@ -162,6 +162,23 @@ class MieNet:
             if isinstance(ratios, (float, int)):
                 volume_mixing_ratios[key] = np.array([ratios])
 
+        # check if wavelength and particle_size are in range
+        if min(wavelength) < model_dict['range']['wavelength'][0]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if max(wavelength) > model_dict['range']['wavelength'][1]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if min(particle_size) < model_dict['range']['particle_size'][0]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
+
+        if max(particle_size) > model_dict['range']['particle_size'][1]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
+
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
         final_particle_size = np.tile(particle_size, len(wavelength))
