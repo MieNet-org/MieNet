@@ -9,7 +9,7 @@ import miepython as mie
 from .grid import grid_efficiencies
 from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
 from .mixing_theory import mixing_theory
-from .data_handling import get_models
+from .model_handling import get_models
 from . import architecture_functions
 
 
@@ -23,6 +23,7 @@ class MieNet:
 
     # ==== Import functions from sub-files ========================================================
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
+    from .model_handling import generate_training_set, train_ai_model
 
     def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model = 'all'):
         """
@@ -160,6 +161,23 @@ class MieNet:
         for key, ratios in volume_mixing_ratios.items():
             if isinstance(ratios, (float, int)):
                 volume_mixing_ratios[key] = np.array([ratios])
+
+        # check if wavelength and particle_size are in range
+        if min(wavelength) < model_dict['range']['wavelength'][0]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if max(wavelength) > model_dict['range']['wavelength'][1]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if min(particle_size) < model_dict['range']['particle_size'][0]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
+
+        if max(particle_size) > model_dict['range']['particle_size'][1]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
 
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))

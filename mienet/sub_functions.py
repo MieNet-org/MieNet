@@ -171,6 +171,7 @@ def get_model_info(model_path):
         models_dict[model]['species'] = model_info['species']
         models_dict[model]['architecture'] = model_info['architecture']
         models_dict[model]['dependencies'] = model_info['dependencies']
+        models_dict[model]['range'] = model_info['range']
 
     return models_dict
 
