@@ -140,8 +140,8 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
     from tensorflow import keras
 
     # define number of inputs and set size
-    num_inputs = training_set.shape[1] - 3 # number of model inputs
-    set_size = training_set.shape[0]
+    num_inputs = int(training_set.shape[1] - 3) # number of model inputs
+    set_size = training_set.shape[0] # total dataset size
     N = int(0.9 * set_size)  # split into training and validation set
 
     # training inputs and outputs
