@@ -202,11 +202,25 @@ class MieNet:
         final_vmr = np.tile(vmr, (len(wavelength), 1))
 
         # ==== Prepare model ======================================================================
-        # stack inputs
-        inputs = np.stack((np.asarray(np.log10(final_wavelength)),
-                           np.asarray(np.log10(final_particle_size)),
-                           np.asarray(final_vmr[:,0]),
-                           np.asarray(final_vmr[:,1])), axis=1)
+        # define input array
+        num_inputs = 2 + (final_vmr.shape[1] - 1)
+        inputs = np.zeros((len(wavelength), num_inputs))
+
+        # assign wavelength input
+        if model_dict['scale']['wavelength'] == 'log':
+            inputs[:, 0] = np.log10(final_wavelength)
+        else:
+            inputs[:, 0] = final_wavelength
+
+        # assign particle size input
+        if model_dict['scale']['particle_size'] == 'log':
+            inputs[:, 1] = np.log10(final_particle_size)
+        else:
+            inputs[:, 1] = final_particle_size
+
+        # assign volume mixing ratio inputs
+        for material in range(final_vmr.shape[1] - 1):
+            inputs[:, 2 + material] = final_vmr[:, material]
 
         # prepare output
         extinction = np.zeros((len(inputs), 1))
@@ -226,9 +240,21 @@ class MieNet:
                 model_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
-        qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
-        qsca = 10**scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
+        ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
+        sca = scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
         asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size))).T
+
+        # check extinction scaling
+        if model_dict['scale']['extinction'] == 'log':
+            qext = 10**ext
+        else:
+            qext = ext
+
+        # check scattering scaling
+        if model_dict['scale']['scattering'] == 'log':
+            qsca = 10 ** sca
+        else:
+            qsca = sca
 
         return qext, qsca, asym
 

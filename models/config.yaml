@@ -8,7 +8,9 @@ MODEL1:
     - 'Fe'
     - 'Mg2SiO4'
 
-  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
     - 'vmodel100rad_logmodel1_low.keras'
@@ -25,7 +27,9 @@ MODEL2:
     - 'Fe'
     - 'MgSiO3'
 
-  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
     - 'vmodelens_logmodel1_low.keras'
@@ -42,7 +46,9 @@ MODEL3:
     - 'MgSiO3'
     - 'Mg2SiO4'
 
-  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
     - 'vmodelsil_logmodel1_low.keras'
@@ -59,7 +65,9 @@ MODEL4:
     - 'MgSiO3'
     - 'Fe'
 
-  range: {'wavelength': (0.001, 1000), 'particle_size': (0.000159, 159)}
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
     - 'vmodelmeteor_log_model2_low.keras'
