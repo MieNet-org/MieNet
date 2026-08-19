@@ -138,30 +138,14 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         'loss' (optional): str(loss function),
         'metrics' (optional): str(metric function),
         'batch_size' (optional): int(batch size),
-        'epochs' (optional): int(number of epochs),}
+        'epochs' (optional): int(number of epochs),
+        'log_wavelength' (optional): boolean, - True (default) trains model on log(wavelength)
+        'log_particle_size' (optional): boolean,
+        'log_extinction' (optional): boolean,
+        'log_scattering' (optional): boolean,}
     plot_training : boolean, optional
         Whether or not to plot the training loss and accuracy
     """
-    # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
-    from tensorflow import keras
-
-    # define number of inputs and set size
-    num_inputs = int(training_set.shape[1] - 3) # number of model inputs
-    set_size = training_set.shape[0] # total dataset size
-    N = int(0.9 * set_size)  # split into training and validation set
-
-    # training inputs and outputs
-    training_inputs = training_set[:N, :num_inputs]
-    training_extinction = training_set[:N, -3]
-    training_scattering = training_set[:N, -2]
-    training_asymmetry = training_set[:N, -1]
-
-    # validation inputs and outputs
-    validation_inputs = training_set[N:, :num_inputs]
-    validation_extinction = training_set[N:, -3]
-    validation_scattering = training_set[N:, -2]
-    validation_asymmetry = training_set[N:, -1]
-
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
     if os.path.exists(self.model_path + model_params['name'] + '.keras'):
         raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
@@ -181,6 +165,44 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         model_params['batch_size'] = 32
     if 'epochs' not in model_params:
         model_params['epochs'] = 10
+    if 'log_wavelength' not in model_params:
+        model_params['log_wavelength'] = True
+    if 'log_particle_size' not in model_params:
+        model_params['log_particle_size'] = True
+    if 'log_extinction' not in model_params:
+        model_params['log_extinction'] = True
+    if 'log_scattering' not in model_params:
+        model_params['log_scattering'] = True
+
+    # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
+    from tensorflow import keras
+
+    # check input and output scaling
+    if model_params['log_wavelength'] == True:
+        training_set[:, 0] = np.log10(training_set[:, 0])
+    if model_params['log_particle_size'] == True:
+        training_set[:, 1] = np.log10(training_set[:, 1])
+    if model_params['log_extinction'] == True:
+        training_set[:, -3] = np.log10(training_set[:, -3])
+    if model_params['log_scattering'] == True:
+        training_set[:, -2] = np.log10(training_set[:, -2])
+
+    # define number of inputs and set size
+    num_inputs = int(training_set.shape[1] - 3)  # number of model inputs
+    set_size = training_set.shape[0]  # total dataset size
+    N = int(0.9 * set_size)  # split into training and validation set
+
+    # training inputs and outputs
+    training_inputs = training_set[:N, :num_inputs]
+    training_extinction = training_set[:N, -3]
+    training_scattering = training_set[:N, -2]
+    training_asymmetry = training_set[:N, -1]
+
+    # validation inputs and outputs
+    validation_inputs = training_set[N:, :num_inputs]
+    validation_extinction = training_set[N:, -3]
+    validation_scattering = training_set[N:, -2]
+    validation_asymmetry = training_set[N:, -1]
 
     # ==== DEFINE MODEL STRUCTURE ======================================================================================
     # inputs
