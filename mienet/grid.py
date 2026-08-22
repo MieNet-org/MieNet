@@ -49,8 +49,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
         # open that dataset
         ds = grid[best_dataset[0]]['ds']
     else:
-        ds = xr.open_dataset(grid_file, engine="h5netcdf")
-        # ==== check data grid
+        # ==== check models grid
         ds = xr.open_dataset(grid_file, engine="h5netcdf")
         for specs in ds.attrs['species']:
             if specs not in volume_mixing_ratios:

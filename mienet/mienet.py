@@ -1,4 +1,4 @@
-""" MieAI class """
+""" MieNet class """
 # pylint: disable=C0415,R0902,R0912,R0914,R0915
 
 import os
@@ -6,14 +6,16 @@ import glob
 import numpy as np
 import miepython as mie
 
-from .sub_functions import read_in_refindex, calculate_subradii, get_model_info, initialize_ai_models
+from .grid import grid_efficiencies
+from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
 from .mixing_theory import mixing_theory
-from .data_handling import get_models
+from .model_handling import get_models
+from . import architecture_functions
 
 
-class Mieai:
+class MieNet:
     """
-    MieAI class to calcualte mie opacities using one of three methods:
+    MieNet class to calculate mie opacities using one of three methods:
     - efficiencies: Use LLL and miepython and perform full calcu
     - ai_efficiencies
     - grid_efficiencies
@@ -21,73 +23,60 @@ class Mieai:
 
     # ==== Import functions from sub-files ========================================================
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
+    from .model_handling import generate_training_set, train_ai_model
 
-    def __init__(self, use_ai=True, default_data_location=None, default_model_location=None, mute=True, load_ai_model = 'all'):
+    def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model = 'all'):
         """
         Constructor
 
         Parameters
         ----------
         use_ai : bool
-            If False, AI will be disabled. This allows to use MieAi without installing tensorflow.
+            If False, AI will be disabled. This allows to use MieNet without installing tensorflow.
         load_ai_model : str
             Which AI model to load. Defualt is 'all', which loads all models. User can input
             model names to load a specific model.
-        default_data_location : str, optional
-            Location of opacity data. If none, MieAi defaults are used.
+        default_model_location : str, optional
+            Location of opacity models. If none, MieNet defaults are used.
         mute : bool, optional
-            If True, MieAi will produce no diagnostic outputs and runs quietly.
+            If True, MieNet will produce no diagnostic outputs and runs quietly.
         """
 
         # ==== General preparations ===============================================================
-        # Load species data from files
+        # Load species models from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
-        # save ai initialisation state
+        # save ai initialization state
         self.use_ai = use_ai
         self.load_ai_model = load_ai_model
+        # save efficiency calc state
+        self.auto = False
         # save mute preference
         self.mute = mute
 
         # ==== Prepare Neural Network =============================================================
         if use_ai:
 
-            # model options
-            self.model_names = {
-                "MODEL1": ['TiO2', 'Fe', 'Mg2SiO4'],
-                "MODEL2": ['TiO2', 'Fe', 'MgSiO3'],
-                "MODEL3": ['SiO2', 'MgSiO3', 'Mg2SiO4'],
-                "MODEL4": ['SiO2', 'MgSiO3', 'Fe'],
-            }
-
             # models location
             if default_model_location is not None:
-                self.model_path = default_model_location + '/models/'
-            # default data location
+                self.model_path = default_model_location
+            # default models location
             else:
-                self.model_path = os.path.dirname(__file__) + '/models/'
+                self.model_path = os.path.join(os.path.dirname(__file__), '../models/')
 
             # only load models if the model files exist
             models = glob.glob(self.model_path + '*.keras')
             if models:
-
-                # load all models
-                if load_ai_model == 'all':
-                    self.low_waves, self.high_waves, self.low_models, self.mid_models, self.high_models \
-                        = initialize_ai_models(load_ai_model, self.model_names, self.model_path)
-
-                # load specified model
-                else:
-                    self.low_wave, self.high_wave, self.low_model, self.mid_model, self.high_model, self.best_model \
-                        = initialize_ai_models(load_ai_model, self.model_names, self.model_path)
+                # load models
+                self.models_dict = initialize_ai_models(load_ai_model, self.model_path)
 
         # ==== List of default datasets
-        # user input data location
-        if default_data_location is not None:
-            self.data_path = default_data_location
-        # default data location
+        # user input models location
+        if default_model_location is not None:
+            self.data_path = default_model_location
+        # default models location
         else:
-            self.data_path = os.path.dirname(__file__) + '/../data/'
+            self.data_path = os.path.join(os.path.dirname(__file__), '../models/')
 
         # ==== Load predetermined grid dataset
         # default datasets
@@ -123,17 +112,7 @@ class Mieai:
         if self.load_ai_model == 'all':
 
             # find all models that include all species
-            l_set = set(volume_mixing_ratios.keys())
-            valid_models = {
-                name: data for name, data in self.model_names.items()
-                if l_set.issubset(data)
-            }
-            # check if there are no matching models
-            if not valid_models:
-                raise ValueError("No network for " + str(l_set) + " is available.")
-
-            # Now pick the model with the smallest total size
-            best_model = min(valid_models.items(), key=lambda item: len(item[1]))
+            best_model = select_best_dataset('model', self.auto, volume_mixing_ratios, self.models_dict)
 
             # add zero array to vmr dictionary if using less than the total amount of species
             if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -142,30 +121,24 @@ class Mieai:
                     volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
 
             # get info for the model
-            low_wave = self.low_waves[best_model[0]]
-            high_wave = self.high_waves[best_model[0]]
-            low_model = self.low_models[best_model[0]]
-            mid_model = self.mid_models[best_model[0]]
-            high_model = self.high_models[best_model[0]]
+            model_dict = self.models_dict[best_model[0]]
 
         else:
+            # model info
+            best_model = [self.load_ai_model, self.models_dict['species']]
+
             # add zero array to vmr dictionary if using less than the total amount of species
-            if len(volume_mixing_ratios.keys()) != len(self.best_model[1]):
-                missing_species = [key for key in self.best_model[1] if key not in volume_mixing_ratios]
+            if len(volume_mixing_ratios.keys()) != len(best_model[1]):
+                missing_species = [key for key in best_model[1] if key not in volume_mixing_ratios]
                 for species in missing_species:
                     volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
 
             # check correct model is initialized for given volume mixing ratios
-            if sorted(self.best_model[1]) != sorted(volume_mixing_ratios.keys()):
+            if sorted(best_model[1]) != sorted(volume_mixing_ratios.keys()):
                 raise ValueError("Incorrect AI model initialized for this mixture")
 
             # get info for chosen model
-            best_model = self.best_model
-            low_wave = self.low_wave
-            high_wave = self.high_wave
-            low_model = self.low_model
-            mid_model = self.mid_model
-            high_model = self.high_model
+            model_dict = self.models_dict
 
         # ==== Input checks =======================================================================
 
@@ -188,6 +161,23 @@ class Mieai:
         for key, ratios in volume_mixing_ratios.items():
             if isinstance(ratios, (float, int)):
                 volume_mixing_ratios[key] = np.array([ratios])
+
+        # check if wavelength and particle_size are in range
+        if min(wavelength) < model_dict['range']['wavelength'][0]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if max(wavelength) > model_dict['range']['wavelength'][1]:
+            raise ValueError('Wavelengths requested are out of the model range:' \
+                             + model_dict['range']['wavelength'])
+
+        if min(particle_size) < model_dict['range']['particle_size'][0]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
+
+        if max(particle_size) > model_dict['range']['particle_size'][1]:
+            raise ValueError('Particle sizes requested are out of the model range:' \
+                             + model_dict['range']['particle_size'])
 
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
@@ -212,37 +202,67 @@ class Mieai:
         final_vmr = np.tile(vmr, (len(wavelength), 1))
 
         # ==== Prepare model ======================================================================
-        # stack inputs
-        inputs = np.stack((np.asarray(np.log10(final_wavelength)),
-                           np.asarray(np.log10(final_particle_size)),
-                           np.asarray(final_vmr[:,0]),
-                           np.asarray(final_vmr[:,1])), axis=1)
+        # define input array
+        num_inputs = 2 + (final_vmr.shape[1] - 1)
+        inputs = np.zeros((len(final_wavelength), num_inputs))
+
+        # assign wavelength input
+        if model_dict['scale']['wavelength'] == 'log':
+            inputs[:, 0] = np.log10(final_wavelength)
+        else:
+            inputs[:, 0] = final_wavelength
+
+        # assign particle size input
+        if model_dict['scale']['particle_size'] == 'log':
+            inputs[:, 1] = np.log10(final_particle_size)
+        else:
+            inputs[:, 1] = final_particle_size
+
+        # assign volume mixing ratio inputs
+        for material in range(final_vmr.shape[1] - 1):
+            inputs[:, 2 + material] = final_vmr[:, material]
 
         # prepare output
         extinction = np.zeros((len(inputs), 1))
         scattering = np.zeros((len(inputs), 1))
         asymmetry = np.zeros((len(inputs), 1))
 
-        # masks for each wavelength range
-        low_mask = inputs[:, 0] <= np.log10(low_wave)
-        mid_mask = ((inputs[:, 0] > np.log10(low_wave)) & (inputs[:, 0] < np.log10(high_wave)))
-        high_mask = inputs[:, 0] >= np.log10(high_wave)
+        # get architecture-dependent masks
+        arch = model_dict['architecture']
 
-        # predict coefficients for each wavelength range
-        if low_mask.any():
-            extinction[low_mask], scattering[low_mask], asymmetry[low_mask] \
-                = low_model.predict(inputs[low_mask])
-        if mid_mask.any():
-            extinction[mid_mask], scattering[mid_mask], asymmetry[mid_mask] \
-                = mid_model.predict(inputs[mid_mask])
-        if high_mask.any():
-            extinction[high_mask], scattering[high_mask], asymmetry[high_mask] \
-                = high_model.predict(inputs[high_mask])
+        # predict models if no masking required
+        if arch == 'one_network':
+            extinction, scattering, asymmetry = model_dict['models'][0].predict(inputs)
+
+        # get masks from arch function
+        else:
+            arch_func = getattr(architecture_functions, arch)
+
+            masks = arch_func(inputs, model_dict['dependencies'])
+
+            # predict outputs
+            for i, mask in enumerate(masks):
+                if mask.any():
+                    print(inputs.shape, inputs[mask].shape)
+                    extinction[mask], scattering[mask], asymmetry[mask] = \
+                    model_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
-        qext = 10**extinction[:, 0].reshape((len(wavelength), len(particle_size)))
-        qsca = 10**scattering[:, 0].reshape((len(wavelength), len(particle_size)))
-        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size)))
+        ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
+        sca = scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
+        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size))).T
+
+        # check extinction scaling
+        if model_dict['scale']['extinction'] == 'log':
+            qext = 10**ext
+        else:
+            qext = ext
+
+        # check scattering scaling
+        if model_dict['scale']['scattering'] == 'log':
+            qsca = 10 ** sca
+        else:
+            qsca = sca
 
         return qext, qsca, asym
 
@@ -318,7 +338,7 @@ class Mieai:
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 
-        # ==== Load data for each species from files and get refractive index =====================
+        # ==== Load models for each species from files and get refractive index =====================
         ref_index = read_in_refindex(species_list, wavelength, self.files)
 
         # ==== Combination of all wavelengths and particle size ===================================
@@ -356,19 +376,60 @@ class Mieai:
 
         return extinction, scattering, asymmetry
 
+    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
+        """
+        Calculate mie coefficients using mie fastest method available.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray or float of size N
+            Wavelength of the light [micron]
+        particle_size : np.ndarray or float of size M
+            Size of the cloud particle [micron]
+        volume_mixing_ratios : dict of np.ndarray or float of size M for each species
+            Fraction of each cloud material given as float or array
+        theory : str, optional
+            Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+
+        Return
+        ------
+        optical properties : np.ndarray of size (M, N)
+            extinction coefficient, scattering coefficient, and asymmetries parameter
+        """
+        auto = True
+
+        # check grids
+        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+
+        # use grid if it exists
+        if best_dataset[0] is not None:
+            extinction, scattering, asymmetry = grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+            return extinction, scattering, asymmetry
+
+        # check models if no grids
+        else:
+            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
+
+            # use model if it exists
+            if best_model[0] is not None:
+                extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+                return extinction, scattering, asymmetry
+
+            # use full calculations if no models or grids exist
+            else:
+                extinction, scattering, asymmetry = self.efficiencies(wavelength, particle_size, volume_mixing_ratios, theory)
+                return extinction, scattering, asymmetry
+
+
     def download_models(self):
         '''
-        Download MieAi models from Zenodo and load all models/specified model.
+        Download MieNet models from Zenodo and load all models/specified model.
         '''
-        # download models
-        get_models(self.model_path.removesuffix('/models/'))
+        # check if files already exsist
+        models = glob.glob(self.model_path + '*.keras')
+        if not models:
+            # download models
+            get_models(self.model_path)
 
-        # load models
-        if self.load_ai_model == 'all':
-            self.low_waves, self.high_waves, self.low_models, self.mid_models, self.high_models \
-                = initialize_ai_models(self.load_ai_model, self.model_names, self.model_path)
-
-        # load specified model
-        else:
-            self.low_wave, self.high_wave, self.low_model, self.mid_model, self.high_model, self.best_model \
-                = initialize_ai_models(self.load_ai_model, self.model_names, self.model_path)
+            # load models
+            self.models_dict = initialize_ai_models(self.load_ai_model, self.model_path)

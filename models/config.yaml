@@ -1,0 +1,75 @@
+MODEL1:
+
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'TiO2'
+    - 'Fe'
+    - 'Mg2SiO4'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
+
+  files:
+    - 'vmodel100rad_logmodel1_low.keras'
+    - 'vmodel100rad_logmodel1_mid.keras'
+    - 'vmodel100rad_logmodel1_high.keras'
+
+MODEL2:
+
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'TiO2'
+    - 'Fe'
+    - 'MgSiO3'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
+
+  files:
+    - 'vmodelens_logmodel1_low.keras'
+    - 'vmodelens_logmodel1_mid.keras'
+    - 'vmodelens_logmodel1_high.keras'
+
+MODEL3:
+
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+    - 'Mg2SiO4'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
+
+  files:
+    - 'vmodelsil_logmodel1_low.keras'
+    - 'vmodelsil_logmodel1_mid.keras'
+    - 'vmodelsil_logmodel1_high.keras'
+
+MODEL4:
+
+  architecture: 'three_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100}
+
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+    - 'Fe'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
+
+  files:
+    - 'vmodelmeteor_log_model2_low.keras'
+    - 'vmodelmeteor_log_model2_mid.keras'
+    - 'vmodelmeteor_log_model2_high.keras'
