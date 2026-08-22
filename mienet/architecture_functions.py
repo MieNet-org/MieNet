@@ -3,27 +3,6 @@
 
 import numpy as np
 
-def one_network(inputs, dependencies):
-    '''
-    Predict outputs with one ANN and no input dependent masks.
-
-    Parameters
-    ----------
-    inputs: np.array with shape: (num_parameters, data_length)
-        num_parameters: number of parameters (contains wavelength, radius, and VMRs)
-        data_length: number of data points
-    dependencies: Dictionary
-        Empty (no dependencies for this case)
-
-    Returns
-    ----------
-    mask: mask for model inputs
-    '''
-    mask = inputs[:,0] == inputs[:,0]
-
-    return mask
-
-
 def three_network(inputs, dependencies):
     '''
     Predict outputs with three ANNs using two wavelength cutoffs.

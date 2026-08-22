@@ -204,7 +204,7 @@ class MieNet:
         # ==== Prepare model ======================================================================
         # define input array
         num_inputs = 2 + (final_vmr.shape[1] - 1)
-        inputs = np.zeros((len(wavelength), num_inputs))
+        inputs = np.zeros((len(final_wavelength), num_inputs))
 
         # assign wavelength input
         if model_dict['scale']['wavelength'] == 'log':
@@ -229,15 +229,23 @@ class MieNet:
 
         # get architecture-dependent masks
         arch = model_dict['architecture']
-        arch_func = getattr(architecture_functions, arch)
 
-        masks = arch_func(inputs, model_dict['dependencies'])
+        # predict models if no masking required
+        if arch == 'one_network':
+            extinction, scattering, asymmetry = model_dict['models'][0].predict(inputs)
 
-        # predict outputs
-        for i, mask in enumerate(masks):
-            if mask.any():
-                extinction[mask], scattering[mask], asymmetry[mask] = \
-                model_dict['models'][i].predict(inputs[mask])
+        # get masks from arch function
+        else:
+            arch_func = getattr(architecture_functions, arch)
+
+            masks = arch_func(inputs, model_dict['dependencies'])
+
+            # predict outputs
+            for i, mask in enumerate(masks):
+                if mask.any():
+                    print(inputs.shape, inputs[mask].shape)
+                    extinction[mask], scattering[mask], asymmetry[mask] = \
+                    model_dict['models'][i].predict(inputs[mask])
 
         # reshape outputs
         ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
