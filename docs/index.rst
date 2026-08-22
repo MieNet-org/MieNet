@@ -38,7 +38,6 @@ Also consider citing the softwares MieNet is based on:
    :caption: Contents
 
    Install_And_Quick_Start.ipynb
-   Tutorial.ipynb
-   API.ipynb
+   Tutorials.ipynb
 
 
