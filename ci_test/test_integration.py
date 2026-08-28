@@ -6,12 +6,37 @@ import numpy as np
 
 from mienet import MieNet
 
+def test_full():
+    ma = MieNet(use_ai=False)
+
+    # ==== Test same particle size input
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.asarray([1]),
+        {
+            'TiO2': np.linspace(0, 1, 1),
+            'Fe': np.linspace(1, 0, 1),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 17.910632064187162)
+    assert np.isclose(np.sum(scattering), 14.70757922824962)
+    assert np.isclose(np.sum(asymmetry), 2.8180171560812473)
+
+    # ==== Test auto call
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
+        {
+            'TiO2': np.linspace(0, 1, 8),
+            'Fe': np.linspace(1, 0, 8),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 0.22395971588655875)
+    assert np.isclose(np.sum(scattering), 0.03450202166172343)
+    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
 
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
     ma = MieNet(default_model_location=loc)
-    test_vars = ['qext', 'qsca', 'asym', 'wavelength']
 
     # ==== Standard Ai run
     extinction, scattering, asymmetry = ma.ai_efficiencies(
@@ -53,13 +78,13 @@ def test_ai():
     extinction, scattering, asymmetry = ma.auto_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
         {
-            'TiO2': np.linspace(0, 1, 8),
+            'Mg2SiO4': np.linspace(0, 1, 8),
             'Fe': np.linspace(1, 0, 8),
         }
     )
-    assert np.isclose(np.sum(extinction), 0.22395971588655875)
-    assert np.isclose(np.sum(scattering), 0.03450202166172343)
-    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
+    assert np.isclose(np.sum(extinction), 37.19869)
+    assert np.isclose(np.sum(scattering), 12.870874)
+    assert np.isclose(np.sum(asymmetry), -23.71189)
 
     # ==== Test wrong model load
     testcase = unittest.TestCase()
@@ -99,6 +124,15 @@ def test_grid():
 
     # === use grid evaluation
     extinction, scattering, asymmetry = ma.grid_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+        {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
+    )
+    assert np.isclose(np.sum(extinction), 134.5516828568501)
+    assert np.isclose(np.sum(scattering), 109.84721926458762)
+    assert np.isclose(np.sum(asymmetry), 45.54068444245176)
+
+    # === use auto evaluation
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
         {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
     )

@@ -6,7 +6,6 @@ import glob
 import numpy as np
 import miepython as mie
 
-from .grid import grid_efficiencies
 from .sub_functions import (read_in_refindex, calculate_subradii, initialize_ai_models,
                             select_best_dataset, input_check)
 from .mixing_theory import mixing_theory
@@ -320,27 +319,24 @@ class MieNet:
         """
         auto = True
 
-        # check models
-        best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
-
-        # use model if it exists
-        if best_model[0] is not None:
-            extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
-            return extinction, scattering, asymmetry
-
-        # check grids if no models
-        else:
-            best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+        if self.use_ai:
+            # check models
+            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
 
             # use model if it exists
-            if best_dataset[0] is not None:
-                extinction, scattering, asymmetry = grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+            if best_model[0] is not None:
+                extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
                 return extinction, scattering, asymmetry
 
-            # use full calculations if no models or grids exist
-            else:
-                extinction, scattering, asymmetry = self.efficiencies(wavelength, particle_size, volume_mixing_ratios, theory)
-                return extinction, scattering, asymmetry
+        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+
+        # use model if it exists
+        if best_dataset[0] is not None:
+            extinction, scattering, asymmetry = self.grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+            return extinction, scattering, asymmetry
+
+        extinction, scattering, asymmetry = self.efficiencies(wavelength, particle_size, volume_mixing_ratios, theory)
+        return extinction, scattering, asymmetry
 
 
     def download_models(self):

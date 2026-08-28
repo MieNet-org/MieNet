@@ -304,6 +304,14 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     This function assures that all inputs are in the correct format.
     """
 
+    # there must be the same number of VMRs for each species
+    if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not mute:
+        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
+    # each particle size needs a VMR
+    if len(particle_size) != len(volume_mixing_ratios[next(iter(volume_mixing_ratios))]):
+        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
+                         'same shape')
+
     # check inputs are correct type
     if (not isinstance(wavelength, np.ndarray)
             and not isinstance(wavelength, (float, int))):
@@ -328,14 +336,6 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     vmr = np.zeros((len(particle_size), len(species_list)))
     for s, spec in enumerate(species_list):
         vmr[:, s] = volume_mixing_ratios[spec]
-
-    # there must be the same number of VMRs for each species
-    if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not mute:
-        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
-    # each particle size needs a VMR
-    if len(particle_size) != len(vmr):
-        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
-                         'same shape')
 
     # Check if all VMRs add up to 1 and normalise if necessary
     vmr_sum = np.sum(vmr, axis=1)
