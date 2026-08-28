@@ -1,4 +1,4 @@
-![codecov](https://codecov.io/gh/d-attaway/mieai/graph/badge.svg?token=TJK7ELIKE5)
+![codecov](https://codecov.io/gh/d-attaway/MieNet/graph/badge.svg?token=TJK7ELIKE5)](https://codecov.io/gh/d-attaway/MieNet)
 ![pylint](https://github.com/d-attaway/mieai/blob/documentation/.github/pylint.svg)
 ![python](https://github.com/d-attaway/mieai/blob/documentation/.github/python.svg)
 
