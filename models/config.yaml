@@ -1,7 +1,7 @@
-MODEL1:
+FORS_BROWN_DWARF:
 
-  architecture: 'three_network'
-  dependencies: {'low_wave': 1, 'high_wave': 100}
+  architecture: 'six_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
     - 'TiO2'
@@ -13,14 +13,17 @@ MODEL1:
   scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
-    - 'vmodel100rad_logmodel1_low.keras'
-    - 'vmodel100rad_logmodel1_mid.keras'
-    - 'vmodel100rad_logmodel1_high.keras'
+    - 'vmodel100rad_logmodel4_1A.keras'
+    - 'vmodel100rad_logmodel4_1B.keras'
+    - 'vmodel100rad_logmodel4_1C.keras'
+    - 'vmodel100rad_logmodel4_2A.keras'
+    - 'vmodel100rad_logmodel4_2B.keras'
+    - 'vmodel100rad_logmodel4_2C.keras'
 
-MODEL2:
+ENS_BROWN_DWARF:
 
-  architecture: 'three_network'
-  dependencies: {'low_wave': 1, 'high_wave': 100}
+  architecture: 'six_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
     - 'TiO2'
@@ -32,14 +35,17 @@ MODEL2:
   scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
-    - 'vmodelens_logmodel1_low.keras'
-    - 'vmodelens_logmodel1_mid.keras'
-    - 'vmodelens_logmodel1_high.keras'
+    - 'vmodelens_logmodel2_1A.keras'
+    - 'vmodelens_logmodel2_1B.keras'
+    - 'vmodelens_logmodel2_1C.keras'
+    - 'vmodelens_logmodel2_2A.keras'
+    - 'vmodelens_logmodel2_2B.keras'
+    - 'vmodelens_logmodel2_2C.keras'
 
-MODEL3:
+SILICATES:
 
-  architecture: 'three_network'
-  dependencies: {'low_wave': 1, 'high_wave': 100}
+  architecture: 'six_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
     - 'SiO2'
@@ -51,14 +57,17 @@ MODEL3:
   scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
-    - 'vmodelsil_logmodel1_low.keras'
-    - 'vmodelsil_logmodel1_mid.keras'
-    - 'vmodelsil_logmodel1_high.keras'
+    - 'vmodelsil_logmodel2_1A.keras'
+    - 'vmodelsil_logmodel2_1B.keras'
+    - 'vmodelsil_logmodel2_1C.keras'
+    - 'vmodelsil_logmodel2_2A.keras'
+    - 'vmodelsil_logmodel2_2B.keras'
+    - 'vmodelsil_logmodel2_2C.keras'
 
-MODEL4:
+METEORITE:
 
-  architecture: 'three_network'
-  dependencies: {'low_wave': 1, 'high_wave': 100}
+  architecture: 'six_network'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
     - 'SiO2'
@@ -70,6 +79,9 @@ MODEL4:
   scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
   files:
-    - 'vmodelmeteor_log_model2_low.keras'
-    - 'vmodelmeteor_log_model2_mid.keras'
-    - 'vmodelmeteor_log_model2_high.keras'
+    - 'vmodelmeteor_log_model16_1A.keras'
+    - 'vmodelmeteor_log_model16_1B.keras'
+    - 'vmodelmeteor_log_model16_1C.keras'
+    - 'vmodelmeteor_log_model16_2A.keras'
+    - 'vmodelmeteor_log_model16_2B.keras'
+    - 'vmodelmeteor_log_model16_2C.keras'
