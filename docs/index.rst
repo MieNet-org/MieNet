@@ -6,8 +6,8 @@ Welcome to MieNet
 =================
 
 .. image:: !! ADD Code Cove link !!
-.. image:: https://raw.githubusercontent.com/d-attaway/mieai/refs/heads/main/.github/workflows/pylint.svg
-.. image:: https://raw.githubusercontent.com/d-attaway/mieai/refs/heads/main/.github/workflows/python.svg
+.. image:: https://raw.githubusercontent.com/d-attaway/MieNet/refs/heads/main/.github/workflows/pylint.svg
+.. image:: https://raw.githubusercontent.com/d-attaway/MieNet/refs/heads/main/.github/workflows/python.svg
 
 MieNet is a software package to calculate the opacities of heterogeneous cloud particles. To accelerate the otherwise slow calculations, it provides three methods:
 
