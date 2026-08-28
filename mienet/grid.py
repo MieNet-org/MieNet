@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
 
-from .sub_functions import select_best_dataset
+from .sub_functions import select_best_dataset, input_check
 
-def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
+def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None):
     """
     Approximate mie coefficients using mie python and LLL Approximation read in from
     the grid_file.
@@ -23,7 +23,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     volume_mixing_ratios : dict of np.ndarray or float of size M for each species
         Fraction of each cloud material given as float or array
     theory : str, optional
-        Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+        If a mixing theory is given here, it will be checked that the grid has the same theory.
 
     Return
     ------
@@ -31,11 +31,26 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
         extinction coefficient, scattering coefficient, and asymmetries parameter
     """
 
+    # ==== check input
+    species = list(volume_mixing_ratios.keys())
+
+    # check input validity
+    wavelength, particle_size, vmr = input_check(
+        wavelength, particle_size, volume_mixing_ratios, species, self.mute
+    )
+
     # ==== Load grid
     best_dataset = select_best_dataset('grid', False, volume_mixing_ratios, self.default_grids)
     if best_dataset[0] is None:
         raise ValueError('[ERROR] No grid available for your species.')
     ds = self.default_grids[best_dataset[0]]['ds']
+
+    # ==== Check mixing theory if necessary
+    if theory is not None:
+        if ds.attrs['theory'] != theory:
+            raise ValueError('[ERROR] Mixing theory dose not match.\n'
+                             '-> Selected: ' + theory + '\n'
+                             '-> Data set: ' + ds.attrs['theory'])
 
     # ==== read out data
     # define arguments for interpolation from xarray
@@ -49,13 +64,12 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
         # skip implicit species
         if spec == ds.attrs['implicit_species']: continue
         # if the species is given, use the vmr
-        if spec in volume_mixing_ratios:
+        if spec in species:
             # add non-implicit species
-            args['VMR_' + spec] = ("points", volume_mixing_ratios[spec])
+            args['VMR_' + spec] = ("points", vmr[:, species.index(spec)])
         # if the species is not given, set it to 0
         else:
             args['VMR_' + spec] = ("points", np.zeros(len(particle_size)))
-
 
     # interpolate from xarray
     extinction = np.nan_to_num(ds['qext'].interp(**args))
@@ -177,6 +191,8 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         attrs={
             'species': species,
             'implicit_species': species[-1],
+            'theory': theory,
+            'date_created': str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         }
     )
 

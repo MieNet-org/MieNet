@@ -298,3 +298,52 @@ def select_best_dataset(type, auto, vmrs, datasets):
             best_dataset = (None, None)
 
     return best_dataset
+
+def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
+    """
+    This function assures that all inputs are in the correct format.
+    """
+
+    # check inputs are correct type
+    if (not isinstance(wavelength, np.ndarray)
+            and not isinstance(wavelength, (float, int))):
+        raise ValueError('[ERROR] Wavelength must be of type np.ndarray or float')
+    if (not isinstance(particle_size, np.ndarray)
+            and not isinstance(particle_size, (float, int))):
+        raise ValueError('[ERROR] Particle size must be of type np.ndarray or float')
+    if (not isinstance(volume_mixing_ratios, dict)
+            and not isinstance(volume_mixing_ratios, (float, int))):
+        raise ValueError('[ERROR] Volume mixing ratio must be of type dict or float')
+
+    # convert floats to arrays
+    if isinstance(wavelength, (float, int)):
+        wavelength = np.array([wavelength])
+    if isinstance(particle_size, (float, int)):
+        particle_size = np.array([particle_size])
+    for key, ratios in volume_mixing_ratios.items():
+        if isinstance(ratios, (float, int)):
+            volume_mixing_ratios[key] = np.array([ratios])
+
+    # create array with vmr values
+    vmr = np.zeros((len(particle_size), len(species_list)))
+    for s, spec in enumerate(species_list):
+        vmr[:, s] = volume_mixing_ratios[spec]
+
+    # there must be the same number of VMRs for each species
+    if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not mute:
+        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
+    # each particle size needs a VMR
+    if len(particle_size) != len(vmr):
+        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
+                         'same shape')
+
+    # Check if all VMRs add up to 1 and normalise if necessary
+    vmr_sum = np.sum(vmr, axis=1)
+    if any(vmr_sum != 1) and not mute:
+        print('[WARN] Volume mixing ratios do not add up to 1. '
+              'The ratios have been renormalized.')
+    idx = np.asarray(np.where(vmr_sum != 1))
+    for i in idx[0]:
+        vmr[i] = vmr[i] / sum(vmr[i])
+
+    return wavelength, particle_size, vmr

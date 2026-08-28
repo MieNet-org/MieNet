@@ -85,8 +85,6 @@ def test_grid():
     )
     expected_vals = [317.19851769, 263.92740723, 104.12352316, 27.14984254]
     for t, test in enumerate(test_vars):
-        print(np.sum(ds[test]))
-        continue
         assert np.isclose(np.sum(ds[test]), expected_vals[t])
 
     # ==== read in grid
@@ -108,11 +106,28 @@ def test_grid():
     assert np.isclose(np.sum(scattering), 109.84721926458762)
     assert np.isclose(np.sum(asymmetry), 45.54068444245176)
 
+    # === use with less species than grid
+    extinction, scattering, asymmetry = ma.grid_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+        {'SiO2': np.linspace(0, 1, 8)}
+    )
+    assert np.isclose(np.sum(extinction), 118.03743267969153)
+    assert np.isclose(np.sum(scattering), 106.39411449611903)
+    assert np.isclose(np.sum(asymmetry), 47.528850364238835)
+
     # ==== request species that are not available
     with testcase.assertRaises(ValueError):
-        extinction, scattering, asymmetry = ma.grid_efficiencies(
+        _, _, _ = ma.grid_efficiencies(
             np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
             {'Not': np.linspace(0, 1, 8), 'Exist': np.linspace(1, 0, 8)},
+        )
+    
+    # ==== Mismatch between dataset and request
+    with testcase.assertRaises(ValueError):
+        _, _, _ = ma.grid_efficiencies(
+            np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+            {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)},
+            theory='NON-EXISTING'
         )
 
     # ==== finish up

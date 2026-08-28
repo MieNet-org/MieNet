@@ -7,7 +7,8 @@ import numpy as np
 import miepython as mie
 
 from .grid import grid_efficiencies
-from .sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models, select_best_dataset
+from .sub_functions import (read_in_refindex, calculate_subradii, initialize_ai_models,
+                            select_best_dataset, input_check)
 from .mixing_theory import mixing_theory
 from .model_handling import get_models
 from . import architecture_functions
@@ -128,26 +129,9 @@ class MieNet:
         model_dict = self.models_dict[best_model[0]]
 
         # ==== Input checks =======================================================================
-
-        # check inputs are correct type
-        if (not isinstance(wavelength, np.ndarray)
-                and not isinstance(wavelength, (float, int))):
-            print('Wavelength must be of type np.ndarray or float')
-        if (not isinstance(particle_size, np.ndarray)
-                and not isinstance(particle_size, (float, int))):
-            print('Particle size must be of type np.ndarray or float')
-        if (not isinstance(volume_mixing_ratios, dict)
-                and not isinstance(volume_mixing_ratios, (float, int))):
-            print('Volume mixing ratio must be of type dict or float')
-
-        # convert floats to arrays
-        if isinstance(wavelength, (float, int)):
-            wavelength = np.array([wavelength])
-        if isinstance(particle_size, (float, int)):
-            particle_size = np.array([particle_size])
-        for key, ratios in volume_mixing_ratios.items():
-            if isinstance(ratios, (float, int)):
-                volume_mixing_ratios[key] = np.array([ratios])
+        wavelength, particle_size, vmr = input_check(
+            wavelength, particle_size, volume_mixing_ratios, best_model[1], self.mute
+        )
 
         # check if wavelength and particle_size are in range
         if min(wavelength) < model_dict['range']['wavelength'][0]:
@@ -169,20 +153,6 @@ class MieNet:
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
         final_particle_size = np.tile(particle_size, len(wavelength))
-
-        # reorder volume mixing ratios and turn into array
-        vmr_arr = {key: volume_mixing_ratios[key] for key in best_model[1]}
-        vmr = np.array(list(vmr_arr.values())).T
-
-        if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not self.mute:
-            print('Volume mixing ratios must have same shape')
-
-        vmr_sum = np.sum(vmr, axis=1)
-        if any(vmr_sum != 1) and not self.mute:
-            print('Volume mixing ratios do not add up to 1. The ratios have been renormalized.')
-        idx = np.asarray(np.where(vmr_sum != 1))
-        for i in idx[0]:
-            vmr[i] = vmr[i] / sum(vmr[i])
 
         # make volume mixing ratios have the same dimensions as final wavelength & final
         # particle size
@@ -274,28 +244,6 @@ class MieNet:
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
         # ==== Prepare inputs =====================================================================
-
-        # check inputs are correct type
-        if not self.mute:
-            if (not isinstance(wavelength, np.ndarray)
-                    and not isinstance(wavelength, (float, int))):
-                print('Wavelength must be of type np.ndarray or float')
-            if (not isinstance(particle_size, np.ndarray)
-                    and not isinstance(particle_size, (float, int))):
-                print('Particle size must be of type np.ndarray or float')
-            if (not isinstance(volume_mixing_ratios, dict)
-                    and not isinstance(volume_mixing_ratios, (float, int))):
-                print('Volume mixing ratio must be of type dict or float')
-
-        # convert floats to arrays
-        if isinstance(wavelength, (float, int)):
-            wavelength = np.array([wavelength])
-        if isinstance(particle_size, (float, int)):
-            particle_size = np.array([particle_size])
-        for key, ratios in volume_mixing_ratios.items():
-            if isinstance(ratios, (float, int)):
-                volume_mixing_ratios[key] = np.array([ratios])
-
         # define species list according to entries in vmr
         species_list = list(volume_mixing_ratios.keys())
 
@@ -304,23 +252,10 @@ class MieNet:
             if spec not in self.available_species:
                 raise ValueError("The species " + spec + " is not available")
 
-        # create array with vmr values
-        vmr = np.zeros((len(particle_size), len(species_list)))
-        for s, spec in enumerate(species_list):
-            vmr[:, s] = volume_mixing_ratios[spec]
-
-        # check vmr is the correct input shape
-        if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not self.mute:
-            print('Volume mixing ratios must have same shape')
-        if len(particle_size) != len(vmr):
-            print('Particle size and volume mixing ratio must have same shape')
-
-        vmr_sum = np.sum(vmr, axis=1)
-        if any(vmr_sum != 1) and not self.mute:
-            print('Volume mixing ratios do not add up to 1. The ratios have been renormalized.')
-        idx = np.asarray(np.where(vmr_sum != 1))
-        for i in idx[0]:
-            vmr[i] = vmr[i] / sum(vmr[i])
+        # check input validity
+        wavelength, particle_size, vmr = input_check(
+            wavelength, particle_size, volume_mixing_ratios, species_list, self.mute
+        )
 
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
