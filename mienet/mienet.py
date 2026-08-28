@@ -390,21 +390,21 @@ class MieNet:
         """
         auto = True
 
-        # check grids
-        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+        # check models
+        best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
 
-        # use grid if it exists
-        if best_dataset[0] is not None:
-            extinction, scattering, asymmetry = grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+        # use model if it exists
+        if best_model[0] is not None:
+            extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
             return extinction, scattering, asymmetry
 
-        # check models if no grids
+        # check grids if no models
         else:
-            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
+            best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
 
             # use model if it exists
-            if best_model[0] is not None:
-                extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+            if best_dataset[0] is not None:
+                extinction, scattering, asymmetry = grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
                 return extinction, scattering, asymmetry
 
             # use full calculations if no models or grids exist
