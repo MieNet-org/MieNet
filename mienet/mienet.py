@@ -112,7 +112,7 @@ class MieNet:
         # check correct model is initialized if using specific model
         if self.load_ai_model != 'all':
 
-            if sorted(self.models_dict['species']) != sorted(volume_mixing_ratios.keys()):
+            if sorted(self.models_dict[self.load_ai_model]['species']) != sorted(volume_mixing_ratios.keys()):
                 raise ValueError("Incorrect AI model initialized for this mixture")
 
         # find all models that include all species
