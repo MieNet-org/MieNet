@@ -109,12 +109,6 @@ class MieNet:
         if not self.use_ai:
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
-        # check correct model is initialized if using specific model
-        if self.load_ai_model != 'all':
-
-            if sorted(self.models_dict[self.load_ai_model]['species']) != sorted(volume_mixing_ratios.keys()):
-                raise ValueError("Incorrect AI model initialized for this mixture")
-
         # find all models that include all species
         best_model = select_best_dataset('model', self.auto, volume_mixing_ratios, self.models_dict)
 
@@ -123,6 +117,12 @@ class MieNet:
             missing_species = [key for key in best_model[1] if key not in volume_mixing_ratios]
             for species in missing_species:
                 volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
+
+        # check correct model is initialized if using specific model
+        if self.load_ai_model != 'all':
+
+            if sorted(self.models_dict[self.load_ai_model]['species']) != sorted(volume_mixing_ratios.keys()):
+                raise ValueError("Incorrect AI model initialized for this mixture")
 
         # get info for the model
         model_dict = self.models_dict[best_model[0]]
