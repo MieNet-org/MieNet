@@ -241,9 +241,9 @@ def initialize_ai_models(load_ai_model, model_path):
 
         models_dict['models'] = model_list
 
-        print(f'[INFO] Loaded {load_ai_model} model for', models_dict[load_ai_model]['species'],
-              f'from {models_dict[load_ai_model]['range']['wavelength'][0]} to '
-              f'{models_dict[load_ai_model]['range']['wavelength'][1]} micron.')
+        print(f'[INFO] Loaded {load_ai_model} model for', models_dict['species'],
+              f'from {models_dict['range']['wavelength'][0]} to '
+              f'{models_dict['range']['wavelength'][1]} micron.')
 
     return models_dict
 
