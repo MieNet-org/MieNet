@@ -231,11 +231,11 @@ def initialize_ai_models(load_ai_model, model_path):
                              '" is not in the config.yaml file.')
 
         # save only desired mixture in the models dictionary
-        models_dict = models_dict[load_ai_model]
+        models_dict = {load_ai_model: models_dict[load_ai_model]}
 
-        model_list = np.empty(len(models_dict['files']), dtype = object)
+        model_list = np.empty(len(models_dict[load_ai_model]['files']), dtype = object)
 
-        for i, file in enumerate(models_dict['files']):
+        for i, file in enumerate(models_dict[load_ai_model]['files']):
 
             # load files
             if os.path.isfile(os.path.join(model_path + file)):
@@ -244,11 +244,11 @@ def initialize_ai_models(load_ai_model, model_path):
             else:
                 raise ValueError(f'Model files for mixture {load_ai_model} not found.')
 
-        models_dict['models'] = model_list
+        models_dict[load_ai_model]['models'] = model_list
 
-        print(f'[INFO] Loaded {load_ai_model} model for', models_dict['species'],
-              f'from {models_dict['range']['wavelength'][0]} to '
-              f'{models_dict['range']['wavelength'][1]} micron.')
+        print(f'[INFO] Loaded {load_ai_model} model for', models_dict[load_ai_model]['species'],
+              f'from {models_dict[load_ai_model]['range']['wavelength'][0]} to '
+              f'{models_dict[load_ai_model]['range']['wavelength'][1]} micron.')
 
     return models_dict
 
