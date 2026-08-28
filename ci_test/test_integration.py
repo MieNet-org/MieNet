@@ -49,15 +49,15 @@ def test_ai():
     assert np.isclose(np.sum(scattering), 0.04487792)
     assert np.isclose(np.sum(asymmetry), -0.3625094)
 
-    # # ==== Test wrong model load
-    # testcase = unittest.TestCase()
-    # with testcase.assertRaises(ValueError):
-    #     ma = MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
-    #
-    # # ==== Test non-initialisation error
-    # with testcase.assertRaises(ValueError):
-    #     ma = MieNet(use_ai=False)
-    #     _, _, _ = ma.ai_efficiencies(None, None, None)
+    # ==== Test wrong model load
+    testcase = unittest.TestCase()
+    with testcase.assertRaises(ValueError):
+        ma = MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
+
+    # ==== Test non-initialisation error
+    with testcase.assertRaises(ValueError):
+        ma = MieNet(use_ai=False)
+        _, _, _ = ma.ai_efficiencies(None, None, None)
 
 
 def test_grid():
