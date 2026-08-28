@@ -4,7 +4,7 @@
 
 MieNet
 =====
-MieNet is a Python package for fast opacity calculations of well-mixed cloud particles. Given the wavelength of incoming light, cloud particle size, and the cloud materials with their respective volume mixing ratios, MieAi determines the extinction, scattering, and asymmetry parameters using either full calculations, grid interpolations, or artificial neural network (ANN) predictions. 
+MieNet is a Python package for fast opacity calculations of well-mixed cloud particles. Given the wavelength of incoming light, cloud particle size, and the cloud materials with their respective volume mixing ratios, MieNet determines the extinction, scattering, and asymmetry parameters using either full calculations, grid interpolations, or artificial neural network (ANN) predictions. 
 
 Credit
 ------

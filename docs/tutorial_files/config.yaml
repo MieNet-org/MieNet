@@ -1,0 +1,15 @@
+TUTORIAL_MODEL:
+
+  architecture: 'one_network'
+  dependencies: {}
+
+  species:
+    - 'Fe'
+    - 'Mg2SiO4'
+
+  range: {'wavelength': [0.01, 50], 'particle_size': [0.001, 0.01]}
+
+  scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
+
+  files:
+    - 'tutorial_model.keras'
