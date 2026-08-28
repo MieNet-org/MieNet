@@ -1,17 +1,43 @@
 """ Integration tests """
 import os
 import unittest
-
 import numpy as np
 
 from mienet import MieNet
 
+testcase = unittest.TestCase()
+
+def test_full():
+    ma = MieNet(use_ai=False)
+
+    # ==== Test same particle size input
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.asarray([1]),
+        {
+            'TiO2': np.linspace(0, 1, 1),
+            'Fe': np.linspace(1, 0, 1),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 17.910632064187162)
+    assert np.isclose(np.sum(scattering), 14.70757922824962)
+    assert np.isclose(np.sum(asymmetry), 2.8180171560812473)
+
+    # ==== Test auto call
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
+        {
+            'TiO2': np.linspace(0, 1, 8),
+            'Fe': np.linspace(1, 0, 8),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 0.22395971588655875)
+    assert np.isclose(np.sum(scattering), 0.03450202166172343)
+    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
 
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
     ma = MieNet(default_model_location=loc)
-    test_vars = ['qext', 'qsca', 'asym', 'wavelength']
 
     # ==== Standard Ai run
     extinction, scattering, asymmetry = ma.ai_efficiencies(
@@ -53,18 +79,38 @@ def test_ai():
     extinction, scattering, asymmetry = ma.auto_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
         {
-            'TiO2': np.linspace(0, 1, 8),
+            'Mg2SiO4': np.linspace(0, 1, 8),
             'Fe': np.linspace(1, 0, 8),
         }
     )
-    assert np.isclose(np.sum(extinction), 0.22395971588655875)
-    assert np.isclose(np.sum(scattering), 0.03450202166172343)
-    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
+    assert np.isclose(np.sum(extinction), 37.19869)
+    assert np.isclose(np.sum(scattering), 12.870874)
+    assert np.isclose(np.sum(asymmetry), -23.71189)
+
+    # ==== Test one fewer species than in model
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
+        {
+            'Mg2SiO4': np.linspace(1, 1, 8),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 43.0988)
+    assert np.isclose(np.sum(scattering), 13.092415)
+    assert np.isclose(np.sum(asymmetry), -21.044868)
+
+    # ==== Test wavelength and paticle size limit
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
 
     # ==== Test wrong model load
-    testcase = unittest.TestCase()
     with testcase.assertRaises(ValueError):
-        ma = MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
+        MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
 
     # ==== Test non-initialisation error
     with testcase.assertRaises(ValueError):
@@ -106,6 +152,15 @@ def test_grid():
     assert np.isclose(np.sum(scattering), 109.84721926458762)
     assert np.isclose(np.sum(asymmetry), 45.54068444245176)
 
+    # === use auto evaluation
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+        {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
+    )
+    assert np.isclose(np.sum(extinction), 134.5516828568501)
+    assert np.isclose(np.sum(scattering), 109.84721926458762)
+    assert np.isclose(np.sum(asymmetry), 45.54068444245176)
+
     # === use with less species than grid
     extinction, scattering, asymmetry = ma.grid_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
@@ -121,7 +176,7 @@ def test_grid():
             np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
             {'Not': np.linspace(0, 1, 8), 'Exist': np.linspace(1, 0, 8)},
         )
-    
+
     # ==== Mismatch between dataset and request
     with testcase.assertRaises(ValueError):
         _, _, _ = ma.grid_efficiencies(
