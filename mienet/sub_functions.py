@@ -225,6 +225,11 @@ def initialize_ai_models(load_ai_model, model_path):
     # load specified model
     else:
 
+        # check if specified model is available
+        if load_ai_model not in models_dict.keys():
+            raise ValueError('[ERROR] The model "' + str(load_ai_model) +
+                             '" is not in the config.yaml file.')
+
         # save only desired mixture in the models dictionary
         models_dict = models_dict[load_ai_model]
 
