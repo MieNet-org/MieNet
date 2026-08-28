@@ -107,7 +107,7 @@ class MieNet:
 
         # check if neural network is initalised
         if not self.use_ai:
-            raise
+            raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         if self.load_ai_model == 'all':
 
