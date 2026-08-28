@@ -7,8 +7,9 @@ from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
 
-def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
-                      grid_file=None):
+from .sub_functions import select_best_dataset
+
+def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
     """
     Approximate mie coefficients using mie python and LLL Approximation read in from
     the grid_file.
@@ -21,8 +22,8 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
         Size of the cloud particle [micron]
     volume_mixing_ratios : dict of np.ndarray or float of size M for each species
         Fraction of each cloud material given as float or array
-    grid_file : string
-        Path to the grid file.
+    theory : str, optional
+        Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
 
     Return
     ------
@@ -31,31 +32,10 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
     """
 
     # ==== Load grid
-    if grid_file is None:
-        # select mixing theory
-        grid = self.default_grids
-        # find all dataset that include all species
-        l_set = set(volume_mixing_ratios.keys())
-        valid_datasets = {
-            name: data['species'] for name, data in grid.items()
-            if l_set.issubset(data['species'])
-        }
-        # check if there are no matching grids
-        if not valid_datasets:
-            raise ValueError("No default grid for " + str(l_set) +
-                             " is available. Please provide one via grid_file.")
-        # Now pick the dataset with the smallest total size
-        best_dataset = min(valid_datasets.items(), key=lambda item: len(item[1]))
-        # open that dataset
-        ds = grid[best_dataset[0]]['ds']
-    else:
-        # ==== check models grid
-        ds = xr.open_dataset(grid_file, engine="h5netcdf")
-        for specs in ds.attrs['species']:
-            if specs not in volume_mixing_ratios:
-                raise ValueError("The selected grid requires the volume mixing "
-                                 "ratio of " + specs)
-
+    best_dataset = select_best_dataset('grid', False, volume_mixing_ratios, self.default_grids)
+    if best_dataset[0] is None:
+        raise ValueError('[ERROR] No grid available for your species.')
+    ds = self.default_grids[best_dataset[0]]['ds']
 
     # ==== read out data
     # define arguments for interpolation from xarray

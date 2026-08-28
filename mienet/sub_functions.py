@@ -14,8 +14,8 @@ def read_in_refindex(species, wavelength, files):
     ----------
     species : List with size N
         Name of cloud species.
-        wavelength : np.ndarray or float of size M
-            Wavelength of the light [micron]
+    wavelength : np.ndarray of size M
+        Wavelength of the light [micron]
     files : List
         Refractive index files
 
@@ -24,6 +24,11 @@ def read_in_refindex(species, wavelength, files):
     ref_index : np.ndarray of size (N, M, 2)
         Refractive index models: real, and imaginary part.
     """
+
+    # ==== Input handling
+    # make wavelength to array if it is a float
+    if not isinstance(wavelength, np.ndarray):
+        wavelength = np.asarray([wavelength])
 
     # prepare output
     ref_index = np.zeros((len(species), len(wavelength), 2))
@@ -34,7 +39,8 @@ def read_in_refindex(species, wavelength, files):
         # find species in files
         data = None
         for file in files:
-            if spec in file:
+            sp_name = os.path.basename(file).split('/')[0][:-8]
+            if spec == sp_name:
                 # get models using pandas
                 content = pd.read_csv(file, sep=r'\s+', header=None, usecols=[1, 2, 3])
                 # convert to array and flip vertically so wavelength increases
@@ -43,10 +49,6 @@ def read_in_refindex(species, wavelength, files):
             raise ValueError('No refindex file found for ' + spec)
 
         # ==== Get the real(n) and imaginary (k) refractory index =======================
-        # prepare output
-        if not isinstance(wavelength, np.ndarray):
-            wavelength = np.asarray([wavelength])
-
         # loop over all wavelengths
         for wav, wave in enumerate(wavelength):
             # if desired wavelength is smaller than models, use the smallest wavelength

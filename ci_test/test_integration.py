@@ -49,6 +49,18 @@ def test_ai():
     assert np.isclose(np.sum(scattering), 0.04487792)
     assert np.isclose(np.sum(asymmetry), -0.3625094)
 
+    # ==== Test auto call
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
+        {
+            'TiO2': np.linspace(0, 1, 8),
+            'Fe': np.linspace(1, 0, 8),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 0.22395971588655875)
+    assert np.isclose(np.sum(scattering), 0.03450202166172343)
+    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
+
     # ==== Test wrong model load
     testcase = unittest.TestCase()
     with testcase.assertRaises(ValueError):
@@ -91,16 +103,6 @@ def test_grid():
     extinction, scattering, asymmetry = ma.grid_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
         {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
-    )
-    assert np.isclose(np.sum(extinction), 134.5516828568501)
-    assert np.isclose(np.sum(scattering), 109.84721926458762)
-    assert np.isclose(np.sum(asymmetry), 45.54068444245176)
-
-    # === use grid evaluation with imediate read in
-    extinction, scattering, asymmetry = ma.grid_efficiencies(
-        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
-        {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)},
-        grid_file='grid_test.nc'
     )
     assert np.isclose(np.sum(extinction), 134.5516828568501)
     assert np.isclose(np.sum(scattering), 109.84721926458762)
