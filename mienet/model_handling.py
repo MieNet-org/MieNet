@@ -15,7 +15,7 @@ def get_models(data_location):
     Download and unzip AI models from Zenodo
     '''
     # Zenodo link
-    url = 'https://zenodo.org/records/20346256/files/models.zip?download=1'
+    url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
