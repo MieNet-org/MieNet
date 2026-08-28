@@ -4,12 +4,12 @@ import unittest
 
 import numpy as np
 
-from mieai import Mieai
+from mienet import MieNet
 
 
 def test_ai():
     # ==== Set up
-    ma = Mieai(default_model_location='files/')
+    ma = MieNet(default_model_location='files/')
     test_vars = ['qext', 'qsca', 'asym', 'wavelength']
 
     # ==== Standard Ai run
@@ -26,7 +26,7 @@ def test_ai():
     assert np.isclose(np.sum(asymmetry), 41.40172505378723)
 
     # ==== Use load grid model
-    ma = Mieai(default_model_location='files/', load_ai_model='MODEL2')
+    ma = MieNet(default_model_location='files/', load_ai_model='MODEL2')
     extinction, scattering, asymmetry = ma.ai_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
         {
@@ -54,17 +54,17 @@ def test_ai():
     # ==== Test wrong model load
     testcase = unittest.TestCase()
     with testcase.assertRaises(ValueError):
-        ma = Mieai(default_model_location='files/', load_ai_model='NON_EXISTING')
+        ma = MieNet(default_model_location='files/', load_ai_model='NON_EXISTING')
 
     # ==== Test non-initialisation error
     with testcase.assertRaises(ValueError):
-        ma = Mieai(use_ai=False)
+        ma = MieNet(use_ai=False)
         _, _, _ = ma.ai_efficiencies(None, None, None)
 
 
 def test_grid():
     # ==== Set up
-    ma = Mieai(use_ai=False, mute=False)
+    ma = MieNet(use_ai=False, mute=False)
     test_vars = ['qext', 'qsca', 'asym', 'wavelength']
 
     # ==== create tiny grid

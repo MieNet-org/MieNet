@@ -1,10 +1,10 @@
 """ Integration tests """
 import numpy as np
-from mieai import Mieai
+from mienet import MieNet
 
 def test_sub_functions():
     # ==== test Bruggeman
-    ma = Mieai(use_ai=False, mute=False)
+    ma = MieNet(use_ai=False, mute=False)
     extinction, scattering, asymmetry = ma.efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
         {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)},
