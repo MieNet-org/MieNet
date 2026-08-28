@@ -304,14 +304,6 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     This function assures that all inputs are in the correct format.
     """
 
-    # there must be the same number of VMRs for each species
-    if len(set(map(len, volume_mixing_ratios.values()))) != 1 and not mute:
-        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
-    # each particle size needs a VMR
-    if len(particle_size) != len(volume_mixing_ratios[next(iter(volume_mixing_ratios))]):
-        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
-                         'same shape')
-
     # check inputs are correct type
     if (not isinstance(wavelength, np.ndarray)
             and not isinstance(wavelength, (float, int))):
@@ -319,8 +311,7 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     if (not isinstance(particle_size, np.ndarray)
             and not isinstance(particle_size, (float, int))):
         raise ValueError('[ERROR] Particle size must be of type np.ndarray or float')
-    if (not isinstance(volume_mixing_ratios, dict)
-            and not isinstance(volume_mixing_ratios, (float, int))):
+    if not isinstance(volume_mixing_ratios, dict):
         raise ValueError('[ERROR] Volume mixing ratio must be of type dict or float')
 
     # convert floats to arrays
@@ -331,6 +322,14 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     for key, ratios in volume_mixing_ratios.items():
         if isinstance(ratios, (float, int)):
             volume_mixing_ratios[key] = np.array([ratios])
+
+    # there must be the same number of VMRs for each species
+    if len(set(map(len, volume_mixing_ratios.values()))) != 1:
+        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
+    # each particle size needs a VMR
+    if len(particle_size) != len(volume_mixing_ratios[next(iter(volume_mixing_ratios))]):
+        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
+                         'same shape')
 
     # create array with vmr values
     vmr = np.zeros((len(particle_size), len(species_list)))

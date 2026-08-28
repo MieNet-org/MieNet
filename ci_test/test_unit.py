@@ -6,7 +6,8 @@ import os
 from tensorflow import keras
 
 from mienet import MieNet
-from mienet.sub_functions import read_in_refindex, calculate_subradii, initialize_ai_models
+from mienet.sub_functions import (read_in_refindex, calculate_subradii, initialize_ai_models,
+                                  input_check)
 
 testcase = unittest.TestCase()
 
@@ -34,6 +35,18 @@ def test_sub_functions():
     # ==== calculate_subradii
     assert calculate_subradii([1], [0.1])[0][0] == 1
     assert np.sum(calculate_subradii([1, 1], [0.1])[0]) == 12
+
+    # input_check
+    with testcase.assertRaises(ValueError):
+        input_check([1], None, None, None)
+    with testcase.assertRaises(ValueError):
+        input_check(1, [1], None, None)
+    with testcase.assertRaises(ValueError):
+        input_check(1, 1, 1, None)
+    with testcase.assertRaises(ValueError):
+        input_check(1, 1, {'Fe': [1], 'Fe2': [1,2]}, None)
+    with testcase.assertRaises(ValueError):
+        input_check(1, 1, {'Fe': [1,2], 'Fe2': [1,2]}, None)
 
     # def test_create_ai_model():
     # # ==== Test generate_training_set

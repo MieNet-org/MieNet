@@ -1,10 +1,11 @@
 """ Integration tests """
 import os
 import unittest
-
 import numpy as np
 
 from mienet import MieNet
+
+testcase = unittest.TestCase()
 
 def test_full():
     ma = MieNet(use_ai=False)
@@ -86,10 +87,30 @@ def test_ai():
     assert np.isclose(np.sum(scattering), 12.870874)
     assert np.isclose(np.sum(asymmetry), -23.71189)
 
-    # ==== Test wrong model load
-    testcase = unittest.TestCase()
+    # ==== Test one fewer species than in model
+    extinction, scattering, asymmetry = ma.auto_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
+        {
+            'Mg2SiO4': np.linspace(1, 1, 8),
+        }
+    )
+    assert np.isclose(np.sum(extinction), 43.0988)
+    assert np.isclose(np.sum(scattering), 13.092415)
+    assert np.isclose(np.sum(asymmetry), -21.044868)
+
+    # ==== Test wavelength and paticle size limit
     with testcase.assertRaises(ValueError):
-        ma = MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
+        ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+
+    # ==== Test wrong model load
+    with testcase.assertRaises(ValueError):
+        MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
 
     # ==== Test non-initialisation error
     with testcase.assertRaises(ValueError):
