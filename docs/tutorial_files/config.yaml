@@ -1,6 +1,7 @@
 TUTORIAL_MODEL:
 
   architecture: 'one_network'
+  theory: 'LLL'
   dependencies: {}
 
   species:

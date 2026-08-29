@@ -144,7 +144,7 @@ def calculate_subradii(particle_size, vmr):
     return sub_rad, vmr
 
 def initialize_ai_models(load_ai_model, data_path, mute=True):
-    '''
+    """
     Load ai tensorflow models.
 
     Parameters
@@ -164,7 +164,7 @@ def initialize_ai_models(load_ai_model, data_path, mute=True):
         List of Tensorflow models
         Name of Architecture function
         Dictionary of dependencies
-    '''
+    """
     # import tensorflow here, so MieNet can be used without it
     from tensorflow.keras.models import load_model
 
@@ -192,6 +192,7 @@ def initialize_ai_models(load_ai_model, data_path, mute=True):
         models_dict[model]['files'] = model_info['files']
         models_dict[model]['species'] = model_info['species']
         models_dict[model]['architecture'] = model_info['architecture']
+        models_dict[model]['theory'] = model_info['theory']
         models_dict[model]['dependencies'] = model_info['dependencies']
         models_dict[model]['range'] = model_info['range']
         models_dict[model]['scale'] = model_info['scale']
@@ -266,7 +267,7 @@ def initialize_ai_models(load_ai_model, data_path, mute=True):
     return models_dict
 
 def select_best_dataset(type, vmrs, datasets, stop=True):
-    '''
+    """
     Choose best grid or model.
 
     Parameters
@@ -285,7 +286,7 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
     best_dataset : tuple, (name, species)
         name: str of model/grid name
         species: list of species name
-    '''
+    """
     # find all dataset that include all species
     l_set = set(vmrs.keys())
     valid_datasets = {
