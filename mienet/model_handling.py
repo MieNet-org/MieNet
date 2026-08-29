@@ -131,8 +131,6 @@ def initialize_ai_models(self):
     else:
         # convert to list if only one ai model specified
         lam = self.load_ai_model
-        if isinstance(self.load_ai_model, str):
-            lam = [self.load_ai_model]
 
         for model in lam:
             # check if specified model is available

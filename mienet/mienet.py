@@ -45,8 +45,12 @@ class MieNet:
         # ==== General preparations ===============================================================
         # save user inputs
         self.use_ai = use_ai
-        self.load_ai_model = load_ai_model
         self.mute = mute
+        if load_ai_model != 'all':
+            if isinstance(load_ai_model, str):
+                self.load_ai_model = [load_ai_model]
+        else:
+            self.load_ai_model = load_ai_model
 
         # working variables
         self.force_disabled_ai = False  # This will give a warning if MieNet breaks
@@ -106,7 +110,7 @@ class MieNet:
 
         # check at least one correct model is initialized if using specific model
         if self.load_ai_model != 'all':
-            if any(set(self.models_dict[key]['species']) != set(volume_mixing_ratios.keys()) for key in self.load_ai_model):
+            if not any(set(volume_mixing_ratios).issubset(self.models_dict[key]['species']) for key in self.load_ai_model):
                 raise ValueError("No correct AI model initialized for this mixture")
 
         # find all models that include all species
