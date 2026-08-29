@@ -341,15 +341,17 @@ class MieNet:
         return extinction, scattering, asymmetry
 
 
-    def download_models(self):
+    def download_models(self, overwrite=True):
         '''
         Download MieNet data from Zenodo and load all data/specified model.
-        '''
-        # check if files already exist
-        models = glob.glob(self.data_path + '*.keras')
-        if not models:
-            # download models
-            get_models(self.data_path)
 
-            # load data
+        Parameters
+        ----------
+        overwrite : bool, optional
+            If True, old files will be overwritten.
+        '''
+        # download models
+        get_models(self.data_path, overwrite)
+        # load data
+        if self.use_ai:
             self.models_dict = initialize_ai_models(self.load_ai_model, self.data_path)

@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 
-def get_models(data_location):
+def get_models(data_location, overwrite=True):
     '''
     Download and unzip AI models from Zenodo
     '''
@@ -25,7 +25,14 @@ def get_models(data_location):
     # move files out of models folder
     models_folder = os.path.join(data_location, 'models')
     for f in os.listdir(models_folder):
-        shutil.move(os.path.join(models_folder, f), data_location)
+        # move and overwirte old files
+        if overwrite:
+            shutil.move(os.path.join(models_folder, f), os.path.join(data_location, f))
+        # move and keep old files
+        else:
+            if not os.path.exists(os.path.join(data_location, f)):
+                shutil.move(os.path.join(models_folder, f), data_location)
+
     shutil.rmtree(models_folder)
 
     # delete MACOSX folder
