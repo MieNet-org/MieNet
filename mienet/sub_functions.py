@@ -4,7 +4,6 @@
 import os
 import pandas as pd
 import numpy as np
-import yaml
 
 def read_in_refindex(species, wavelength, files):
     """
@@ -142,129 +141,6 @@ def calculate_subradii(particle_size, vmr):
         sub_rad = particle_size
 
     return sub_rad, vmr
-
-def initialize_ai_models(load_ai_model, data_path, mute=True):
-    """
-    Load ai tensorflow models.
-
-    Parameters
-    ----------
-    load_model : String
-        Either 'all' to load every model or the model name
-    data_path: String
-        File path to where models are stored
-    mute : bool, optional
-        If True, MieNet will produce no diagnostic outputs and runs quietly.
-
-    Returns
-    ----------
-    Models dictionary containing:
-        List of model files
-        List of species
-        List of Tensorflow models
-        Name of Architecture function
-        Dictionary of dependencies
-    """
-    # import tensorflow here, so MieNet can be used without it
-    from tensorflow.keras.models import load_model
-
-    # check if config.yaml exists
-    if not os.path.isfile(data_path + 'config.yaml'):
-        if not mute:
-            print('[WARN] config.yaml file not found in the folder:\n'
-                  '   -> ' + data_path)
-        return {}
-
-    # read config file
-    config_yaml = data_path + 'config.yaml'
-    with open(config_yaml, 'r') as f:
-        config = yaml.safe_load(f)
-
-    # check if there is at least one entry
-    if config is None:
-        return {}
-
-    # create and store info in models dictionary
-    models_dict = {}
-    for model in config.keys():
-        model_info = config[model]
-        models_dict[model] = {}
-        models_dict[model]['files'] = model_info['files']
-        models_dict[model]['species'] = model_info['species']
-        models_dict[model]['architecture'] = model_info['architecture']
-        models_dict[model]['theory'] = model_info['theory']
-        models_dict[model]['dependencies'] = model_info['dependencies']
-        models_dict[model]['range'] = model_info['range']
-        models_dict[model]['scale'] = model_info['scale']
-
-    # load all models by default if one is not specified
-    if load_ai_model == 'all':
-        # get all model keys
-        keys = list(models_dict.keys())
-
-        # load all models for each mixture
-        for model in keys:
-            skip = False  # if not all keras file could be loaded, skip
-
-            # prepare model list for dictionary
-            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
-
-            for i, file in enumerate(models_dict[model]['files']):
-
-                # only load files that are downloaded
-                if os.path.isfile(os.path.join(data_path + file)):
-                    model_list[i] = load_model(os.path.join(data_path + file))
-                else:
-                    del models_dict[model]  # remove model from dict
-                    skip = True  # remember that this model is incomplete
-                    break  # stop searching for more models
-
-            # if not all keras file could be loaded, skip
-            if skip:
-                continue
-
-            models_dict[model]['models'] = model_list
-
-            print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
-                  f'from {models_dict[model]['range']['wavelength'][0]} to '
-                  f'{models_dict[model]['range']['wavelength'][1]} micron.')
-
-    # load specified model
-    else:
-        # convert to list if only one ai model specified
-        if isinstance(load_ai_model, str):
-            load_ai_model = [load_ai_model]
-
-        for model in load_ai_model:
-            # check if specified model is available
-            if model not in models_dict.keys():
-                raise ValueError('[ERROR] The model "' + str(model) +
-                                 '" is not in the config.yaml file.')
-
-            # save only desired mixtures in the models dictionary
-            loaded_models = {}
-            loaded_models[model] = models_dict[model]
-
-            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
-
-            for i, file in enumerate(models_dict[model]['files']):
-
-                # load files
-                if os.path.isfile(os.path.join(data_path + file)):
-                    model_list[i] = load_model(os.path.join(data_path + file))
-                else:
-                    raise ValueError(f'Model files for mixture {model} not found.')
-
-            loaded_models[model]['models'] = model_list
-
-            print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
-                  f'from {models_dict[model]['range']['wavelength'][0]} to '
-                  f'{models_dict[model]['range']['wavelength'][1]} micron.')
-
-            # save only loaded models
-            models_dict = loaded_models
-
-    return models_dict
 
 def select_best_dataset(type, vmrs, datasets, stop=True):
     """

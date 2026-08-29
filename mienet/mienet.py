@@ -6,7 +6,7 @@ import glob
 import numpy as np
 import miepython as mie
 
-from .sub_functions import (read_in_refindex, calculate_subradii, initialize_ai_models,
+from .sub_functions import (read_in_refindex, calculate_subradii,
                             select_best_dataset, input_check)
 from .mixing_theory import mixing_theory
 from .model_handling import get_models
@@ -23,7 +23,7 @@ class MieNet:
 
     # ==== Import functions from sub-files ========================================================
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
-    from .model_handling import generate_training_set, train_ai_model
+    from .model_handling import generate_training_set, train_ai_model, initialize_ai_models
 
     def __init__(self, use_ai=True, default_data_location=None, mute=True, load_ai_model='all',
                  grid_file=None):
@@ -68,16 +68,8 @@ class MieNet:
 
         # ==== Prepare Neural Network =============================================================
         if use_ai:
-
             # initialize ai models
-            self.models_dict = initialize_ai_models(load_ai_model, self.data_path, self.mute)
-
-            # if no models were found, disable AI
-            if len(self.models_dict) < 1:
-                self.use_ai = False
-                self.force_disabled_ai = True
-                if not self.mute:
-                    print('[WARN] No ANN models found, disabling ANN functionalities.')
+            self.initialize_ai_models()
 
         # ==== Load predetermined grid dataset
         # default datasets
@@ -357,11 +349,4 @@ class MieNet:
 
         # load data
         if self.use_ai:
-            self.models_dict = initialize_ai_models(self.load_ai_model, self.data_path)
-
-            # if no models were found, disable AI
-            if len(self.models_dict) < 1:
-                self.use_ai = False
-                self.force_disabled_ai = True
-                if not self.mute:
-                    print('[WARN] No ANN models found, disabling ANN functionalities.')
+            self.initialize_ai_models()

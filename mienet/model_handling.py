@@ -6,6 +6,7 @@ from zipfile import ZipFile
 from io import BytesIO
 import os
 import shutil
+import yaml
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -38,6 +39,151 @@ def get_models(data_location, overwrite=True):
 
     # delete MACOSX folder
     shutil.rmtree(os.path.join(data_location, '__MACOSX'))
+
+def initialize_ai_models(self):
+    """
+    Load ai tensorflow models.
+
+    Parameters
+    ----------
+    load_model : String
+        Either 'all' to load every model or the model name
+    data_path: String
+        File path to where models are stored
+    mute : bool, optional
+        If True, MieNet will produce no diagnostic outputs and runs quietly.
+
+    Returns
+    ----------
+    Models dictionary containing:
+        List of model files
+        List of species
+        List of Tensorflow models
+        Name of Architecture function
+        Dictionary of dependencies
+    """
+    # import tensorflow here, so MieNet can be used without it
+    from tensorflow.keras.models import load_model
+
+    # default value
+    self.models_dict = {}
+
+    # check if config.yaml exists
+    if not os.path.isfile(self.data_path + 'config.yaml'):
+        self.use_ai = False
+        self.force_disabled_ai = True
+        if not self.mute:
+            print('[WARN] config.yaml file not found in the folder:\n'
+                  '   -> ' + self.data_path)
+            print('[WARN] No ANN models found, disabling ANN functionalities.')
+        return
+
+    # read config file
+    config_yaml = self.data_path + 'config.yaml'
+    with open(config_yaml, 'r') as f:
+        config = yaml.safe_load(f)
+
+    # check if there is at least one entry
+    if config is None:
+        self.use_ai = False
+        self.force_disabled_ai = True
+        if not self.mute:
+            print('[WARN] No Entry found in config.yaml file.')
+            print('[WARN] No ANN models found, disabling ANN functionalities.')
+        return
+
+    # create and store info in models dictionary
+    models_dict = {}
+    for model in config.keys():
+        model_info = config[model]
+        models_dict[model] = {}
+        models_dict[model]['files'] = model_info['files']
+        models_dict[model]['species'] = model_info['species']
+        models_dict[model]['architecture'] = model_info['architecture']
+        models_dict[model]['theory'] = model_info['theory']
+        models_dict[model]['dependencies'] = model_info['dependencies']
+        models_dict[model]['range'] = model_info['range']
+        models_dict[model]['scale'] = model_info['scale']
+
+    # load all models by default if one is not specified
+    if self.load_ai_model == 'all':
+        # get all model keys
+        keys = list(models_dict.keys())
+
+        # load all models for each mixture
+        for model in keys:
+            skip = False  # if not all keras file could be loaded, skip
+
+            # prepare model list for dictionary
+            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
+
+            for i, file in enumerate(models_dict[model]['files']):
+
+                # only load files that are downloaded
+                if os.path.isfile(os.path.join(self.data_path + file)):
+                    model_list[i] = load_model(os.path.join(self.data_path + file))
+                else:
+                    del models_dict[model]  # remove model from dict
+                    skip = True  # remember that this model is incomplete
+                    break  # stop searching for more models
+
+            # if not all keras file could be loaded, skip
+            if skip:
+                continue
+
+            models_dict[model]['models'] = model_list
+
+            if not self.mute:
+                print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
+                      f'from {models_dict[model]['range']['wavelength'][0]} to '
+                      f'{models_dict[model]['range']['wavelength'][1]} micron.')
+
+    # load specified model
+    else:
+        # convert to list if only one ai model specified
+        lam = self.load_ai_model
+        if isinstance(self.load_ai_model, str):
+            lam = [self.load_ai_model]
+
+        for model in lam:
+            # check if specified model is available
+            if model not in models_dict.keys():
+                raise ValueError('[ERROR] The model "' + str(model) +
+                                 '" is not in the config.yaml file.')
+
+            # save only desired mixtures in the models dictionary
+            loaded_models = {}
+            loaded_models[model] = models_dict[model]
+
+            model_list = np.empty(len(models_dict[model]['files']), dtype = object)
+
+            for i, file in enumerate(models_dict[model]['files']):
+
+                # load files
+                if os.path.isfile(os.path.join(self.data_path + file)):
+                    model_list[i] = load_model(os.path.join(self.data_path + file))
+                else:
+                    raise ValueError(f'Model files for mixture {model} not found.')
+
+            loaded_models[model]['models'] = model_list
+
+            if not self.mute:
+                print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
+                      f'from {models_dict[model]['range']['wavelength'][0]} to '
+                      f'{models_dict[model]['range']['wavelength'][1]} micron.')
+
+            # save only loaded models
+            models_dict = loaded_models
+
+    # remember models
+    self.models_dict = models_dict
+
+    # if no models were found, disable AI
+    if len(self.models_dict) < 1:
+        self.use_ai = False
+        self.force_disabled_ai = True
+        if not self.mute:
+            print('[WARN] No ANN models found, disabling ANN functionalities.')
 
 def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory = 'LLL'):
     """
