@@ -352,6 +352,14 @@ class MieNet:
         '''
         # download models
         get_models(self.data_path, overwrite)
+
         # load data
         if self.use_ai:
             self.models_dict = initialize_ai_models(self.load_ai_model, self.data_path)
+
+            # if no models were found, disable AI
+            if len(self.models_dict) < 1:
+                self.use_ai = False
+                self.force_disabled_ai = True
+                if not self.mute:
+                    print('[WARN] No ANN models found, disabling ANN functionalities.')

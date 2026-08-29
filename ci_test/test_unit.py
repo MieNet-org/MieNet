@@ -7,7 +7,7 @@ from tensorflow import keras
 import glob
 
 from mienet import MieNet
-from mienet.sub_functions import (read_in_refindex, calculate_subradii, initialize_ai_models,
+from mienet.sub_functions import (read_in_refindex, calculate_subradii,
                                   input_check)
 
 testcase = unittest.TestCase()
