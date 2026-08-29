@@ -265,7 +265,7 @@ def initialize_ai_models(load_ai_model, data_path, mute=True):
 
     return models_dict
 
-def select_best_dataset(type, auto, vmrs, datasets):
+def select_best_dataset(type, vmrs, datasets, stop=True):
     '''
     Choose best grid or model.
 
@@ -273,12 +273,12 @@ def select_best_dataset(type, auto, vmrs, datasets):
     ----------
     type : String
         Either 'model' or 'grid'
-    auto: Boolean
-        True if using auto_efficiencies function for fastest calculation.
     volume_mixing_ratios: Dictionary
         Species in each mixture with respective volume mixing ratios.
     datasets: Dictionary
         Dictionary with information about each model/grid.
+    stop: Bool, optional
+        If True, an error is raised if no set is found. If False, (None, None) is returned.
 
     Returns
     ----------
@@ -295,20 +295,16 @@ def select_best_dataset(type, auto, vmrs, datasets):
 
     # check if there are matching datasets
     if valid_datasets:
-
         # Now pick the dataset with the smallest total size
-        best_dataset = min(valid_datasets.items(), key=lambda item: len(item[1]))
+        return min(valid_datasets.items(), key=lambda item: len(item[1]))
 
-    else:
-        if auto == 'False':
-            # raise value error if no datasets for the type of efficiency function called
-            raise ValueError("No default" + f'{type}' + "for" + str(l_set) +
-                                 " is available. Please provide one.")
+    # raise value error if no datasets for the type of efficiency function called
+    if stop:
+        raise ValueError("[ERROR] No default " + f'{type}' + " for " + str(l_set) +
+                         " is available. Please provide one.")
 
-        else:
-            best_dataset = (None, None)
-
-    return best_dataset
+    # if run should not be apported, return (None, None) dataset
+    return None, None
 
 def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
     """

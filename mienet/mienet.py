@@ -25,7 +25,8 @@ class MieNet:
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
     from .model_handling import generate_training_set, train_ai_model
 
-    def __init__(self, use_ai=True, default_data_location=None, mute=True, load_ai_model = 'all'):
+    def __init__(self, use_ai=True, default_data_location=None, mute=True, load_ai_model='all',
+                 grid_file=None):
         """
         Constructor
 
@@ -33,27 +34,29 @@ class MieNet:
         ----------
         use_ai : bool
             If False, AI will be disabled. This allows to use MieNet without installing tensorflow.
-        load_ai_model : str
-            Which AI model to load. Default is 'all', which loads all models. User can input
-            model names to load a specific model.
         default_data_location : str, optional
             Location of opacity data and/or grids. If none, MieNet defaults are used.
         mute : bool, optional
             If True, MieNet will produce no diagnostic outputs and runs quietly.
+        load_ai_model : str
+            Which AI model to load. Default is 'all', which loads all models. User can input
+            model names to load a specific model.
+        grid_file : str, optional
+            If a grid file is given, only this file will be loaded.
         """
 
         # ==== General preparations ===============================================================
+        # save user inputs
+        self.use_ai = use_ai
+        self.load_ai_model = load_ai_model
+        self.mute = mute
+
+        # working variables
+        self.force_disabled_ai = False  # This will give a warning if MieNet breaks
+
         # Load species data from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
-        # save ai initialization state
-        self.use_ai = use_ai
-        self.load_ai_model = load_ai_model
-        # save efficiency calc state
-        self.auto = False
-        self.force_disabled_ai = False  # This will give a warning if MieNet breaks
-        # save mute preference
-        self.mute = mute
 
         # ==== Data location
         # user input data location
@@ -79,7 +82,7 @@ class MieNet:
         # ==== Load predetermined grid dataset
         # default datasets
         self.default_grids = {}
-        self.load_grid_efficiency()
+        self.load_grid_efficiency(file_name=grid_file)
 
 
     def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios):
@@ -110,7 +113,7 @@ class MieNet:
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # find all models that include all species
-        best_model = select_best_dataset('model', self.auto, volume_mixing_ratios, self.models_dict)
+        best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
 
         # add zero array to vmr dictionary if using less than the total amount of species
         if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -317,18 +320,17 @@ class MieNet:
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
-        auto = True
 
         if self.use_ai:
             # check models
-            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
+            best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict, False)
 
             # use model if it exists
             if best_model[0] is not None:
                 extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
                 return extinction, scattering, asymmetry
 
-        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+        best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids, False)
 
         # use grid if it exists
         if best_dataset[0] is not None:
