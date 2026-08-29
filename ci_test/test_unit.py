@@ -13,10 +13,17 @@ from mienet.sub_functions import (read_in_refindex, calculate_subradii,
 testcase = unittest.TestCase()
 
 def test_mienet():
+    ma = MieNet(default_data_location='.', mute=False)
     # check if missing ai models lead to assertion
     with testcase.assertRaises(ValueError):
-        ma = MieNet(default_data_location='.', mute=False)
         ma.ai_efficiencies(1, 1, 1)
+
+def test_mixing_theory():
+    # test wrong mixing theory
+    ma = MieNet(use_ai=False)
+    # test wrong mixing theory catch
+    with testcase.assertRaises(ValueError):
+        ma.efficiencies(1, 1, {'Fe': 1}, theory='WRONG')
 
 def test_sub_functions():
     # ==== test Bruggeman
@@ -43,7 +50,13 @@ def test_sub_functions():
     assert calculate_subradii([1], [0.1])[0][0] == 1
     assert np.sum(calculate_subradii([1, 1], [0.1])[0]) == 12
 
-    # input_check
+    # ==== input_check
+    # check if input checker works
+    extinction, scattering, asymmetry = ma.efficiencies(1, 1, {'Fe': 1})
+    assert np.isclose(np.sum(extinction), 2.5262886433126015)
+    assert np.isclose(np.sum(scattering), 1.9303805158738072)
+    assert np.isclose(np.sum(asymmetry), 0.6031789018842632)
+    # assert tests
     with testcase.assertRaises(ValueError):
         input_check([1], None, None, None)
     with testcase.assertRaises(ValueError):

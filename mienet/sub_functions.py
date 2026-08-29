@@ -186,6 +186,29 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
 def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
     """
     This function assures that all inputs are in the correct format.
+
+    Parameters
+    ----------
+    wavelength : np.ndarray or float of size N
+        Wavelength of the light [micron]
+    particle_size : np.ndarray or float of size M
+        Size of the cloud particle [micron]
+    volume_mixing_ratios : dict of np.ndarray or float of size M for each species
+        Fraction of each cloud material given as float or array
+    species_list : List of strings of size P
+        Name of species that must be included
+    mute : bool, optional
+        If True, MieNet will produce no diagnostic outputs and runs quietly.
+
+
+    Return
+    ------
+    wavelength : np.ndarray of size N
+        Wavelength of the light [micron]
+    particle_size : np.ndarray of size M
+        Size of the cloud particle [micron]
+    vmrs : np.ndarray of size (M, P)
+        Fraction of each cloud material given as float or array
     """
 
     # check inputs are correct type

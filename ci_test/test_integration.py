@@ -34,6 +34,10 @@ def test_full():
     assert np.isclose(np.sum(scattering), 0.03450202166172343)
     assert np.isclose(np.sum(asymmetry), -0.318803615274828)
 
+    # ==== request non exisitng species
+    with testcase.assertRaises(ValueError):
+        ma.efficiencies(1, 1,{'WRONG': 1})
+
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
@@ -110,7 +114,7 @@ def test_ai():
 
     # ==== Test wrong theory catch
     with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(3, 0.1,{'Mg2SiO4': [0.4], 'Fe': [0.4],}, theory='WRONG')
+        ma.ai_efficiencies(3, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],}, theory='WRONG')
 
     # ==== Test wrong model load
     with testcase.assertRaises(ValueError):
@@ -139,11 +143,16 @@ def test_grid():
         assert np.isclose(np.sum(ds[test]), expected_vals[t])
 
     # ==== read in grid
+    # test file read in
     ma.load_grid_efficiency(file_name='grid_test.nc')
     lo = ma.default_grids['grid_test.nc']['ds']
     for t, test in enumerate(test_vars):
         assert np.isclose(np.sum(lo[test]), expected_vals[t])
     assert ['SiO2', 'Fe'] == lo.attrs['species']
+    # test ds_grid read in
+    ma.load_grid_efficiency(ds_grid=ds)
+    assert len(ma.default_grids) == 2
+    # test asserts
     testcase = unittest.TestCase()
     with testcase.assertRaises(ValueError):
         ma.load_grid_efficiency(file_name='grid_that_does_not_exist.nc')
@@ -184,6 +193,15 @@ def test_grid():
     assert np.isclose(np.sum(extinction), 118.03743267969153)
     assert np.isclose(np.sum(scattering), 106.39411449611903)
     assert np.isclose(np.sum(asymmetry), 47.528850364238835)
+
+    # === test zerso fill
+    extinction, scattering, asymmetry = ma.grid_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+        {'Fe': np.linspace(0, 1, 8)}
+    )
+    assert np.isclose(np.sum(extinction), 133.4183907490462)
+    assert np.isclose(np.sum(scattering), 114.47160632559543)
+    assert np.isclose(np.sum(asymmetry), 37.74865263737628)
 
     # ==== request species that are not available
     with testcase.assertRaises(ValueError):
