@@ -108,6 +108,10 @@ def test_ai():
     with testcase.assertRaises(ValueError):
         ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
 
+    # ==== Test wrong theory catch
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(3, 0.1,{'Mg2SiO4': [0.4], 'Fe': [0.4],}, theory='WRONG')
+
     # ==== Test wrong model load
     with testcase.assertRaises(ValueError):
         MieNet(default_data_location=loc, load_ai_model='NON_EXISTING')
@@ -115,7 +119,8 @@ def test_ai():
     # ==== Test non-initialisation error
     with testcase.assertRaises(ValueError):
         ma = MieNet(use_ai=False)
-        _, _, _ = ma.ai_efficiencies(None, None, None)
+        ma.ai_efficiencies(None, None, None)
+
 
 
 def test_grid():

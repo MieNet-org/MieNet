@@ -150,7 +150,7 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
     ----------
     type : String
         Either 'model' or 'grid'
-    volume_mixing_ratios: Dictionary
+    vmrs: Dictionary
         Species in each mixture with respective volume mixing ratios.
     datasets: Dictionary
         Dictionary with information about each model/grid.

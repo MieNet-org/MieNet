@@ -15,6 +15,13 @@ from datetime import datetime
 def get_models(data_location, overwrite=True):
     """
     Download and unzip AI models from Zenodo
+
+    Parameters
+    ----------
+    data_location : str
+        location where the data should be stored
+    overwrite : bool, optional
+        In case some files already exist: overwrite old data if True, discard new data if False
     """
     # Zenodo link
     url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
@@ -42,25 +49,7 @@ def get_models(data_location, overwrite=True):
 
 def initialize_ai_models(self):
     """
-    Load ai tensorflow models.
-
-    Parameters
-    ----------
-    load_model : String
-        Either 'all' to load every model or the model name
-    data_path: String
-        File path to where models are stored
-    mute : bool, optional
-        If True, MieNet will produce no diagnostic outputs and runs quietly.
-
-    Returns
-    ----------
-    Models dictionary containing:
-        List of model files
-        List of species
-        List of Tensorflow models
-        Name of Architecture function
-        Dictionary of dependencies
+    Load ai tensorflow models and store them in self.models_dict.
     """
     # import tensorflow here, so MieNet can be used without it
     from tensorflow.keras.models import load_model

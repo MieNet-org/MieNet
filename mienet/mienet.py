@@ -15,10 +15,7 @@ from . import architecture_functions
 
 class MieNet:
     """
-    MieNet class to calculate mie opacities using one of three methods:
-    - efficiencies: Use LLL and miepython and perform full calcu
-    - ai_efficiencies
-    - grid_efficiencies
+    MieNet class to calculate mie opacities. For more information please see the Documentation.
     """
 
     # ==== Import functions from sub-files ========================================================
@@ -67,6 +64,7 @@ class MieNet:
             self.data_path = os.path.join(os.path.dirname(__file__), '../data/')
 
         # ==== Prepare Neural Network =============================================================
+        self.models_dict = {}  # default initialisation
         if use_ai:
             # initialize ai models
             self.initialize_ai_models()
@@ -117,7 +115,6 @@ class MieNet:
 
         # check correct model is initialized if using specific model
         if self.load_ai_model != 'all':
-
             if sorted(self.models_dict[self.load_ai_model]['species']) != sorted(volume_mixing_ratios.keys()):
                 raise ValueError("Incorrect AI model initialized for this mixture")
 
@@ -145,6 +142,13 @@ class MieNet:
         if max(particle_size) > model_dict['range']['particle_size'][1]:
             raise ValueError('Particle sizes requested are out of the model range:',
                              model_dict['range']['particle_size'])
+
+        # check if correct mixing theory is used
+        if theory is not None:
+            if self.models_dict[best_model[0]]['theory'] != theory:
+                raise ValueError('[ERROR] Mixing theory dose not match.\n'
+                                 '-> Selected: ' + theory + '\n'
+                                 '-> Data set: ' + self.models_dict[best_model[0]]['theory'])
 
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
@@ -321,17 +325,23 @@ class MieNet:
 
             # use model if it exists
             if best_model[0] is not None:
-                extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+                extinction, scattering, asymmetry = self.ai_efficiencies(
+                    wavelength, particle_size, volume_mixing_ratios, theory
+                )
                 return extinction, scattering, asymmetry
 
         best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids, False)
 
         # use grid if it exists
         if best_dataset[0] is not None:
-            extinction, scattering, asymmetry = self.grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
+            extinction, scattering, asymmetry = self.grid_efficiencies(
+                wavelength, particle_size, volume_mixing_ratios, theory
+            )
             return extinction, scattering, asymmetry
 
-        extinction, scattering, asymmetry = self.efficiencies(wavelength, particle_size, volume_mixing_ratios, theory)
+        extinction, scattering, asymmetry = self.efficiencies(
+            wavelength, particle_size, volume_mixing_ratios, theory
+        )
         return extinction, scattering, asymmetry
 
 
