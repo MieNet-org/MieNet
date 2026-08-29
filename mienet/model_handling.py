@@ -290,6 +290,10 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     plot_training : boolean, optional
         Whether or not to plot the training loss and accuracy
     """
+    # open xarray and get training set as array
+    dataset = xr.open_dataset(self.data_path + file_name + '.nc')
+    training_set = dataset['data'].to_numpy()
+
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
 
     # ==== set model name
@@ -310,11 +314,12 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
                 file_end = 1
                 while os.path.exists(self.data_path + file_name + '.keras'):
                     file_name = file_name + str(file_end)
+                    model_params['name'] = file_name
                     file_end += 1
 
     # ==== set defaults if model parameter not given
     if 'layers' not in model_params:
-        model_params['nodes'] = 3
+        model_params['layers'] = 3
     if 'nodes' not in model_params:
         model_params['nodes'] = 100
     if 'activation_function' not in model_params:
@@ -329,22 +334,18 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         model_params['batch_size'] = 32
     if 'epochs' not in model_params:
         model_params['epochs'] = 10
-    if 'log_wavelength' not in model_params:
-        model_params['log_wavelength'] = True
-    if 'log_particle_size' not in model_params:
-        model_params['log_particle_size'] = True
-    if 'log_extinction' not in model_params:
-        model_params['log_extinction'] = True
-    if 'log_scattering' not in model_params:
-        model_params['log_scattering'] = True
+    if 'wavelength_scale' not in model_params:
+        model_params['wavelength_scale'] = 'log'
+    if 'particle_size_scale' not in model_params:
+        model_params['particle_size_scale'] = 'log'
+    if 'extinction_scale' not in model_params:
+        model_params['extinction_scale'] = 'log'
+    if 'scattering_scale' not in model_params:
+        model_params['scattering_scale'] = 'log'
 
     # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
     # import tensorflow here so MieNet can be used without it
     from tensorflow import keras
-
-    # open xarray and get training set as array
-    dataset = xr.open_dataset(self.data_path + file_name + '.nc')
-    training_set = dataset['data'].to_numpy()
 
     # ==== check input and output scaling
     # parameters with scaling options
@@ -445,33 +446,35 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         plt.tight_layout()
         plt.show()
 
-    # ==== ADD MODEL TO CONFIG FILE ====================================================================================
-    # path to config file
-    config_path = self.data_path + 'config.yaml'
-
-    # model info to add to file
-    new_data = {model_params['name']: {'architecture': 'one_network',
-                                       'theory': dataset.attrs['theory'],
-                                       'dependencies': {},
-                                       'species': dataset.attrs['species'],
-                                       'range': {'wavelength': dataset.attrs['wavelength_range'],
-                                                 'particle_size': dataset.attrs['particle_size_range']},
-                                       'scale': {'wavelength': model_params['wavelength_scale'],
-                                                 'particle_size': model_params['particle_size_scale'],
-                                                 'extinction': model_params['extinction_scale'],
-                                                 'scattering': model_params['scattering_scale'],},
-                                       'files': model_params['name'] + '.keras'}
-                }
-
-    # check for existing config file
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as file:
-            current_data = yaml.safe_load(file) or {}
-
-        with open(config_path, 'w') as file:
-            yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
-
-    # create config file if none exist
-    else:
-        with open(config_path, 'w') as file:
-            yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
+    # # ==== ADD MODEL TO CONFIG FILE ====================================================================================
+    # # path to config file
+    # config_path = self.data_path + 'config.yaml'
+    #
+    # # model info to add to file
+    # new_data = {model_params['name']: {'architecture': 'one_network',
+    #                                    'theory': dataset.attrs['theory'],
+    #                                    'dependencies': {},
+    #                                    'species': dataset.attrs['species'],
+    #                                    'range': {'wavelength': dataset.attrs['wavelength_range'].tolist(),
+    #                                              'particle_size': dataset.attrs['particle_size_range'].tolist(),},
+    #                                    'scale': {'wavelength': model_params['wavelength_scale'],
+    #                                              'particle_size': model_params['particle_size_scale'],
+    #                                              'extinction': model_params['extinction_scale'],
+    #                                              'scattering': model_params['scattering_scale'],},
+    #                                    'files': model_params['name'] + '.keras'}
+    #             }
+    #
+    # # check for existing config file
+    # if os.path.exists(config_path):
+    #     with open(config_path, 'r') as file:
+    #         current_data = yaml.safe_load(file) or {}
+    #
+    #     current_data.update(new_data)
+    #
+    #     with open(config_path, 'w') as file:
+    #         yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
+    #
+    # # create config file if none exist
+    # else:
+    #     with open(config_path, 'w') as file:
+    #         yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
