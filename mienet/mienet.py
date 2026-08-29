@@ -25,7 +25,8 @@ class MieNet:
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
     from .model_handling import generate_training_set, train_ai_model
 
-    def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model = 'all'):
+    def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model='all',
+                 grid_file=None):
         """
         Constructor
 
@@ -40,6 +41,8 @@ class MieNet:
             Location of opacity models. If none, MieNet defaults are used.
         mute : bool, optional
             If True, MieNet will produce no diagnostic outputs and runs quietly.
+        grid_file : str, optional
+            If a grid file is given, only this file will be loaded.
         """
 
         # ==== General preparations ===============================================================
@@ -86,7 +89,7 @@ class MieNet:
         # ==== Load predetermined grid dataset
         # default datasets
         self.default_grids = {}
-        self.load_grid_efficiency()
+        self.load_grid_efficiency(file_name=grid_file)
 
 
     def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios):

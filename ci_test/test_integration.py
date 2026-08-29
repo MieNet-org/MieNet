@@ -152,6 +152,16 @@ def test_grid():
     assert np.isclose(np.sum(scattering), 109.84721926458762)
     assert np.isclose(np.sum(asymmetry), 45.54068444245176)
 
+    # === use grid_file to load in grid file
+    ma = MieNet(use_ai=False, mute=False, grid_file='grid_test.nc')
+    extinction, scattering, asymmetry = ma.grid_efficiencies(
+        np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+        {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
+    )
+    assert np.isclose(np.sum(extinction), 134.5516828568501)
+    assert np.isclose(np.sum(scattering), 109.84721926458762)
+    assert np.isclose(np.sum(asymmetry), 45.54068444245176)
+
     # === use auto evaluation
     extinction, scattering, asymmetry = ma.auto_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
