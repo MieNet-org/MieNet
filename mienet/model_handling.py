@@ -208,7 +208,12 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
                 'idx': range(set_size),
                 'dim': ['wavelength', 'particle_size'] + species[:-1] + ['extinction', 'scattering', 'asymmetry']
             },
-            attrs = {'idx': 0, 'species': species}
+            attrs = {'idx': 0,
+                     'species': species,
+                     'wavelength_range': [wavelength_sample[0], wavelength_sample[1]],
+                     'particle_size_range':[particle_size_sample[0], particle_size_sample[1]],
+                     'theory': mixing_theory
+                     }
         )
         ds.to_netcdf(store_path)
 
@@ -260,14 +265,14 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
 
-def train_ai_model(self, training_set, model_params, plot_training = False):
+def train_ai_model(self, training_set_file, model_params, plot_training = False):
     """
     Train a neural network with TensorFlow.
 
     Parameters
     ----------
-    training_set : array_like
-        (Wavelength, Particle Size, VMR1, VMR2,..., Extinction, Scattering, Asymmetry)
+    training_set_file: str
+        File name of the xarray training set
     model_params : dict
         {'name' (optional): str(name to give to model),
         'layers' (optional): int(number of hidden layers),
@@ -278,10 +283,10 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         'metrics' (optional): str(metric function),
         'batch_size' (optional): int(batch size),
         'epochs' (optional): int(number of epochs),
-        'log_wavelength' (optional): boolean, - True (default) trains model on log(wavelength)
-        'log_particle_size' (optional): boolean,
-        'log_extinction' (optional): boolean,
-        'log_scattering' (optional): boolean,}
+        'wavelength_scale' (optional): str, - 'log' (default) trains model on log(wavelength)
+        'particle_size_scale' (optional): str, - 'normal' trains model on the normal data
+        'extinction_scale' (optional): str,
+        'scattering_scale' (optional): str,}
     plot_training : boolean, optional
         Whether or not to plot the training loss and accuracy
     """
@@ -325,15 +330,22 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
     # import tensorflow here so MieNet can be used without it
     from tensorflow import keras
 
-    # check input and output scaling
-    if model_params['log_wavelength'] == True:
-        training_set[:, 0] = np.log10(training_set[:, 0])
-    if model_params['log_particle_size'] == True:
-        training_set[:, 1] = np.log10(training_set[:, 1])
-    if model_params['log_extinction'] == True:
-        training_set[:, -3] = np.log10(training_set[:, -3])
-    if model_params['log_scattering'] == True:
-        training_set[:, -2] = np.log10(training_set[:, -2])
+    # open xarray and get training set as array
+    dataset = xr.open_dataset(training_set_file)
+    training_set = dataset['data'].to_numpy()
+
+    # ==== check input and output scaling
+    # parameters with scaling options
+    scale_params = ['wavelength_scale', 'particle_size_scale', 'extinction_scale', 'scattering_scale']
+    scale_params_idx = [0, 1, -3, 2] # index of those parameters in training set
+
+    # check scaling for all parameters
+    for idx, param in zip(scale_params_idx, scale_params):
+        if model_params[param] == 'log':
+            training_set[:, idx] = np.log10(training_set[:, idx])
+        else:
+            if model_params[param] != 'normal':
+                raise ValueError(f"MieNet does not support {model_params[param]} scaling. Please use 'log' or 'normal'")
 
     # define number of inputs and set size
     num_inputs = int(training_set.shape[1] - 3)  # number of model inputs
@@ -421,29 +433,33 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         plt.tight_layout()
         plt.show()
 
-    # # ==== ADD MODEL TO CONFIG FILE ====================================================================================
-    # # path to config file
-    # config_path = self.data_path + 'config.yaml'
-    #
-    # # model info to add to file
-    # new_data = {model_params['name']: {'architecture': 'one_network',
-    #                                    'theory': theory,
-    #                                    'dependencies': {},
-    #                                    'species': species,
-    #                                    'range': {'wavelength': wave_range, 'particle_size': size_range},
-    #                                    'scale': scale,
-    #                                    'files': model_params['name'] + '.keras'}
-    #             }
-    #
-    # # check for existing config file
-    # if os.path.exists(config_path):
-    #     with open(config_path, 'r') as file:
-    #         current_data = yaml.safe_load(file) or {}
-    #
-    #     with open(config_path, 'w') as file:
-    #         yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
-    #
-    # # create config file if none exist
-    # else:
-    #     with open(config_path, 'w') as file:
-    #         yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
+    # ==== ADD MODEL TO CONFIG FILE ====================================================================================
+    # path to config file
+    config_path = self.data_path + 'config.yaml'
+
+    # model info to add to file
+    new_data = {model_params['name']: {'architecture': 'one_network',
+                                       'theory': dataset.attrs['theory'],
+                                       'dependencies': {},
+                                       'species': dataset.attrs['species'],
+                                       'range': {'wavelength': dataset.attrs['wavelength_range'],
+                                                 'particle_size': dataset.attrs['particle_size_range']},
+                                       'scale': {'wavelength': model_params['wavelength_scale'],
+                                                 'particle_size': model_params['particle_size_scale'],
+                                                 'extinction': model_params['extinction_scale'],
+                                                 'scattering': model_params['scattering_scale'],},
+                                       'files': model_params['name'] + '.keras'}
+                }
+
+    # check for existing config file
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as file:
+            current_data = yaml.safe_load(file) or {}
+
+        with open(config_path, 'w') as file:
+            yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
+
+    # create config file if none exist
+    else:
+        with open(config_path, 'w') as file:
+            yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
