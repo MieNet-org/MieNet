@@ -85,7 +85,7 @@ class MieNet:
         self.load_grid_efficiency(file_name=grid_file)
 
 
-    def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios):
+    def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
         """
         Calculate mie coefficients using a pre-trained neural network.
 
@@ -97,6 +97,8 @@ class MieNet:
             Size of the cloud particle [micron]
         volume_mixing_ratios : dict of np.ndarray or float of size M for each species
             Fraction of each cloud material given as float or array
+        theory: str, optional
+            Mixing theory used to train ai model
 
         Return
         ------
@@ -109,7 +111,7 @@ class MieNet:
         # check if neural network is initalised
         if not self.use_ai:
             if self.force_disabled_ai:
-                raise ValueError('[ERROR] No AANs were loaded, ai_efficiencies is not available.')
+                raise ValueError('[ERROR] No ANNs were loaded, ai_efficiencies is not available.')
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # find all models that include all species

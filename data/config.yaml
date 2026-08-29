@@ -1,6 +1,7 @@
 FORS_BROWN_DWARF:
 
   architecture: 'six_network'
+  theory: 'LLL'
   dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
@@ -23,6 +24,7 @@ FORS_BROWN_DWARF:
 ENS_BROWN_DWARF:
 
   architecture: 'six_network'
+  theory: 'LLL'
   dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
@@ -45,6 +47,7 @@ ENS_BROWN_DWARF:
 SILICATES:
 
   architecture: 'six_network'
+  theory: 'LLL'
   dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:
@@ -67,6 +70,7 @@ SILICATES:
 METEORITE:
 
   architecture: 'six_network'
+  theory: 'LLL'
   dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
 
   species:

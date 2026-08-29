@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 def get_models(data_location):
-    '''
+    """
     Download and unzip AI models from Zenodo
-    '''
+    """
     # Zenodo link
     url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
 

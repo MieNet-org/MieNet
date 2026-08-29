@@ -4,7 +4,7 @@
 import numpy as np
 
 def three_network(inputs, dependencies):
-    '''
+    """
     Predict outputs with three ANNs using two wavelength cutoffs.
 
     Parameters
@@ -18,7 +18,7 @@ def three_network(inputs, dependencies):
     Returns
     ----------
     masks: low_mask, mid_mask, and high_mask for masking model inputs
-    '''
+    """
     low_mask = inputs[:, 0] <= np.log10(dependencies['low_wave'])
     mid_mask = ((inputs[:, 0] > np.log10(dependencies['low_wave'])) & (inputs[:, 0] < np.log10(dependencies['high_wave'])))
     high_mask = inputs[:, 0] >= np.log10(dependencies['high_wave'])
@@ -27,7 +27,7 @@ def three_network(inputs, dependencies):
 
 
 def six_network(inputs, dependencies):
-    '''
+    """
     Predict outputs with six ANNs using two wavelength cutoffs and one size parameter cutoff.
 
     Parameters
@@ -41,7 +41,7 @@ def six_network(inputs, dependencies):
     Returns
     ----------
     masks: 6 masks for masking model inputs
-    '''
+    """
     size_param = 2 * np.pi * (10**inputs[:,1]) / (10**inputs[:,0])
 
     mask_1A = (10 ** inputs[:, 0] <= dependencies['low_wave']) & (size_param >= dependencies['size_cutoff'])
