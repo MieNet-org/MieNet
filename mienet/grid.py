@@ -40,7 +40,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     )
 
     # ==== Load grid
-    best_dataset = select_best_dataset('grid', False, volume_mixing_ratios, self.default_grids)
+    best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids)
     if best_dataset[0] is None:
         raise ValueError('[ERROR] No grid available for your species.')
     ds = self.default_grids[best_dataset[0]]['ds']

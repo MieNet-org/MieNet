@@ -46,17 +46,17 @@ class MieNet:
         """
 
         # ==== General preparations ===============================================================
+        # save user inputs
+        self.use_ai = use_ai
+        self.load_ai_model = load_ai_model
+        self.mute = mute
+
+        # working variables
+        self.force_disabled_ai = False  # This will give a warning if MieNet breaks
+
         # Load species data from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
-        # save ai initialization state
-        self.use_ai = use_ai
-        self.load_ai_model = load_ai_model
-        # save efficiency calc state
-        self.auto = False
-        self.force_disabled_ai = False  # This will give a warning if MieNet breaks
-        # save mute preference
-        self.mute = mute
 
         # ==== Data location
         # user input data location
@@ -113,7 +113,7 @@ class MieNet:
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # find all models that include all species
-        best_model = select_best_dataset('model', self.auto, volume_mixing_ratios, self.models_dict)
+        best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
 
         # add zero array to vmr dictionary if using less than the total amount of species
         if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -320,18 +320,17 @@ class MieNet:
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
-        auto = True
 
         if self.use_ai:
             # check models
-            best_model = select_best_dataset('model', auto, volume_mixing_ratios, self.models_dict)
+            best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict, False)
 
             # use model if it exists
             if best_model[0] is not None:
                 extinction, scattering, asymmetry = self.ai_efficiencies(wavelength, particle_size, volume_mixing_ratios)
                 return extinction, scattering, asymmetry
 
-        best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
+        best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids, False)
 
         # use grid if it exists
         if best_dataset[0] is not None:
