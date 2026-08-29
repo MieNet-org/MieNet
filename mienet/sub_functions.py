@@ -164,6 +164,10 @@ def get_model_info(model_path):
     with open(config_yaml, 'r') as f:
         config = yaml.safe_load(f)
 
+    # check if there is at least one entry
+    if config is None:
+        return {}
+
     models_dict = {}
 
     for model in config.keys():
@@ -178,7 +182,7 @@ def get_model_info(model_path):
 
     return models_dict
 
-def initialize_ai_models(load_ai_model, model_path):
+def initialize_ai_models(load_ai_model, model_path, mute=True):
     '''
     Load ai tensorflow models.
 
@@ -188,6 +192,8 @@ def initialize_ai_models(load_ai_model, model_path):
         Either 'all' to load every model or the model name
     model_names: Dictionary
         Dictionary of species in each mixture
+    mute : bool, optional
+        If True, MieNet will produce no diagnostic outputs and runs quietly.
 
     Returns
     ----------
@@ -200,23 +206,40 @@ def initialize_ai_models(load_ai_model, model_path):
     '''
     from tensorflow.keras.models import load_model
 
+    # check if config.yaml exists
+    if not os.path.isfile(model_path + 'config.yaml'):
+        if not mute:
+            print('[WARN] config.yaml file not found in the folder:\n'
+                  '   -> ' + model_path)
+        return {}
+
     # read  config file
     models_dict = get_model_info(model_path)
 
     # load all models by default if one is not specified
     if load_ai_model == 'all':
+        # get all model keys
+        keys = list(models_dict.keys())
 
         # load all models for each mixture
-        for model in models_dict.keys():
+        for model in keys:
+            skip = False  # if not all keras file could be loaded, skip
 
             # prepare model list for dictionary
             model_list = np.empty(len(models_dict[model]['files']), dtype = object)
 
             for i, file in enumerate(models_dict[model]['files']):
-
                 # only load files that are downloaded
                 if os.path.isfile(os.path.join(model_path + file)):
                     model_list[i] = load_model(os.path.join(model_path + file))
+                else:
+                    del models_dict[model]  # remove model from dict
+                    skip = True  # remember that this model is incomplete
+                    break  # stop searching for more models
+
+            # if not all keras file coudl be loaded, skip
+            if skip:
+                continue
 
             models_dict[model]['models'] = model_list
 
@@ -242,7 +265,6 @@ def initialize_ai_models(load_ai_model, model_path):
             # load files
             if os.path.isfile(os.path.join(model_path + file)):
                 model_list[i] = load_model(os.path.join(model_path + file))
-
             else:
                 raise ValueError(f'Model files for mixture {load_ai_model} not found.')
 
