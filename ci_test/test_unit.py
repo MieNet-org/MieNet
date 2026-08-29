@@ -12,6 +12,12 @@ from mienet.sub_functions import (read_in_refindex, calculate_subradii, initiali
 
 testcase = unittest.TestCase()
 
+def test_mienet():
+    # check if missing ai models lead to assertion
+    with testcase.assertRaises(ValueError):
+        ma = MieNet(default_data_location='.', mute=False)
+        ma.ai_efficiencies(1, 1, 1)
+
 def test_sub_functions():
     # ==== test Bruggeman
     ma = MieNet(use_ai=False, mute=False)

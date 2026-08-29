@@ -51,6 +51,7 @@ class MieNet:
         self.load_ai_model = load_ai_model
         # save efficiency calc state
         self.auto = False
+        self.force_disabled_ai = False  # This will give a warning if MieNet breaks
         # save mute preference
         self.mute = mute
 
@@ -65,11 +66,15 @@ class MieNet:
         # ==== Prepare Neural Network =============================================================
         if use_ai:
 
-            # only load models if the model files exist
-            models = glob.glob(self.data_path + '*.keras')
-            if models:
-                # load models
-                self.models_dict = initialize_ai_models(load_ai_model, self.data_path)
+            # initialize ai models
+            self.models_dict = initialize_ai_models(load_ai_model, self.data_path, self.mute)
+
+            # if no models were found, disable AI
+            if len(self.models_dict) < 1:
+                self.use_ai = False
+                self.force_disabled_ai = True
+                if not self.mute:
+                    print('[WARN] No ANN models found, disabling ANN functionalities.')
 
         # ==== Load predetermined grid dataset
         # default datasets
@@ -100,6 +105,8 @@ class MieNet:
 
         # check if neural network is initalised
         if not self.use_ai:
+            if self.force_disabled_ai:
+                raise ValueError('[ERROR] No AANs were loaded, ai_efficiencies is not available.')
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # find all models that include all species

@@ -37,7 +37,7 @@ def test_full():
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
-    ma = MieNet(default_model_location=loc)
+    ma = MieNet(default_data_location=loc)
 
     # ==== Standard Ai run
     extinction, scattering, asymmetry = ma.ai_efficiencies(
@@ -52,7 +52,7 @@ def test_ai():
     assert np.isclose(np.sum(asymmetry), -23.71189)
 
     # ==== Use load grid model
-    ma = MieNet(default_model_location=loc, load_ai_model='TUTORIAL_MODEL')
+    ma = MieNet(default_data_location=loc, load_ai_model='TUTORIAL_MODEL')
     extinction, scattering, asymmetry = ma.ai_efficiencies(
         np.logspace(-0.5, 1, 8), np.logspace(-3, -2, 8),
         {
@@ -110,7 +110,7 @@ def test_ai():
 
     # ==== Test wrong model load
     with testcase.assertRaises(ValueError):
-        MieNet(default_model_location=loc, load_ai_model='NON_EXISTING')
+        MieNet(default_data_location=loc, load_ai_model='NON_EXISTING')
 
     # ==== Test non-initialisation error
     with testcase.assertRaises(ValueError):
