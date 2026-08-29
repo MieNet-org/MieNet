@@ -265,7 +265,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
 
-def train_ai_model(self, file_name, model_params={}, plot_training=False):
+def train_ai_model(self, file_name, model_params={}, plot_training=False, overwrite=False):
     """
     Train a neural network with TensorFlow.
 
@@ -292,15 +292,27 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False):
     """
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
 
-    # set model name
+    # ==== set model name
     if 'name' in model_params:
-        if os.path.exists(self.data_path + model_params['name'] + '.keras'):
+        # check given model name does not exist
+        if (os.path.exists(self.data_path + model_params['name'] + '.keras')) & (overwrite == False):
             raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
     else:
-        now = datetime.now()
-        model_params['name'] = 'model' + now.strftime('%m_%d_%Y_%H_%M_%S')
+        # default name is same as training set file name
+        if overwrite == True:
+            model_params['name'] = file_name
+        else:
+            # set default name to file name if available
+            if not os.path.exists(self.data_path + file_name + '.keras'):
+                model_params['name'] = file_name
+            # if default name is already used, add number to end
+            else:
+                file_end = 1
+                while os.path.exists(self.data_path + file_name + '.keras'):
+                    file_name = file_name + str(file_end)
+                    file_end += 1
 
-    # set defaults if model parameter not given
+    # ==== set defaults if model parameter not given
     if 'layers' not in model_params:
         model_params['nodes'] = 3
     if 'nodes' not in model_params:
@@ -331,7 +343,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False):
     from tensorflow import keras
 
     # open xarray and get training set as array
-    dataset = xr.open_dataset(self.data_path + training_set_file + '.nc')
+    dataset = xr.open_dataset(self.data_path + file_name + '.nc')
     training_set = dataset['data'].to_numpy()
 
     # ==== check input and output scaling
