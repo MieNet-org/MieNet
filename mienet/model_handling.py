@@ -265,7 +265,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
 
-def train_ai_model(self, file_name, model_params, plot_training = False):
+def train_ai_model(self, file_name, model_params={}, plot_training=False):
     """
     Train a neural network with TensorFlow.
 
