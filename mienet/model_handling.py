@@ -9,6 +9,7 @@ import shutil
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 def get_models(data_location, overwrite=True):
     '''
@@ -37,8 +38,6 @@ def get_models(data_location, overwrite=True):
 
     # delete MACOSX folder
     shutil.rmtree(os.path.join(data_location, '__MACOSX'))
-
-    return data_location
 
 def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory = 'LLL'):
     """
@@ -137,8 +136,8 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
     training_set : array_like
         (Wavelength, Particle Size, VMR1, VMR2,..., Extinction, Scattering, Asymmetry)
     model_params : dict
-        {'name': str(name to give to model),
-        'layers': int(number of hidden layers),
+        {'name' (optional): str(name to give to model),
+        'layers' (optional): int(number of hidden layers),
         'nodes' (optional): int(number of nodes per hidden layer),
         'activation_function' (optional): str(activation function),
         'optimizer' (optional): str(optimizer),
@@ -154,10 +153,18 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         Whether or not to plot the training loss and accuracy
     """
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
-    if os.path.exists(self.data_path + model_params['name'] + '.keras'):
-        raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
+
+    # set model name
+    if 'name' in model_params:
+        if os.path.exists(self.data_path + model_params['name'] + '.keras'):
+            raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
+    else:
+        now = datetime.now()
+        model_params['name'] = 'model' + now.strftime('%m_%d_%Y_%H_%M_%S')
+
+    # set defaults if model parameter not given
     if 'layers' not in model_params:
-        raise ValueError('Number of hidden layers not specified.')
+        model_params['nodes'] = 3
     if 'nodes' not in model_params:
         model_params['nodes'] = 100
     if 'activation_function' not in model_params:
@@ -182,6 +189,7 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         model_params['log_scattering'] = True
 
     # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
+    # import tensorflow here so MieNet can be used without it
     from tensorflow import keras
 
     # check input and output scaling
