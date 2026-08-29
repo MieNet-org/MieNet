@@ -265,13 +265,13 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
 
-def train_ai_model(self, training_set_file, model_params, plot_training = False):
+def train_ai_model(self, file_name, model_params, plot_training = False):
     """
     Train a neural network with TensorFlow.
 
     Parameters
     ----------
-    training_set_file: str
+    file_name: str
         File name of the xarray training set
     model_params : dict
         {'name' (optional): str(name to give to model),
@@ -331,7 +331,7 @@ def train_ai_model(self, training_set_file, model_params, plot_training = False)
     from tensorflow import keras
 
     # open xarray and get training set as array
-    dataset = xr.open_dataset(training_set_file)
+    dataset = xr.open_dataset(self.data_path + training_set_file + '.nc')
     training_set = dataset['data'].to_numpy()
 
     # ==== check input and output scaling
