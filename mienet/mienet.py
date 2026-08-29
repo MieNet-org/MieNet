@@ -25,7 +25,7 @@ class MieNet:
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
     from .model_handling import generate_training_set, train_ai_model
 
-    def __init__(self, use_ai=True, default_model_location=None, mute=True, load_ai_model='all',
+    def __init__(self, use_ai=True, default_data_location=None, mute=True, load_ai_model='all',
                  grid_file=None):
         """
         Constructor
@@ -34,19 +34,19 @@ class MieNet:
         ----------
         use_ai : bool
             If False, AI will be disabled. This allows to use MieNet without installing tensorflow.
-        load_ai_model : str
-            Which AI model to load. Defualt is 'all', which loads all models. User can input
-            model names to load a specific model.
-        default_model_location : str, optional
-            Location of opacity models. If none, MieNet defaults are used.
+        default_data_location : str, optional
+            Location of opacity data and/or grids. If none, MieNet defaults are used.
         mute : bool, optional
             If True, MieNet will produce no diagnostic outputs and runs quietly.
+        load_ai_model : str
+            Which AI model to load. Default is 'all', which loads all models. User can input
+            model names to load a specific model.
         grid_file : str, optional
             If a grid file is given, only this file will be loaded.
         """
 
         # ==== General preparations ===============================================================
-        # Load species models from files
+        # Load species data from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
         # save ai initialization state
@@ -58,18 +58,19 @@ class MieNet:
         # save mute preference
         self.mute = mute
 
+        # ==== Data location
+        # user input data location
+        if default_data_location is not None:
+            self.data_path = default_data_location
+        # default data location
+        else:
+            self.data_path = os.path.join(os.path.dirname(__file__), '../data/')
+
         # ==== Prepare Neural Network =============================================================
         if use_ai:
 
-            # models location
-            if default_model_location is not None:
-                self.model_path = default_model_location
-            # default models location
-            else:
-                self.model_path = os.path.join(os.path.dirname(__file__), '../models/')
-
             # initialize ai models
-            self.models_dict = initialize_ai_models(load_ai_model, self.model_path, self.mute)
+            self.models_dict = initialize_ai_models(load_ai_model, self.data_path, self.mute)
 
             # if no models were found, disable AI
             if len(self.models_dict) < 1:
@@ -77,14 +78,6 @@ class MieNet:
                 self.force_disabled_ai = True
                 if not self.mute:
                     print('[WARN] No ANN models found, disabling ANN functionalities.')
-
-        # ==== List of default datasets
-        # user input models location
-        if default_model_location is not None:
-            self.data_path = default_model_location
-        # default models location
-        else:
-            self.data_path = os.path.join(os.path.dirname(__file__), '../models/')
 
         # ==== Load predetermined grid dataset
         # default datasets
@@ -245,7 +238,7 @@ class MieNet:
         volume_mixing_ratios : dict of np.ndarray or float of size M for each species
             Fraction of each cloud material given as float or array
         theory : str, optional
-            Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+            Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
 
         Return
         ------
@@ -269,7 +262,7 @@ class MieNet:
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 
-        # ==== Load models for each species from files and get refractive index =====================
+        # ==== Load data for each species from files and get refractive index =====================
         ref_index = read_in_refindex(species_list, wavelength, self.files)
 
         # ==== Combination of all wavelengths and particle size ===================================
@@ -340,7 +333,7 @@ class MieNet:
 
         best_dataset = select_best_dataset('grid', auto, volume_mixing_ratios, self.default_grids)
 
-        # use model if it exists
+        # use grid if it exists
         if best_dataset[0] is not None:
             extinction, scattering, asymmetry = self.grid_efficiencies(wavelength, particle_size, volume_mixing_ratios)
             return extinction, scattering, asymmetry
@@ -351,13 +344,13 @@ class MieNet:
 
     def download_models(self):
         '''
-        Download MieNet models from Zenodo and load all models/specified model.
+        Download MieNet data from Zenodo and load all data/specified model.
         '''
-        # check if files already exsist
-        models = glob.glob(self.model_path + '*.keras')
+        # check if files already exist
+        models = glob.glob(self.data_path + '*.keras')
         if not models:
             # download models
-            get_models(self.model_path)
+            get_models(self.data_path)
 
-            # load models
-            self.models_dict = initialize_ai_models(self.load_ai_model, self.model_path)
+            # load data
+            self.models_dict = initialize_ai_models(self.load_ai_model, self.data_path)

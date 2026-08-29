@@ -22,7 +22,7 @@ def read_in_refindex(species, wavelength, files):
     Return
     ------
     ref_index : np.ndarray of size (N, M, 2)
-        Refractive index models: real, and imaginary part.
+        Refractive index data: real, and imaginary part.
     """
 
     # ==== Input handling
@@ -34,14 +34,14 @@ def read_in_refindex(species, wavelength, files):
     ref_index = np.zeros((len(species), len(wavelength), 2))
     for s, spec in enumerate(species):
 
-        # ==== Load models from files =====================================================
+        # ==== Load data from files =====================================================
 
         # find species in files
         data = None
         for file in files:
             sp_name = os.path.basename(file).split('/')[0][:-8]
             if spec == sp_name:
-                # get models using pandas
+                # get data using pandas
                 content = pd.read_csv(file, sep=r'\s+', header=None, usecols=[1, 2, 3])
                 # convert to array and flip vertically so wavelength increases
                 data = np.flip(content.to_numpy(), axis=0)
@@ -51,8 +51,8 @@ def read_in_refindex(species, wavelength, files):
         # ==== Get the real(n) and imaginary (k) refractory index =======================
         # loop over all wavelengths
         for wav, wave in enumerate(wavelength):
-            # if desired wavelength is smaller than models, use the smallest wavelength
-            # models available
+            # if desired wavelength is smaller than data, use the smallest wavelength
+            # data available
             if wave < float(data[0, 0]):
                 ref_index[s, wav, 0] = float(data[0, 1])
                 ref_index[s, wav, 1] = float(data[0, 2])
@@ -143,13 +143,13 @@ def calculate_subradii(particle_size, vmr):
 
     return sub_rad, vmr
 
-def get_model_info(model_path):
+def get_model_info(data_path):
     '''
     Get neural network files and information.
 
     Parameters
     ----------
-    model_path: string
+    data_path: string
 
     Returns
     -------
@@ -160,7 +160,7 @@ def get_model_info(model_path):
         Dictionary of dependencies
 
     '''
-    config_yaml = model_path + 'config.yaml'
+    config_yaml = data_path + 'config.yaml'
     with open(config_yaml, 'r') as f:
         config = yaml.safe_load(f)
 
@@ -182,7 +182,7 @@ def get_model_info(model_path):
 
     return models_dict
 
-def initialize_ai_models(load_ai_model, model_path, mute=True):
+def initialize_ai_models(load_ai_model, data_path, mute=True):
     '''
     Load ai tensorflow models.
 
@@ -207,14 +207,14 @@ def initialize_ai_models(load_ai_model, model_path, mute=True):
     from tensorflow.keras.models import load_model
 
     # check if config.yaml exists
-    if not os.path.isfile(model_path + 'config.yaml'):
+    if not os.path.isfile(data_path + 'config.yaml'):
         if not mute:
             print('[WARN] config.yaml file not found in the folder:\n'
-                  '   -> ' + model_path)
+                  '   -> ' + data_path)
         return {}
 
     # read  config file
-    models_dict = get_model_info(model_path)
+    models_dict = get_model_info(data_path)
 
     # load all models by default if one is not specified
     if load_ai_model == 'all':
@@ -229,15 +229,16 @@ def initialize_ai_models(load_ai_model, model_path, mute=True):
             model_list = np.empty(len(models_dict[model]['files']), dtype = object)
 
             for i, file in enumerate(models_dict[model]['files']):
+
                 # only load files that are downloaded
-                if os.path.isfile(os.path.join(model_path + file)):
-                    model_list[i] = load_model(os.path.join(model_path + file))
+                if os.path.isfile(os.path.join(data_path + file)):
+                    model_list[i] = load_model(os.path.join(data_path + file))
                 else:
                     del models_dict[model]  # remove model from dict
                     skip = True  # remember that this model is incomplete
                     break  # stop searching for more models
 
-            # if not all keras file coudl be loaded, skip
+            # if not all keras file could be loaded, skip
             if skip:
                 continue
 
@@ -263,8 +264,8 @@ def initialize_ai_models(load_ai_model, model_path, mute=True):
         for i, file in enumerate(models_dict[load_ai_model]['files']):
 
             # load files
-            if os.path.isfile(os.path.join(model_path + file)):
-                model_list[i] = load_model(os.path.join(model_path + file))
+            if os.path.isfile(os.path.join(data_path + file)):
+                model_list[i] = load_model(os.path.join(data_path + file))
             else:
                 raise ValueError(f'Model files for mixture {load_ai_model} not found.')
 

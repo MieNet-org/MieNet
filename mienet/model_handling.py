@@ -55,7 +55,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
     """
     # ==== Setup and Checks ============================================================================================
-    store_path = self.model_path + file_name + '.nc'
+    store_path = self.data_path + file_name + '.nc'
     wave_points = wavelength_sample[2] # number of wavelength points
     radii_points = particle_size_sample[2] # number of particle size points
     set_size = wave_points * radii_points # total training set size
@@ -147,7 +147,7 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
         Whether or not to plot the training loss and accuracy
     """
     # ==== DEFAULT MODEL PARAMETERS ====================================================================================
-    if os.path.exists(self.model_path + model_params['name'] + '.keras'):
+    if os.path.exists(self.data_path + model_params['name'] + '.keras'):
         raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
     if 'layers' not in model_params:
         raise ValueError('Number of hidden layers not specified.')
@@ -235,7 +235,7 @@ def train_ai_model(self, training_set, model_params, plot_training = False):
                            batch_size = model_params['batch_size'], epochs = model_params['epochs'])
 
     # save model
-    model.save(self.model_path + model_params['name'] + '.keras')
+    model.save(self.data_path + model_params['name'] + '.keras')
 
     # ==== PLOT LOSS AND ACCURACY ======================================================================================
     if plot_training == True:

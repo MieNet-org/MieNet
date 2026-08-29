@@ -96,7 +96,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     vmr_data_points : int
         Number of volume fraction mixing ratio points
     theory : str, optional
-        Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+        Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
     save_file : str
         Path to save the grid file
 

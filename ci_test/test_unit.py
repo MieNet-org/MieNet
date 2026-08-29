@@ -15,7 +15,7 @@ testcase = unittest.TestCase()
 def test_mienet():
     # check if missing ai models lead to assertion
     with testcase.assertRaises(ValueError):
-        ma = MieNet(default_model_location='.', mute=False)
+        ma = MieNet(default_data_location='.', mute=False)
         ma.ai_efficiencies(1, 1, 1)
 
 def test_sub_functions():
@@ -142,7 +142,7 @@ def test_sub_functions():
 #     output3 = keras.layers.Dense(1, name='asymmetry')(hidden)
 #     model = keras.Model(inputs, outputs=[output1, output2, output3])
 #
-#     # ==== Three and six network models
+#     # ==== Three and six network data
 #     for i, mask in enumerate([w1, w2, w3, m1a, m1b, m1c, m2a, m2b, m2c]):
 #         print(i)
 #         model.compile(optimizer='adam', loss=['mse', 'mse', 'mse'],
