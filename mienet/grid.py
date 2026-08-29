@@ -1,4 +1,4 @@
-""" This file contains all functionaliteis to use the pre-calculated grids """
+""" This file contains all functionalities to use the pre-calculated grids """
 # pylint: disable=C0415,R0902,R0912,R0913,R0914,R0915,R0917
 
 from glob import glob

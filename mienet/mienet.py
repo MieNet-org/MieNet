@@ -96,13 +96,18 @@ class MieNet:
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
 
-        # ==== network intialization & retrieval ==================================================
+        # ==== network initialization & retrieval ==================================================
 
-        # check if neural network is initalised
+        # check if neural network is initialized
         if not self.use_ai:
             if self.force_disabled_ai:
                 raise ValueError('[ERROR] No ANNs were loaded, ai_efficiencies is not available.')
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
+
+        # check at least one correct model is initialized if using specific model
+        if self.load_ai_model != 'all':
+            if any(set(self.models_dict[key]['species']) != set(volume_mixing_ratios.keys()) for key in self.load_ai_model):
+                raise ValueError("No correct AI model initialized for this mixture")
 
         # find all models that include all species
         best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
@@ -112,11 +117,6 @@ class MieNet:
             missing_species = [key for key in best_model[1] if key not in volume_mixing_ratios]
             for species in missing_species:
                 volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
-
-        # check correct model is initialized if using specific model
-        if self.load_ai_model != 'all':
-            if sorted(self.models_dict[self.load_ai_model]['species']) != sorted(volume_mixing_ratios.keys()):
-                raise ValueError("Incorrect AI model initialized for this mixture")
 
         # get info for the model
         model_dict = self.models_dict[best_model[0]]

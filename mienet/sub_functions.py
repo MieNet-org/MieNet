@@ -177,10 +177,10 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
 
     # raise value error if no datasets for the type of efficiency function called
     if stop:
-        raise ValueError("[ERROR] No default " + f'{type}' + " for " + str(l_set) +
+        raise ValueError("[ERROR] No " + f'{type}' + " for " + str(l_set) +
                          " is available. Please provide one.")
 
-    # if run should not be apported, return (None, None) dataset
+    # if run should not be aborted, return (None, None) dataset
     return None, None
 
 def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
@@ -243,7 +243,7 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     for s, spec in enumerate(species_list):
         vmr[:, s] = volume_mixing_ratios[spec]
 
-    # Check if all VMRs add up to 1 and normalise if necessary
+    # Check if all VMRs add up to 1 and normalize if necessary
     vmr_sum = np.sum(vmr, axis=1)
     if any(vmr_sum != 1) and not mute:
         print('[WARN] Volume mixing ratios do not add up to 1. '
