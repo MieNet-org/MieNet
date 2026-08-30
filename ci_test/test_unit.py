@@ -71,7 +71,6 @@ def test_sub_functions():
 def test_model_handling():
     url = 'https://github.com/d-attaway/MieNet/raw/refs/heads/main/ci_test/files/test_models.zip'
     loc = os.path.dirname(__file__) + '/files'
-    loc = os.path.dirname(__file__) + '/files'
     ma = MieNet(use_ai=False, default_data_location=loc)
     ma.download_models(overwrite=False, url=url)
     os.path.exists()
