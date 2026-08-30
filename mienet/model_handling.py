@@ -446,35 +446,35 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         plt.tight_layout()
         plt.show()
 
-    # # ==== ADD MODEL TO CONFIG FILE ====================================================================================
-    # # path to config file
-    # config_path = self.data_path + 'config.yaml'
-    #
-    # # model info to add to file
-    # new_data = {model_params['name']: {'architecture': 'one_network',
-    #                                    'theory': dataset.attrs['theory'],
-    #                                    'dependencies': {},
-    #                                    'species': dataset.attrs['species'],
-    #                                    'range': {'wavelength': dataset.attrs['wavelength_range'].tolist(),
-    #                                              'particle_size': dataset.attrs['particle_size_range'].tolist(),},
-    #                                    'scale': {'wavelength': model_params['wavelength_scale'],
-    #                                              'particle_size': model_params['particle_size_scale'],
-    #                                              'extinction': model_params['extinction_scale'],
-    #                                              'scattering': model_params['scattering_scale'],},
-    #                                    'files': model_params['name'] + '.keras'}
-    #             }
-    #
-    # # check for existing config file
-    # if os.path.exists(config_path):
-    #     with open(config_path, 'r') as file:
-    #         current_data = yaml.safe_load(file) or {}
-    #
-    #     current_data.update(new_data)
-    #
-    #     with open(config_path, 'w') as file:
-    #         yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
-    #
-    # # create config file if none exist
-    # else:
-    #     with open(config_path, 'w') as file:
-    #         yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
+    # ==== ADD MODEL TO CONFIG FILE ====================================================================================
+    # path to config file
+    config_path = self.data_path + 'config.yaml'
+
+    # model info to add to file
+    new_data = {model_params['name']: {'architecture': 'one_network',
+                                       'theory': dataset.attrs['theory'],
+                                       'dependencies': {},
+                                       'species': dataset.attrs['species'],
+                                       'range': {'wavelength': dataset.attrs['wavelength_range'].tolist(),
+                                                 'particle_size': dataset.attrs['particle_size_range'].tolist(),},
+                                       'scale': {'wavelength': model_params['wavelength_scale'],
+                                                 'particle_size': model_params['particle_size_scale'],
+                                                 'extinction': model_params['extinction_scale'],
+                                                 'scattering': model_params['scattering_scale'],},
+                                       'files': [model_params['name'] + '.keras']}
+                }
+
+    # check for existing config file
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as file:
+            current_data = yaml.safe_load(file) or {}
+
+        current_data.update(new_data)
+
+        with open(config_path, 'w') as file:
+            yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
+
+    # create config file if none exist
+    else:
+        with open(config_path, 'w') as file:
+            yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)

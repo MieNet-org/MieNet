@@ -68,42 +68,45 @@ def test_sub_functions():
     with testcase.assertRaises(ValueError):
         input_check(1, 1, {'Fe': [1, 2], 'Fe2': [1, 2]}, None)
 
-# def test_create_ai_model():
-#     # ==== Test generate_training_set
-#     loc = os.path.dirname(__file__) + '/'
-#     try:
-#         os.remove(loc + 'test_set.nc')
-#     except OSError:
-#         pass
-#     try:
-#         os.remove(loc + 'test_model.keras')
-#     except OSError:
-#         pass
-#
-#     ma = MieNet(mute=False, default_model_location= loc)
-#     ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
-#                              wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
-#
-#     # ==== Test train_ai_model
-#     dataset = xr.open_dataset(loc + 'test_set.nc')
-#     dataset_arr = dataset['data'].to_numpy()
-#     ma.train_ai_model(dataset_arr,
-#                       model_params={'name': 'test_model', 'layers': 2, 'batch_size': 32},
-#                       plot_training=False)
-#
-#     # ==== Test created model predictions
-#     ma = MieNet(mute=False, default_model_location=loc)
-#     extinction, scattering, asymmetry = ma.ai_efficiencies(np.linspace(0.1, 10, 8),
-#                                                            np.linspace(0.001, 0.01, 8),
-#                                                            {'SiO2': np.linspace(0, 1, 8),
-#                                                             'MgSiO3': np.linspace(1, 0, 8)})
-#
-#     os.remove(loc + 'test_set.nc')
-#     os.remove(loc + 'test_model.keras')
-#
-#     assert np.isclose(np.sum(extinction), 20.608023, rtol = 5, atol = 5)
-#     assert np.isclose(np.sum(scattering), 31.9421, rtol = 5, atol = 5)
-#     assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 5, atol = 5)
+def test_create_ai_model():
+    # ==== Test generate_training_set
+    loc = os.path.dirname(__file__) + '/'
+    try:
+        os.remove(loc + 'test_set.nc')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_model.keras')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'config.yaml')
+    except OSError:
+        pass
+
+    ma = MieNet(mute=False, default_data_location= loc)
+    ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
+                             wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
+
+    # ==== Test train_ai_model
+    ma.train_ai_model('test_set',
+                      model_params={'name': 'test_model', 'layers': 2, 'batch_size': 32},
+                      plot_training=False)
+
+    # ==== Test created model predictions
+    ma = MieNet(mute=False, default_data_location=loc)
+    extinction, scattering, asymmetry = ma.ai_efficiencies(np.linspace(0.1, 10, 8),
+                                                           np.linspace(0.001, 0.01, 8),
+                                                           {'SiO2': np.linspace(0, 1, 8),
+                                                            'MgSiO3': np.linspace(1, 0, 8)})
+
+    os.remove(loc + 'test_set.nc')
+    os.remove(loc + 'test_model.keras')
+    os.remove(loc + 'config.yaml')
+
+    assert np.isclose(np.sum(extinction), 20.608023, rtol = 5, atol = 5)
+    assert np.isclose(np.sum(scattering), 31.9421, rtol = 5, atol = 5)
+    assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 5, atol = 5)
 
 # def test_multiple_network_models():
 #     # ==== Generate dataset for test
