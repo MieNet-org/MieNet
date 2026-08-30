@@ -9,6 +9,7 @@ import glob
 from mienet import MieNet
 from mienet.sub_functions import (read_in_refindex, calculate_subradii,
                                   input_check)
+from mienet.architecture_functions import three_network, six_network
 
 testcase = unittest.TestCase()
 
@@ -134,6 +135,29 @@ def test_create_ai_model():
     assert np.isclose(np.sum(extinction), 20.608023, rtol = 5, atol = 5)
     assert np.isclose(np.sum(scattering), 31.9421, rtol = 5, atol = 5)
     assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 5, atol = 5)
+
+def test_architecture_functions():
+    # ==== test three_network
+    inp3 = np.asarray([[1, None, None], [2, None, None], [3, None, None]])
+    dep3 = {'low_wave': 10**1.5, 'high_wave': 10**2.5}
+    res = three_network(inp3, dep3)
+    assert (res[0] == np.asarray([True, False, False])).all()
+    assert (res[1] == np.asarray([False, True, False])).all()
+    assert (res[2] == np.asarray([False, False, True])).all()
+
+    # ==== test six_network
+    inp6 = np.asarray([
+        [1, 1, None], [2, 2, None], [3, 3, None],
+        [1, -1, None], [2, -2, None], [3, -3, None],
+    ])
+    dep6 = {'low_wave': 10**1.5, 'high_wave': 10**2.5, 'size_cutoff': 1}
+    res = six_network(inp6, dep6)
+    for i in range(6):
+        for j in range(6):
+            if i == j:
+                assert res[i][j]
+            else:
+                assert not res[i][j]
 
 # def test_multiple_network_models():
 #     # ==== Generate dataset for test
