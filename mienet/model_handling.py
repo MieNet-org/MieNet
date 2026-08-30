@@ -212,12 +212,15 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
                 'idx': range(set_size),
                 'dim': ['wavelength', 'particle_size'] + species[:-1] + ['extinction', 'scattering', 'asymmetry']
             },
-            attrs = {'idx': 0,
-                     'species': species,
-                     'wavelength_range': [wavelength_sample[0], wavelength_sample[1]],
-                     'particle_size_range':[particle_size_sample[0], particle_size_sample[1]],
-                     'theory': mixing_theory
-                     }
+            attrs = {
+                'idx': 0,
+                'species': species,
+                'wavelength_range': [wavelength_sample[0], wavelength_sample[1]],
+                'particle_size_range':[particle_size_sample[0], particle_size_sample[1]],
+                'theory': mixing_theory,
+                'date_created': str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                'date_finished': 'Not yet finished',
+            }
         )
         ds.to_netcdf(store_path)
 
@@ -268,6 +271,10 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds['data'][ds.attrs['idx']:ds.attrs['idx'] + radii_points] = sol
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
+
+    # if finished add time when done
+    ds.attrs['date_finished'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    ds.to_netcdf(store_path)
 
 def train_ai_model(self, file_name, model_params={}, plot_training=False, overwrite=False):
     """
