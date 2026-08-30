@@ -349,7 +349,7 @@ class MieNet:
         return extinction, scattering, asymmetry
 
 
-    def download_models(self, overwrite=True):
+    def download_models(self, overwrite=True, url=None):
         '''
         Download MieNet data from Zenodo and load all data/specified model.
 
@@ -357,9 +357,11 @@ class MieNet:
         ----------
         overwrite : bool, optional
             If True, old files will be overwritten.
+        url : str, optional
+            Download link. If None is given, use the default zotero repository.
         '''
         # download models
-        get_models(self.data_path, overwrite)
+        get_models(self.data_path, overwrite, url)
 
         # load data
         if self.use_ai:

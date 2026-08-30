@@ -12,7 +12,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-def get_models(data_location, overwrite=True):
+def get_models(data_location, overwrite=True, url=None):
     """
     Download and unzip AI models from Zenodo
 
@@ -22,9 +22,12 @@ def get_models(data_location, overwrite=True):
         location where the data should be stored
     overwrite : bool, optional
         In case some files already exist: overwrite old data if True, discard new data if False
+    url : str, optional
+        Download link. If None is given, use the default zotero repository.
     """
     # Zenodo link
-    url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
+    if url is None:
+        url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
