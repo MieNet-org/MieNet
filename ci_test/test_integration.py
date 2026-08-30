@@ -67,6 +67,9 @@ def test_ai():
     assert np.isclose(np.sum(extinction), 37.19869)
     assert np.isclose(np.sum(scattering), 12.870874)
     assert np.isclose(np.sum(asymmetry), -23.71189)
+    # request wrong mixture
+    with testcase.assertRaises(ValueError):
+        ma.ai_efficiencies(1, 1,{'WRONG': 1,})
 
     # ==== Test float input
     extinction, scattering, asymmetry = ma.ai_efficiencies(3, 0.005,

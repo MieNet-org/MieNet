@@ -81,7 +81,7 @@ def test_model_handling():
     except OSError:
         pass
     # test if file is downloaded
-    ma = MieNet(use_ai=False, default_data_location=loc)
+    ma = MieNet(default_data_location=loc)
     ma.download_models(overwrite=False, url=url)
     assert os.path.exists(test)
     os.remove(test)
