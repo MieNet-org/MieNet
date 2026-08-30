@@ -68,6 +68,15 @@ def test_sub_functions():
     with testcase.assertRaises(ValueError):
         input_check(1, 1, {'Fe': [1, 2], 'Fe2': [1, 2]}, None)
 
+# def test_model_handling():
+#     url = 'https://github.com/d-attaway/MieNet/raw/refs/heads/main/ci_test/files/models.zip'
+#     loc = os.path.dirname(__file__) + '/files'
+#     loc = os.path.dirname(__file__) + '/files'
+#     ma = MieNet(use_ai=False, default_data_location=loc)
+#     ma.download_models(overwrite=False, url=url)
+#     os.path.exists()
+
+
 def test_create_ai_model():
     # ==== Test generate_training_set
     loc = os.path.dirname(__file__) + '/'
