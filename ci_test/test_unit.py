@@ -69,10 +69,11 @@ def test_sub_functions():
         input_check(1, 1, {'Fe': [1, 2], 'Fe2': [1, 2]}, None)
 
 def test_model_handling():
+    # ==== get models
     # link to files
     url = 'https://github.com/d-attaway/MieNet/raw/refs/heads/main/ci_test/files/test_dwl.zip'
-    loc = os.path.dirname(__file__) + '/files'
-    test = os.path.dirname(__file__) + '/files/tutorial_model.keras'
+    loc = os.path.dirname(__file__) + '/files/test_setup_1/'
+    test = os.path.dirname(__file__) + '/files/test_setup_1/tutorial_model.keras'
     # delete old files if present
     try:
         os.remove(test)
@@ -83,6 +84,11 @@ def test_model_handling():
     ma.download_models(overwrite=False, url=url)
     assert os.path.exists(test)
     os.remove(test)
+
+    # ==== initialize ai
+    ma = MieNet(use_ai=False, default_data_location=loc, mute=False)
+    assert ma.initialize_ai_models() is None
+    assert ma.force_disabled_ai
 
 
 def test_create_ai_model():
