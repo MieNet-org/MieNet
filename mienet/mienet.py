@@ -117,11 +117,6 @@ class MieNet:
 
         # ==== network initialization & retrieval ==================================================
 
-        # ==== Information
-        if not self.mute:
-            print('[INFO] Perform AAN calculation for ',
-                  list(volume_mixing_ratios.keys()))
-
         # check if neural network is initialized
         if not self.use_ai:
             if self.force_disabled_ai:
@@ -149,6 +144,11 @@ class MieNet:
         wavelength, particle_size, vmr = input_check(
             wavelength, particle_size, volume_mixing_ratios, best_model[1], self.mute
         )
+
+        # ==== Information
+        if not self.mute:
+            print('[INFO] Perform AAN calculation for ',
+                  list(volume_mixing_ratios.keys()))
 
         # check if wavelength and particle_size are in range
         if min(wavelength) < model_dict['range']['wavelength'][0]:
@@ -269,11 +269,6 @@ class MieNet:
         """
         # ==== Prepare inputs =====================================================================
 
-        # ==== Information
-        if not self.mute:
-            print('[INFO] Perform full Mie calculation for ',
-                  list(volume_mixing_ratios.keys()))
-
         # define species list according to entries in vmr
         species_list = list(volume_mixing_ratios.keys())
 
@@ -287,6 +282,11 @@ class MieNet:
             wavelength, particle_size, volume_mixing_ratios, species_list, self.mute
         )
 
+        # ==== Information
+        if not self.mute:
+            print('[INFO] Perform full Mie calculation for ',
+                  list(volume_mixing_ratios.keys()))
+            
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 

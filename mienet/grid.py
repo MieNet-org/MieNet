@@ -35,11 +35,6 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     if not self.use_grid:
         raise ValueError("[ERROR] No grid was loaded before calling grid_efficiencies")
 
-    # ==== Information
-    if not self.mute:
-        print('[INFO] Perform grid interpolation for ',
-              list(volume_mixing_ratios.keys()))
-
     # ==== check input
     species = list(volume_mixing_ratios.keys())
 
@@ -47,6 +42,11 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     wavelength, particle_size, vmr = input_check(
         wavelength, particle_size, volume_mixing_ratios, species, self.mute
     )
+
+    # ==== Information
+    if not self.mute:
+        print('[INFO] Perform grid interpolation for ',
+              list(volume_mixing_ratios.keys()))
 
     # ==== Load grid
     best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids)
