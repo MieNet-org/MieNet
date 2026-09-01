@@ -45,6 +45,7 @@ class MieNet:
         # ==== General preparations ===============================================================
         # save user inputs
         self.use_ai = use_ai
+        self.use_grid = False  # this is default until grids are loaded
         self.mute = mute
         if load_ai_model != 'all':
             if isinstance(load_ai_model, str):
@@ -58,6 +59,10 @@ class MieNet:
         # Load species data from files
         self.files = glob.glob(os.path.dirname(__file__) + '/opacity_files/*.refrind')
         self.available_species = [os.path.basename(path).split('/')[0][:-8] for path in self.files]
+
+        # ==== Intro
+        if not self.mute:
+            print('============= Welcome to MieNet =============')
 
         # ==== Data location
         # user input data location
@@ -77,6 +82,16 @@ class MieNet:
         # default datasets
         self.default_grids = {}
         self.load_grid_efficiency(file_name=grid_file)
+
+        # ==== Information about the status of MieNet
+        if not self.mute:
+            print('[INFO] MieNet successfully initialised')
+            print('   -> Data location: ' + self.data_path)
+            if self.use_ai:
+                print(f'   -> AAN models available: {len(self.models_dict)}')
+            else:
+                print('   -> ANN models are unavailable')
+            print(f'   -> Grid models available: {len(self.default_grids)}')
 
 
     def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
@@ -101,6 +116,11 @@ class MieNet:
         """
 
         # ==== network initialization & retrieval ==================================================
+
+        # ==== Information
+        if not self.mute:
+            print('[INFO] Perform AAN calculation for ',
+                  list(volume_mixing_ratios.keys()))
 
         # check if neural network is initialized
         if not self.use_ai:
@@ -248,6 +268,12 @@ class MieNet:
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
         # ==== Prepare inputs =====================================================================
+
+        # ==== Information
+        if not self.mute:
+            print('[INFO] Perform full Mie calculation for ',
+                  list(volume_mixing_ratios.keys()))
+
         # define species list according to entries in vmr
         species_list = list(volume_mixing_ratios.keys())
 
@@ -360,9 +386,22 @@ class MieNet:
         url : str, optional
             Download link. If None is given, use the default zotero repository.
         '''
+        # info
+        if not self.mute and url is None:
+            print('[INFO] Downloading data from Zenodo')
+        else:
+            print('[INFO] Downloading data from: ' + url)
+        print('   -> Saving data to: ' + self.data_path)
+
         # download models
         get_models(self.data_path, overwrite, url)
 
+        # done
+        if not self.mute:
+            print('   -> Download successful')
+
         # load data
+        self.load_grid_efficiency()
         if self.use_ai:
             self.initialize_ai_models()
+

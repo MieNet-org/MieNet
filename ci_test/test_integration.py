@@ -41,7 +41,7 @@ def test_full():
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
-    ma = MieNet(default_data_location=loc)
+    ma = MieNet(default_data_location=loc, mute=False)
 
     # ==== Standard Ai run
     extinction, scattering, asymmetry = ma.ai_efficiencies(
@@ -127,7 +127,6 @@ def test_ai():
     with testcase.assertRaises(ValueError):
         ma = MieNet(use_ai=False)
         ma.ai_efficiencies(None, None, None)
-
 
 
 def test_grid():

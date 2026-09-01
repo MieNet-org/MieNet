@@ -31,6 +31,15 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
         extinction coefficient, scattering coefficient, and asymmetries parameter
     """
 
+    # ==== Break if no grids loaded
+    if not self.use_grid:
+        raise ValueError("[ERROR] No grid was loaded before calling grid_efficiencies")
+
+    # ==== Information
+    if not self.mute:
+        print('[INFO] Perform grid interpolation for ',
+              list(volume_mixing_ratios.keys()))
+
     # ==== check input
     species = list(volume_mixing_ratios.keys())
 
@@ -195,12 +204,12 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     )
 
     # ==== Save dataset if a save file is given
+    if not self.mute:
+        print('   -> Grid calculation complete')
     if save_file is not None:
         ds.to_netcdf(save_file, engine="h5netcdf")
         if not self.mute:
             print('[INFO] Grid saved as: ' + save_file)
-    if not self.mute:
-        print('[INFO] Grid calculation complete')
 
     return ds
 
@@ -239,10 +248,21 @@ def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
             ds = xr.open_dataset(grid_file, engine="h5netcdf")
             self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
             if not self.mute:
-                print('[INFO] Added grid for', ds.attrs['species'],
-                      f"from {round(ds['wavelength'].values[0], 2)} to "
+                print(f'[INFO] Grid added: ')
+                print(f'   -> File: ' + grid_file)
+                print(f'   -> Species: ', ds.attrs['species'])
+                print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
                       f"{round(ds['wavelength'].values[-1], 2)} micron.")
+                print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "
+                      f"{round(ds['particle_size'].values[-1], 2)} micron.")
             ds.close()
         except:
             # this error only rises if the file loaded is not what was expected.
             raise ValueError('[ERROR] The following grid file could not be loded:\n  ', grid_file)
+
+    # if at least one grid is loaded, enable grid interpolation
+    if len(self.default_grids) > 0:
+        self.use_grid = True
+    else:
+        if not self.mute:
+            print(f'[WARN] No grid files found')

@@ -127,9 +127,13 @@ def initialize_ai_models(self):
             models_dict[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
-                      f'from {models_dict[model]['range']['wavelength'][0]} to '
-                      f'{models_dict[model]['range']['wavelength'][1]} micron.')
+                print(f'[INFO] AAN added: ')
+                print(f'   -> Name: ' + model)
+                print(f'   -> Species: ', models_dict[model]['species'])
+                print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
+                      f"{models_dict[model]['range']['wavelength'][1]} micron.")
+                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} to "
+                      f"{models_dict[model]['range']['particle_size'][1]} micron.")
 
     # load specified model
     else:
@@ -159,9 +163,13 @@ def initialize_ai_models(self):
             loaded_models[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] Loaded {model} model for', models_dict[model]['species'],
-                      f'from {models_dict[model]['range']['wavelength'][0]} to '
-                      f'{models_dict[model]['range']['wavelength'][1]} micron.')
+                print(f'[INFO] AAN added: ')
+                print(f'   -> Name: ' + model)
+                print(f'   -> Species: ', models_dict[model]['species'])
+                print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
+                      f"{models_dict[model]['range']['wavelength'][1]} micron.")
+                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} to "
+                      f"{models_dict[model]['range']['particle_size'][1]} micron.")
 
             # save only loaded models
             models_dict = loaded_models
