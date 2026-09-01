@@ -144,6 +144,13 @@ def test_grid():
     for t, test in enumerate(test_vars):
         assert np.isclose(np.sum(ds[test]), expected_vals[t])
 
+    # ==== calling
+    with testcase.assertRaises(ValueError):
+        ma.grid_efficiencies(
+            np.logspace(-0.5, 1, 8), np.logspace(1.1, 1.9, 8),
+            {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
+        )
+
     # ==== read in grid
     # test file read in
     ma.load_grid_efficiency(file_name='grid_test.nc')
@@ -155,7 +162,6 @@ def test_grid():
     ma.load_grid_efficiency(ds_grid=ds)
     assert len(ma.default_grids) == 2
     # test asserts
-    testcase = unittest.TestCase()
     with testcase.assertRaises(ValueError):
         ma.load_grid_efficiency(file_name='grid_that_does_not_exist.nc')
 

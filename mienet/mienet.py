@@ -286,7 +286,7 @@ class MieNet:
         if not self.mute:
             print('[INFO] Perform full Mie calculation for ',
                   list(volume_mixing_ratios.keys()))
-            
+
         # ==== Radius averaging ===================================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 
