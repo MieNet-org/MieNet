@@ -2,14 +2,16 @@
 # pylint: disable=C0415,R0902,R0912,R0914,R0915
 
 import requests
-from zipfile import ZipFile
-from io import BytesIO
 import os
 import shutil
 import yaml
 import numpy as np
 import xarray as xr
-from datetime import datetime
+
+from zipfile import ZipFile
+from io import BytesIO
+from time import time
+from datetime import datetime, timedelta
 
 from .plot_routines import plot_train_ai_model
 
@@ -245,7 +247,19 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
    # create particle size sample from a fixed grid
     particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points)
 
+    # update on loop progress
+    start_time = time()
+    size_start = ds.attrs['idx']
+
     while ds.attrs['idx'] < set_size:
+
+        # ETA calculation
+        if not self.mute and ds.attrs['idx'] > size_start:
+            dt = (time() - start_time) / (ds.attrs['idx'] - size_start) * (set_size - size_start)
+            now = datetime.fromtimestamp(time())
+            eta = now + timedelta(seconds=dt)
+            eta = eta.strftime("%Y-%m-%d %H:%M:%S")
+            print(f'   -> Progress: { ds.attrs['idx']/set_size*100:.1f}% (ETA: {eta})' + ' '*10, end='\r')
 
         # generate volume mixing ratios
         alpha = [0.5] * len(species) # controls distribution
@@ -260,8 +274,11 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         wavelength_range = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = N)
 
         # calculate outputs
+        mute_save = self.mute
+        self.mute = True  # mute for the calculation only
         extinction, scattering, asymmetry = \
             self.efficiencies(wavelength_range, particle_size_range, ratio_dict, theory = mixing_theory)
+        self.mute = mute_save
 
         # ==== Save training set =======================================================================================
 
@@ -279,6 +296,9 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds['data'][ds.attrs['idx']:ds.attrs['idx'] + radii_points] = sol
         ds.attrs['idx'] += radii_points
         ds.to_netcdf(store_path)
+
+    if not self.mute:
+            print(f'   -> Progress: Done' + ' '*30)
 
     # if finished add time when done
     ds.attrs['date_finished'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
