@@ -508,3 +508,6 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
 
     if not self.mute:
         print('[INFO] Model added to config.yaml')
+
+    # immediately load the model
+    self.initialize_ai_models()

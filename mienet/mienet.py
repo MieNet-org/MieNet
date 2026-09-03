@@ -62,7 +62,9 @@ class MieNet:
 
         # ==== Intro
         if not self.mute:
-            print('============= Welcome to MieNet =============')
+            print('=============================================')
+            print('              Welcome to MieNet              ')
+            print('=============================================')
 
         # ==== Data location
         # user input data location
@@ -74,7 +76,7 @@ class MieNet:
 
         # ==== Prepare Neural Network =============================================================
         self.models_dict = {}  # default initialisation
-        if use_ai:
+        if self.use_ai:
             # initialize ai models
             self.initialize_ai_models()
 

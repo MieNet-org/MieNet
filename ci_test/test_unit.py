@@ -113,7 +113,7 @@ def test_create_ai_model():
     except OSError:
         pass
 
-    ma = MieNet(mute=False, default_data_location= loc)
+    ma = MieNet(mute=False, default_data_location=loc)
     ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
                              wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
 
