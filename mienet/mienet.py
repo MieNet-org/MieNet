@@ -1,6 +1,7 @@
 """ MieNet class """
 # pylint: disable=C0415,R0902,R0912,R0914,R0915
 
+import sys
 import os
 import glob
 import numpy as np
@@ -77,6 +78,11 @@ class MieNet:
         # ==== Prepare Neural Network =============================================================
         self.models_dict = {}  # default initialisation
         if self.use_ai:
+            # check if right python version for tensorflow
+            if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] > 12):
+                ver = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
+                print(f'[WARN] Your python version ({ver}) is to new and might not work '
+                      f'with tensorflow.')
             # initialize ai models
             self.initialize_ai_models()
 
