@@ -382,6 +382,21 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     if 'scattering_scale' not in model_params:
         model_params['scattering_scale'] = 'log'
 
+    if not self.mute:
+        print('[INFO] Generating AAN model with:')
+        print('   -> Layers: ' + str(model_params['layers']))
+        print('   -> Nodes: ' + str(model_params['nodes']))
+        print('   -> Activation Function: ' + str(model_params['activation_function']))
+        print('   -> Optimizer: ' + str(model_params['optimizer']))
+        print('   -> Loss: ' + str(model_params['loss']))
+        print('   -> Metrics: ' + str(model_params['metrics']))
+        print('   -> Batch Size: ' + str(model_params['batch_size']))
+        print('   -> Epochs: ' + str(model_params['epochs']))
+        print('   -> Wavelength scale: ' + str(model_params['wavelength_scale']))
+        print('   -> Particle size scale: ' + str(model_params['particle_size_scale']))
+        print('   -> Extinction scale: ' + str(model_params['extinction_scale']))
+        print('   -> Scattering scale: ' + str(model_params['scattering_scale']))
+
     # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
     # import tensorflow here so MieNet can be used without it
     from tensorflow import keras
@@ -434,6 +449,8 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     model = keras.Model(inputs, outputs=[output1, output2, output3])
 
     # ==== TRAIN AND SAVE MODEL ========================================================================================
+    if not self.mute:
+        print('[INFO] Training started ...')
 
     # compile model for training
     model.compile(optimizer = model_params['optimizer'],
@@ -452,6 +469,9 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     # ==== PLOT LOSS AND ACCURACY ======================================================================================
     if plot_training:
         plot_train_ai_model(model_params, history)
+
+    if not self.mute:
+        print('[INFO] Training done')
 
     # ==== ADD MODEL TO CONFIG FILE ====================================================================================
     # path to config file
@@ -485,3 +505,6 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     else:
         with open(config_path, 'w') as file:
             yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
+
+    if not self.mute:
+        print('[INFO] Model added to config.yaml')
