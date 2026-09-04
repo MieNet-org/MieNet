@@ -160,7 +160,10 @@ def initialize_ai_models(self):
                 if os.path.isfile(os.path.join(self.data_path + file)):
                     model_list[i] = load_model(os.path.join(self.data_path + file))
                 else:
-                    raise ValueError(f'Model files for mixture {model} not found.')
+                    raise ValueError(
+                        f'[ERROR] Model files for mixture {model} not found.\n'
+                        '   -> Missing file: ' + str(os.path.join(self.data_path + file))
+                    )
 
             loaded_models[model]['models'] = model_list
 
@@ -241,8 +244,10 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
 
     # check if training set is finished generating
     if ds.attrs['idx'] >= set_size:
-        raise ValueError('Training set generation is complete, no more space in training set:' + store_path +
-                         ' Please provide a new filename to generate more data.')
+        raise ValueError(
+            '[ERROR] Training set generation is complete, no more space in training set:' + store_path +
+            ' Please provide a new filename to generate more data.'
+        )
 
     # ==== Calculations ================================================================================================
    # create particle size sample from a fixed grid
@@ -340,7 +345,10 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     if 'name' in model_params:
         # check given model name does not exist
         if (os.path.exists(self.data_path + model_params['name'] + '.keras')) & (overwrite == False):
-            raise ValueError('Model with the name' + model_params['name'] + 'already exists. Please provide a new name.')
+            raise ValueError(
+                '[ERROR] Model with the name' + model_params['name'] + 'already exists. '
+                'Please provide a new name.'
+            )
     else:
         # default name is same as training set file name
         if overwrite == True:
@@ -413,7 +421,10 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
             training_set[:, idx] = np.log10(training_set[:, idx])
         else:
             if model_params[param] != 'normal':
-                raise ValueError(f"MieNet does not support {model_params[param]} scaling. Please use 'log' or 'normal'")
+                raise ValueError(
+                    f"[ERROR] MieNet does not support {model_params[param]} scaling. "
+                    f"Please use 'log' or 'normal'"
+                )
 
     # define number of inputs and set size
     num_inputs = int(training_set.shape[1] - 3)  # number of model inputs

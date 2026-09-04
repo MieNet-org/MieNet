@@ -72,7 +72,7 @@ def test_sub_functions():
 def test_model_handling():
     # ==== get models
     # link to files
-    url = 'https://github.com/d-attaway/MieNet/raw/refs/heads/main/ci_test/files/test_setup_1/test_dwl.zip'
+    url = 'https://github.com/MieNet-org/MieNet/raw/refs/heads/main/ci_test/files/test_setup_1/test_dwl.zip'
     loc = os.path.dirname(__file__) + '/files/test_setup_1/'
     test = os.path.dirname(__file__) + '/files/test_setup_1/tutorial_model.keras'
     # delete old files if present
@@ -147,6 +147,16 @@ def test_architecture_functions():
     assert (res[0] == np.asarray([True, False, False])).all()
     assert (res[1] == np.asarray([False, True, False])).all()
     assert (res[2] == np.asarray([False, False, True])).all()
+    # test non log
+    inp3 = np.asarray([[10**1, None, None], [10**2, None, None], [10**3, None, None]])
+    dep3 = {'low_wave': 10**1.5, 'high_wave': 10**2.5}
+    scale3 = {'wavelength': 'linear', 'particle_size': 'linear',
+              'extinction': 'linear', 'scattering': 'linear'}
+    res = three_network(inp3, dep3, scale3)
+    assert (res[0] == np.asarray([True, False, False])).all()
+    assert (res[1] == np.asarray([False, True, False])).all()
+    assert (res[2] == np.asarray([False, False, True])).all()
+
 
     # ==== test six_network
     inp6 = np.asarray([
@@ -156,6 +166,21 @@ def test_architecture_functions():
     dep6 = {'low_wave': 10**1.5, 'high_wave': 10**2.5, 'size_cutoff': 1}
     scale6 = {'wavelength': 'log', 'particle_size': 'log',
               'extinction': 'log', 'scattering': 'log'}
+    res = six_network(inp6, dep6, scale6)
+    for i in range(6):
+        for j in range(6):
+            if i == j:
+                assert res[i][j]
+            else:
+                assert not res[i][j]
+    # test non log
+    inp6 = np.asarray([
+        [10**1, 10**1, None], [10**2, 10**2, None], [10**3, 10**3, None],
+        [10**1, 10**-1, None], [10**2, 10**-2, None], [10**3, 10**-3, None],
+    ])
+    dep6 = {'low_wave': 10**1.5, 'high_wave': 10**2.5, 'size_cutoff': 1}
+    scale6 = {'wavelength': 'linear', 'particle_size': 'linear',
+              'extinction': 'linear', 'scattering': 'linear'}
     res = six_network(inp6, dep6, scale6)
     for i in range(6):
         for j in range(6):

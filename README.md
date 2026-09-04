@@ -1,6 +1,6 @@
-![codecov](https://codecov.io/gh/d-attaway/MieNet/graph/badge.svg?token=TJK7ELIKE5)
-![pylint](https://github.com/d-attaway/MieNet/blob/documentation/.github/pylint.svg)
-![python](https://github.com/d-attaway/MieNet/blob/documentation/.github/python.svg)
+![codecov](https://codecov.io/gh/MieNet-org/MieNet/graph/badge.svg?token=TJK7ELIKE5)
+![pylint](https://github.com/MieNet-org/MieNet/blob/documentation/.github/pylint.svg)
+![python](https://github.com/MieNet-org/MieNet/blob/documentation/.github/python.svg)
 
 MieNet
 =====

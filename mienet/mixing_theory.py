@@ -78,7 +78,7 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
             mixed_ref_index[wav] = complex(m_eff[0], -m_eff[1])
 
         else:
-            raise ValueError("Unknown mixing theory '" + theory + "'")
+            raise ValueError("[ERROR] Unknown mixing theory '" + theory + "'")
 
     return mixed_ref_index
 

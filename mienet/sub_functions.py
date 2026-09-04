@@ -45,7 +45,7 @@ def read_in_refindex(species, wavelength, files):
                 # convert to array and flip vertically so wavelength increases
                 data = np.flip(content, axis=0)
         if data is None:
-            raise ValueError('No refindex file found for ' + spec)
+            raise ValueError('[ERROR] No refindex file found for ' + spec)
 
         # ==== Get the real(n) and imaginary (k) refractory index =======================
         # loop over all wavelengths
@@ -189,7 +189,7 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
         raise ValueError("[ERROR] No " + f'{type}' + " for " + str(l_set) +
                          " is available. Please provide one.")
 
-    # if run should not be aborted, return (None, None) dataset
+    # if run should not be aborted, return (None, None) dataset instead
     return None, None
 
 def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
@@ -223,12 +223,15 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     # check inputs are correct type
     if (not isinstance(wavelength, np.ndarray)
             and not isinstance(wavelength, (float, int))):
-        raise ValueError('[ERROR] Wavelength must be of type np.ndarray or float')
+        raise ValueError('[ERROR] Wavelength must be of type np.ndarray or float\n'
+                         '   -> currently given: ' + str(type(wavelength)))
     if (not isinstance(particle_size, np.ndarray)
             and not isinstance(particle_size, (float, int))):
-        raise ValueError('[ERROR] Particle size must be of type np.ndarray or float')
+        raise ValueError('[ERROR] Particle size must be of type np.ndarray or float\n'
+                         '   -> currently given: ' + str(type(particle_size)))
     if not isinstance(volume_mixing_ratios, dict):
-        raise ValueError('[ERROR] Volume mixing ratio must be of type dict or float')
+        raise ValueError('[ERROR] Volume mixing ratio must be of type dict\n'
+                         '   -> currently given: ' + str(type(volume_mixing_ratios)))
 
     # convert floats to arrays
     if isinstance(wavelength, (float, int)):
@@ -241,7 +244,10 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
 
     # there must be the same number of VMRs for each species
     if len(set(map(len, volume_mixing_ratios.values()))) != 1:
-        raise ValueError('[ERROR] Volume mixing ratios must have same shape')
+        ers = ""
+        for key in volume_mixing_ratios:
+            ers += "   -> Shape " + key + ': ' + str(len(volume_mixing_ratios[key])) + '\n'
+        raise ValueError('[ERROR] Volume mixing ratios must have same shape\n' + ers)
     # each particle size needs a VMR
     vmr_len = len(volume_mixing_ratios[next(iter(volume_mixing_ratios))])
     if len(particle_size) != vmr_len:
