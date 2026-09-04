@@ -128,13 +128,18 @@ class MieNet:
         # check if neural network is initialized
         if not self.use_ai:
             if self.force_disabled_ai:
-                raise ValueError('[ERROR] No ANNs were loaded, ai_efficiencies is not available.')
+                raise ValueError('[ERROR] No ANNs were successfully loaded, ai_efficiencies '
+                                 'is not available.')
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # check at least one correct model is initialized if using specific model
         if self.load_ai_model != 'all':
             if not any(set(volume_mixing_ratios).issubset(self.models_dict[key]['species']) for key in self.load_ai_model):
-                raise ValueError("No correct AI model initialized for this mixture")
+                raise ValueError(
+                    "[ERROR] No correct AI model initialized for this mixture:\n"
+                    "   -> Species selected: " + str(volume_mixing_ratios.keys()) + "\n"
+                    "   -> Find out which ANNs are loaded by setting MieNet(mute=False) "
+                )
 
         # find all models that include all species
         best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
@@ -160,20 +165,29 @@ class MieNet:
 
         # check if wavelength and particle_size are in range
         if min(wavelength) < model_dict['range']['wavelength'][0]:
-            raise ValueError('Wavelengths requested are out of the model range:',
-                             model_dict['range']['wavelength'])
-
+            raise ValueError(
+                '[ERROR] Wavelengths requested are out of the model range:\n'
+                '   -> Smallest wavelength selected: ' + str(min(wavelength)) + '\n'
+                '   -> Range of model: ' + str(model_dict['range']['wavelength'])
+            )
         if max(wavelength) > model_dict['range']['wavelength'][1]:
-            raise ValueError('Wavelengths requested are out of the model range:',
-                             model_dict['range']['wavelength'])
-
+            raise ValueError(
+                '[ERROR] Wavelengths requested are out of the model range:\n'
+                '   -> Largest wavelength selected: ' + str(max(wavelength)) + '\n' 
+                '   -> Range of model: ' + str(model_dict['range']['wavelength'])
+            )
         if min(particle_size) < model_dict['range']['particle_size'][0]:
-            raise ValueError('Particle sizes requested are out of the model range:',
-                             model_dict['range']['particle_size'])
-
+            raise ValueError(
+                '[ERROR] Particle sizes requested are out of the model range:\n'
+                '   -> Smallest particle size selected: ' + str(min(particle_size)) + '\n'
+                '   -> Range of model: ' + str(model_dict['range']['particle_size'])
+            )
         if max(particle_size) > model_dict['range']['particle_size'][1]:
-            raise ValueError('Particle sizes requested are out of the model range:',
-                             model_dict['range']['particle_size'])
+            raise ValueError(
+                '[ERROR] Particle sizes requested are out of the model range:\n'
+                '   -> Largest particle size selected: ' + str(max(particle_size)) + '\n'
+                '   -> Range of model: ' + str(model_dict['range']['particle_size'])
+            )
 
         # check if correct mixing theory is used
         if theory is not None:
@@ -283,7 +297,10 @@ class MieNet:
         # check if all species are available
         for spec in species_list:
             if spec not in self.available_species:
-                raise ValueError("The species " + spec + " is not available")
+                raise ValueError(
+                    "[ERROR] The species " + spec + " is not available\n"
+                    "   -> Available are: " + str(self.available_species)
+                )
 
         # check input validity
         wavelength, particle_size, vmr = input_check(
@@ -412,4 +429,3 @@ class MieNet:
         self.load_grid_efficiency()
         if self.use_ai:
             self.initialize_ai_models()
-
