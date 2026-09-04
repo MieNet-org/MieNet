@@ -34,7 +34,7 @@ def get_models(data_location, overwrite=True, url=None):
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
-    r = requests.get(url)
+    r = requests.get(url, timeout=900)
     ZipFile(BytesIO(r.content)).extractall(data_location)
 
     # move files out of models folder
