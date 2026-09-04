@@ -72,7 +72,7 @@ def test_sub_functions():
 def test_model_handling():
     # ==== get models
     # link to files
-    url = 'https://github.com/d-attaway/MieNet/raw/refs/heads/main/ci_test/files/test_setup_1/test_dwl.zip'
+    url = 'https://github.com/MieNet-org/MieNet/raw/refs/heads/main/ci_test/files/test_setup_1/test_dwl.zip'
     loc = os.path.dirname(__file__) + '/files/test_setup_1/'
     test = os.path.dirname(__file__) + '/files/test_setup_1/tutorial_model.keras'
     # delete old files if present
