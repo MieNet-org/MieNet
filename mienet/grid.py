@@ -49,7 +49,10 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
               list(volume_mixing_ratios.keys()))
 
     # ==== Load grid
-    best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.grids_dict)
+    best_dataset = select_best_dataset(
+        'grid', wavelength, particle_size, volume_mixing_ratios, self.grids_dict, theory=theory
+    )
+    print(best_dataset)
     ds = self.grids_dict[best_dataset[0]]['ds']
 
     # ==== Check mixing theory if necessary
@@ -233,7 +236,37 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         if ds_grid_name is None:
             # if no name is given, use current time
             ds_grid_name = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.grids_dict[ds_grid_name] = {'species': ds_grid.attrs['species'], 'ds': ds_grid}
+
+        # size of data set is used to determine quality of the dataset
+        size = (len(ds_grid['particle_size']) * len(ds_grid['wavelength'])
+                * len(ds_grid['VMR_' + ds_grid.attrs['species'][0]]))
+
+        # load in grid file to grids_dict
+        self.grids_dict[ds_grid_name] = {#'species': ds_grid.attrs['species'], 'ds': ds_grid}
+            'species': ds_grid.attrs['species'],
+            'ds': ds_grid,
+            'theory': ds_grid.attrs['theory'],
+            'quality_metric': size,
+            'range': {
+                'wavelength': [
+                    ds_grid['wavelength'].values[0],
+                    ds_grid['wavelength'].values[-1]
+                ],
+                'particle_size': [
+                    ds_grid['particle_size'].values[0],
+                    ds_grid['particle_size'].values[-1]
+                ]
+            },
+        }
+
+        if not self.mute:
+            print(f'[INFO] Grid added: ')
+            print(f'   -> Species: ', ds_grid.attrs['species'])
+            print(f'   -> Mixing theory: ', ds_grid.attrs['theory'])
+            print(f"   -> Wavelength: {round(ds_grid['wavelength'].values[0], 2)} to "
+                  f"{round(ds_grid['wavelength'].values[-1], 2)} micron.")
+            print(f"   -> Particle size: {round(ds_grid['particle_size'].values[0], 2)} to "
+                  f"{round(ds_grid['particle_size'].values[-1], 2)} micron.")
 
     if file_name is not None:
         # ==== Check if only one file should be loaded, or all files from data_path
@@ -249,11 +282,34 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
             try:
                 # get data and assign it to the dictionary
                 ds = xr.open_dataset(grid_file, engine="h5netcdf")
-                self.grids_dict[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
+
+                # size of data set is used to determine quality of the dataset
+                size = (len(ds['particle_size']) * len(ds['wavelength'])
+                        * len(ds['VMR_' + ds.attrs['species'][0]]))
+
+                # assign everything to the grids_dict
+                self.grids_dict[grid_file] = {
+                    'species': ds.attrs['species'],
+                    'ds': ds,
+                    'theory': ds.attrs['theory'],
+                    'quality_metric': size,
+                    'range': {
+                        'wavelength': [
+                            ds['wavelength'].values[0],
+                            ds['wavelength'].values[-1]
+                        ],
+                        'particle_size': [
+                            ds['particle_size'].values[0],
+                            ds['particle_size'].values[-1]
+                        ]
+                    },
+                }
+
                 if not self.mute:
                     print(f'[INFO] Grid added: ')
                     print(f'   -> File: ' + grid_file)
                     print(f'   -> Species: ', ds.attrs['species'])
+                    print(f'   -> Mixing theory: ', ds.attrs['theory'])
                     print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
                           f"{round(ds['wavelength'].values[-1], 2)} micron.")
                     print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "

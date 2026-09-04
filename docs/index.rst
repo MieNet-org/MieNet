@@ -5,7 +5,7 @@
 Welcome to MieNet
 =================
 
-.. image:: !! ADD Code Cove link !!
+.. image:: https://codecov.io/gh/MieNet-org/MieNet/graph/badge.svg?token=FDPN19ZPGW
 .. image:: https://raw.githubusercontent.com/MieNet-org/MieNet/refs/heads/main/.github/workflows/pylint.svg
 .. image:: https://raw.githubusercontent.com/MieNet-org/MieNet/refs/heads/main/.github/workflows/python.svg
 

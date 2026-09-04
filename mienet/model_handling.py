@@ -166,6 +166,8 @@ def initialize_ai_models(self):
                     )
 
             loaded_models[model]['models'] = model_list
+            # set qualtiy meteric which is used in select_best_dataset function to decide
+            loaded_models[model]['quality_metric'] = len(loaded_models[model]['files'])
 
             if not self.mute:
                 print(f'[INFO] AAN added: ')

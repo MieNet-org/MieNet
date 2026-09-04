@@ -151,7 +151,7 @@ def calculate_subradii(particle_size, vmr):
 
     return sub_rad, vmr
 
-def select_best_dataset(type, vmrs, datasets, stop=True):
+def select_best_dataset(type, wave, size, vmrs, datasets, theory=None, stop=True):
     """
     Choose best grid or model.
 
@@ -159,10 +159,16 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
     ----------
     type : String
         Either 'model' or 'grid'
+    wave : np.ndarray
+        wavelength
+    size : np.ndarray
+        particle sizes
     vmrs: Dictionary
         Species in each mixture with respective volume mixing ratios.
     datasets: Dictionary
         Dictionary with information about each model/grid.
+    theory : str, optional
+        Checks if mixing theory agrees, ignored if set to None
     stop: Bool, optional
         If True, an error is raised if no set is found. If False, (None, None) is returned.
 
@@ -172,25 +178,56 @@ def select_best_dataset(type, vmrs, datasets, stop=True):
         name: str of model/grid name
         species: list of species name
     """
-    # find all dataset that include all species
+
+    # ==== Initialisation
+    # Start with all datasets
+    valid_datasets = [] #list(datasets.keys())
+    # species selected
     l_set = set(vmrs.keys())
-    valid_datasets = {
-        name: data['species'] for name, data in datasets.items()
-        if l_set.issubset(data['species'])
-    }
 
-    # check if there are matching datasets
-    if valid_datasets:
-        # Now pick the dataset with the smallest total size
-        return min(valid_datasets.items(), key=lambda item: len(item[1]))
+    # ==== Minimum Requirement
+    # go through the sets and check if minimum requirements are fulfilled
+    for name in datasets.keys():
+        # A dataset must include all species to be considered
+        if not l_set.issubset(datasets[name]['species']):
+            continue
+        # A dataset must have the correct mixing theory
+        if theory is not None and datasets[name]['theory'] != theory:
+            continue
+        # A dataset must cover the whole wavelength and particle size range
+        if (datasets[name]['range']['wavelength'][0] > np.min([wave]) or
+            datasets[name]['range']['wavelength'][1] < np.max([wave]) or
+            datasets[name]['range']['particle_size'][0] > np.min([size]) or
+            datasets[name]['range']['particle_size'][1] < np.max([size])):
+            continue
+        # if all tests passed, add it to the valid datasets
+        valid_datasets.append(name)
 
-    # raise value error if no datasets for the type of efficiency function called
-    if stop:
-        raise ValueError("[ERROR] No " + f'{type}' + " for " + str(l_set) +
-                         " is available. Please provide one.")
+    # ==== First check if we are already done
+    # if only one entry remains return this entry
+    if len(valid_datasets) == 1:
+        winner = valid_datasets[0]
+        return winner, datasets[winner]['species']
+    # if only one entry remains return this entry
+    elif len(valid_datasets) == 0:
+        if stop:
+            raise ValueError("[ERROR] No " + f'{type}' + " for " + str(l_set) +
+                             " is available. Please provide one.")
+        else:
+            return None, None
 
-    # if run should not be aborted, return (None, None) dataset instead
-    return None, None
+    # ==== Select best dataset
+    # first selection is done by number of species
+    nr = [len(datasets[name]['species']) for name in valid_datasets]
+    valid_datasets = [name for name, val in zip(valid_datasets, nr) if val == min(nr)]
+    # then select according to the quality metric
+    nr = [datasets[name]['quality_metric'] for name in valid_datasets]
+    valid_datasets = [name for name, val in zip(valid_datasets, nr) if val == max(nr)]
+    # Either there is only 1 dataset left, or we need to make a random choice
+    # in both casees, we decide to return the first datset in the list
+    winner = valid_datasets[0]
+    return winner, datasets[winner]['species']
+
 
 def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
     """

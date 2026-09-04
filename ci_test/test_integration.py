@@ -147,7 +147,8 @@ def test_ai():
 
 def test_grid():
     # ==== Set up
-    ma = MieNet(use_ai=False, mute=False)
+    loc = os.path.dirname(__file__)
+    ma = MieNet(use_ai=False, mute=False, default_data_location=loc)
     test_vars = ['qext', 'qsca', 'asym', 'wavelength']
 
     # ==== create tiny grid

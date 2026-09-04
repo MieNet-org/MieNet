@@ -142,7 +142,9 @@ class MieNet:
                 )
 
         # find all models that include all species
-        best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict)
+        best_model = select_best_dataset(
+            'model', wavelength, particle_size, volume_mixing_ratios, self.models_dict, theory=theory
+        )
 
         # add zero array to vmr dictionary if using less than the total amount of species
         if len(volume_mixing_ratios.keys()) != len(best_model[1]):
@@ -269,7 +271,7 @@ class MieNet:
 
         return qext, qsca, asym
 
-    def efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
+    def efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None):
         """
         Calculate mie coefficients using mie python and LLL Approximation.
 
@@ -290,6 +292,8 @@ class MieNet:
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
         # ==== Prepare inputs =====================================================================
+        if theory is None:
+            theory = 'LLL'
 
         # define species list according to entries in vmr
         species_list = list(volume_mixing_ratios.keys())
@@ -353,7 +357,7 @@ class MieNet:
 
         return extinction, scattering, asymmetry
 
-    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
+    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None):
         """
         Calculate mie coefficients using mie fastest method available.
 
@@ -376,7 +380,10 @@ class MieNet:
 
         if self.use_ai:
             # check models
-            best_model = select_best_dataset('model', volume_mixing_ratios, self.models_dict, False)
+            best_model = select_best_dataset(
+                'model', wavelength, particle_size, volume_mixing_ratios,
+                self.models_dict, theory, False
+            )
 
             # use model if it exists
             if best_model[0] is not None:
@@ -385,7 +392,10 @@ class MieNet:
                 )
                 return extinction, scattering, asymmetry
 
-        best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.grids_dict, False)
+        best_dataset = select_best_dataset(
+            'grid', wavelength, particle_size, volume_mixing_ratios,
+            self.grids_dict, theory, False
+        )
 
         # use grid if it exists
         if best_dataset[0] is not None:
