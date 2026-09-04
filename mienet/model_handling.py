@@ -1,17 +1,17 @@
 """ Model handling functionalities """
 # pylint: disable=C0415,R0902,R0912,R0914,R0915
 
-import requests
 import os
 import shutil
-import yaml
-import numpy as np
-import xarray as xr
-
 from zipfile import ZipFile
 from io import BytesIO
 from time import time
 from datetime import datetime, timedelta
+
+import requests
+import yaml
+import numpy as np
+import xarray as xr
 
 from .plot_routines import plot_train_ai_model
 
@@ -75,7 +75,7 @@ def initialize_ai_models(self):
 
     # read config file
     config_yaml = self.data_path + 'config.yaml'
-    with open(config_yaml, 'r') as f:
+    with open(config_yaml, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     # check if there is at least one entry
@@ -102,8 +102,7 @@ def initialize_ai_models(self):
 
     # load all models by default if one is not specified
     if self.load_ai_model == 'all':
-        # get all model keys
-        keys = list(models_dict.keys())
+        keys = list(models_dict.keys()) # get all model keys
 
         # load all models for each mixture
         for model in keys:
@@ -129,22 +128,21 @@ def initialize_ai_models(self):
             models_dict[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] ANN added: ')
-                print(f'   -> Name: ' + model)
-                print(f'   -> Species: ', models_dict[model]['species'])
+                print('[INFO] ANN added: ')
+                print('   -> Name: ' + model)
+                print('   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
                       f"{models_dict[model]['range']['wavelength'][1]} micron.")
-                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} to "
-                      f"{models_dict[model]['range']['particle_size'][1]} micron.")
+                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} "
+                      f"to {models_dict[model]['range']['particle_size'][1]} micron.")
 
     # load specified model
     else:
-        # convert to list if only one ai model specified
-        lam = self.load_ai_model
+        lam = self.load_ai_model # convert to list if only one ai model specified
 
         for model in lam:
             # check if specified model is available
-            if model not in models_dict.keys():
+            if model not in models_dict:
                 raise ValueError('[ERROR] The model "' + str(model) +
                                  '" is not in the config.yaml file.')
 
@@ -166,17 +164,17 @@ def initialize_ai_models(self):
                     )
 
             loaded_models[model]['models'] = model_list
-            # set qualtiy meteric which is used in select_best_dataset function to decide
+            # set quality metric which is used in select_best_dataset function to decide
             loaded_models[model]['quality_metric'] = len(loaded_models[model]['files'])
 
             if not self.mute:
-                print(f'[INFO] ANN added: ')
-                print(f'   -> Name: ' + model)
-                print(f'   -> Species: ', models_dict[model]['species'])
+                print('[INFO] ANN added: ')
+                print('   -> Name: ' + model)
+                print('   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
                       f"{models_dict[model]['range']['wavelength'][1]} micron.")
-                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} to "
-                      f"{models_dict[model]['range']['particle_size'][1]} micron.")
+                print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} "
+                      f"to {models_dict[model]['range']['particle_size'][1]} micron.")
 
             # save only loaded models
             models_dict = loaded_models
@@ -191,13 +189,14 @@ def initialize_ai_models(self):
         if not self.mute:
             print('[WARN] No ANN models found, disabling ANN functionalities.')
 
-def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory = 'LLL'):
+def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample,
+                          mixing_theory='LLL'):
     """
-    Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be formatted as:
-    (wavelength, particle_size, vmr1, vmr2, ..., extinction, scattering, asymmetry).
-    The first use of this function will create the xarray dataset and start generating and saving the data. Further
-    uses of this function with the same input parameters will continue generating and saving data in the same xarray
-    dataset until the dataset is full.
+    Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be
+    formatted as: (wavelength, particle_size, vmr1, vmr2, ..., extinction, scattering, asymmetry).
+    The first use of this function will create the xarray dataset and start generating
+    and saving the data. Further uses of this function with the same input parameters will
+    continue generating and saving data in the same xarray dataset until the dataset is full.
 
     Parameters
     ----------
@@ -212,7 +211,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     mixing_theory : str (optional)
         Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
     """
-    # ==== Setup and Checks ============================================================================================
+    # ==== Setup and Checks =======================================================================
     store_path = self.data_path + file_name + '.nc'
     wave_points = wavelength_sample[2] # number of wavelength points
     radii_points = particle_size_sample[2] # number of particle size points
@@ -226,7 +225,8 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
             data_vars = {'data': (['idx', 'dim'], np.zeros((set_size, num_params)))},
             coords = {
                 'idx': range(set_size),
-                'dim': ['wavelength', 'particle_size'] + species[:-1] + ['extinction', 'scattering', 'asymmetry']
+                'dim': ['wavelength', 'particle_size'] + species[:-1]
+                       + ['extinction', 'scattering', 'asymmetry']
             },
             attrs = {
                 'idx': 0,
@@ -247,13 +247,14 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     # check if training set is finished generating
     if ds.attrs['idx'] >= set_size:
         raise ValueError(
-            '[ERROR] Training set generation is complete, no more space in training set:' + store_path +
-            ' Please provide a new filename to generate more data.'
+            '[ERROR] Training set generation is complete, no more space in training set:'
+            + store_path + ' Please provide a new filename to generate more data.'
         )
 
-    # ==== Calculations ================================================================================================
+    # ==== Calculations ===========================================================================
    # create particle size sample from a fixed grid
-    particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1], radii_points)
+    particle_size_range = np.logspace(particle_size_sample[0], particle_size_sample[1],
+                                      radii_points)
 
     # update on loop progress
     start_time = time()
@@ -267,28 +268,30 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
             now = datetime.fromtimestamp(time())
             eta = now + timedelta(seconds=dt)
             eta = eta.strftime("%Y-%m-%d %H:%M:%S")
-            print(f'   -> Progress: { ds.attrs['idx']/set_size*100:.1f}% (ETA: {eta})' + ' '*10, end='\r')
+            print(f'   -> Progress: { ds.attrs['idx']/set_size*100:.1f}% (ETA: {eta})'
+                  + ' '*10, end='\r')
 
         # generate volume mixing ratios
         alpha = [0.5] * len(species) # controls distribution
-        N = 1 # size of wavelength and volume mixing ratios
-        ratio_samples = np.random.dirichlet(alpha, size = N)
+        n = 1 # size of wavelength and volume mixing ratios
+        ratio_samples = np.random.dirichlet(alpha, size = n)
         a0 = np.zeros(radii_points) # zero array so vmr and radius_range are same length
         ratio_dict = {} # prepare vmr dictionary
         for i, item in enumerate(species):
             ratio_dict[item] = a0 + ratio_samples[0, i]
 
         # create wavelength sample
-        wavelength_range = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = N)
+        wavelength_range = np.random.uniform(wavelength_sample[0], wavelength_sample[1], size = n)
 
         # calculate outputs
         mute_save = self.mute
         self.mute = True  # mute for the calculation only
         extinction, scattering, asymmetry = \
-            self.efficiencies(wavelength_range, particle_size_range, ratio_dict, theory = mixing_theory)
+            self.efficiencies(wavelength_range, particle_size_range, ratio_dict,
+                              theory = mixing_theory)
         self.mute = mute_save
 
-        # ==== Save training set =======================================================================================
+        # ==== Save training set ==================================================================
 
         # xarray inputs
         sol = np.zeros((radii_points, num_params))
@@ -306,7 +309,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.to_netcdf(store_path)
 
     if not self.mute:
-            print(f'   -> Progress: Done' + ' '*30)
+        print('   -> Progress: Done' + ' '*30)
 
     # if finished add time when done
     ds.attrs['date_finished'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -341,19 +344,20 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     dataset = xr.open_dataset(self.data_path + file_name + '.nc')
     training_set = dataset['data'].to_numpy()
 
-    # ==== DEFAULT MODEL PARAMETERS ====================================================================================
+    # ==== DEFAULT MODEL PARAMETERS ===============================================================
 
     # ==== set model name
     if 'name' in model_params:
         # check given model name does not exist
-        if (os.path.exists(self.data_path + model_params['name'] + '.keras')) & (overwrite == False):
+        if ((os.path.exists(self.data_path + model_params['name'] + '.keras'))
+                & (overwrite is False)):
             raise ValueError(
                 '[ERROR] Model with the name' + model_params['name'] + 'already exists. '
                 'Please provide a new name.'
             )
     else:
         # default name is same as training set file name
-        if overwrite == True:
+        if overwrite is True:
             model_params['name'] = file_name
         else:
             # set default name to file name if available
@@ -362,9 +366,9 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
             # if default name is already used, add number to end
             else:
                 file_end = 1
-                orginal_file = file_name
+                original_file = file_name
                 while os.path.exists(self.data_path + file_name + '.keras'):
-                    file_name = orginal_file + str(file_end)
+                    file_name = original_file + str(file_end)
                     model_params['name'] = file_name
                     file_end += 1
 
@@ -409,13 +413,13 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         print('   -> Extinction scale: ' + str(model_params['extinction_scale']))
         print('   -> Scattering scale: ' + str(model_params['scattering_scale']))
 
-    # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS ==========================================================
+    # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS =====================================
     # import tensorflow here so MieNet can be used without it
     from tensorflow import keras
 
     # ==== check input and output scaling
-    # parameters with scaling options
-    scale_params = ['wavelength_scale', 'particle_size_scale', 'extinction_scale', 'scattering_scale']
+    scale_params = ['wavelength_scale', 'particle_size_scale',
+                    'extinction_scale', 'scattering_scale']
     scale_params_idx = [0, 1, -3, 2] # index of those parameters in training set
 
     # check scaling for all parameters
@@ -432,28 +436,30 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     # define number of inputs and set size
     num_inputs = int(training_set.shape[1] - 3)  # number of model inputs
     set_size = training_set.shape[0]  # total dataset size
-    N = int(0.9 * set_size)  # split into training and validation set
+    n = int(0.9 * set_size)  # split into training and validation set
 
     # training inputs and outputs
-    training_inputs = training_set[:N, :num_inputs]
-    training_extinction = training_set[:N, -3]
-    training_scattering = training_set[:N, -2]
-    training_asymmetry = training_set[:N, -1]
+    training_inputs = training_set[:n, :num_inputs]
+    training_extinction = training_set[:n, -3]
+    training_scattering = training_set[:n, -2]
+    training_asymmetry = training_set[:n, -1]
 
     # validation inputs and outputs
-    validation_inputs = training_set[N:, :num_inputs]
-    validation_extinction = training_set[N:, -3]
-    validation_scattering = training_set[N:, -2]
-    validation_asymmetry = training_set[N:, -1]
+    validation_inputs = training_set[n:, :num_inputs]
+    validation_extinction = training_set[n:, -3]
+    validation_scattering = training_set[n:, -2]
+    validation_asymmetry = training_set[n:, -1]
 
-    # ==== DEFINE MODEL STRUCTURE ======================================================================================
+    # ==== DEFINE MODEL STRUCTURE =================================================================
     # inputs
     inputs = keras.Input(shape=(num_inputs,), name='inputs')
 
     # layers
-    hidden = keras.layers.Dense(model_params['nodes'], activation = model_params['activation_function'])(inputs)
+    hidden = keras.layers.Dense(model_params['nodes'],
+                                activation = model_params['activation_function'])(inputs)
     for i in range(model_params['layers'] - 1):
-        hidden = keras.layers.Dense(model_params['nodes'], activation = model_params['activation_function'])(hidden)
+        hidden = keras.layers.Dense(model_params['nodes'],
+                                    activation = model_params['activation_function'])(hidden)
 
     # outputs
     output1 = keras.layers.Dense(1, name='extinction')(hidden)
@@ -463,7 +469,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     # make model
     model = keras.Model(inputs, outputs=[output1, output2, output3])
 
-    # ==== TRAIN AND SAVE MODEL ========================================================================================
+    # ==== TRAIN AND SAVE MODEL ===================================================================
     if not self.mute:
         print('[INFO] Training started ...')
 
@@ -473,22 +479,25 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
                   metrics = [model_params['metrics']] * 3)
 
     # train model
-    history = model.fit(training_inputs, [training_extinction, training_scattering, training_asymmetry],
+    history = model.fit(training_inputs,
+                        [training_extinction, training_scattering, training_asymmetry],
                            validation_data = (validation_inputs,
-                                              [validation_extinction, validation_scattering, validation_asymmetry]),
-                           batch_size = model_params['batch_size'], epochs = model_params['epochs'])
+                                              [validation_extinction, validation_scattering,
+                                               validation_asymmetry]),
+                           batch_size = model_params['batch_size'],
+                        epochs = model_params['epochs'])
 
     # save model
     model.save(self.data_path + model_params['name'] + '.keras')
 
-    # ==== PLOT LOSS AND ACCURACY ======================================================================================
+    # ==== PLOT LOSS AND ACCURACY =================================================================
     if plot_training:
         plot_train_ai_model(model_params, history)
 
     if not self.mute:
         print('[INFO] Training done')
 
-    # ==== ADD MODEL TO CONFIG FILE ====================================================================================
+    # ==== ADD MODEL TO CONFIG FILE ===============================================================
     # path to config file
     config_path = self.data_path + 'config.yaml'
 
@@ -497,28 +506,32 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
                                        'theory': dataset.attrs['theory'],
                                        'dependencies': {},
                                        'species': dataset.attrs['species'],
-                                       'range': {'wavelength': dataset.attrs['wavelength_range'].tolist(),
-                                                 'particle_size': dataset.attrs['particle_size_range'].tolist(),},
+                                       'range': {'wavelength':
+                                                     dataset.attrs['wavelength_range'].tolist(),
+                                                 'particle_size':
+                                                     dataset.attrs['particle_size_range'].tolist()
+                                                 },
                                        'scale': {'wavelength': model_params['wavelength_scale'],
-                                                 'particle_size': model_params['particle_size_scale'],
+                                                 'particle_size':
+                                                     model_params['particle_size_scale'],
                                                  'extinction': model_params['extinction_scale'],
-                                                 'scattering': model_params['scattering_scale'],},
+                                                 'scattering': model_params['scattering_scale']},
                                        'files': [model_params['name'] + '.keras']}
                 }
 
     # check for existing config file
     if os.path.exists(config_path):
-        with open(config_path, 'r') as file:
+        with open(config_path, 'r', encoding='utf-8') as file:
             current_data = yaml.safe_load(file) or {}
 
         current_data.update(new_data)
 
-        with open(config_path, 'w') as file:
+        with open(config_path, 'w', encoding='utf-8') as file:
             yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
 
     # create config file if none exist
     else:
-        with open(config_path, 'w') as file:
+        with open(config_path, 'w', encoding='utf-8') as file:
             yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
 
     if not self.mute:
