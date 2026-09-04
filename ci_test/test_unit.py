@@ -1,10 +1,8 @@
 """ Integration tests """
+
+import os
 import unittest
 import numpy as np
-import xarray as xr
-import os
-from tensorflow import keras
-import glob
 
 from mienet import MieNet
 from mienet.sub_functions import (read_in_refindex, calculate_subradii,
@@ -14,12 +12,14 @@ from mienet.architecture_functions import three_network, six_network
 testcase = unittest.TestCase()
 
 def test_mienet():
+    """ Test mienet.py specific calls """
     ma = MieNet(default_data_location='.', mute=False)
     # check if missing ai models lead to assertion
     with testcase.assertRaises(ValueError):
         ma.ai_efficiencies(1, 1, 1)
 
 def test_mixing_theory():
+    """ Test mixing_theory.py specific calls """
     # test wrong mixing theory
     ma = MieNet(use_ai=False)
     # test wrong mixing theory catch
@@ -27,6 +27,7 @@ def test_mixing_theory():
         ma.efficiencies(1, 1, {'Fe': 1}, theory='WRONG')
 
 def test_sub_functions():
+    """ Test sub_functions.py specific calls """
     # ==== test Bruggeman
     ma = MieNet(use_ai=False, mute=False)
     extinction, scattering, asymmetry = ma.efficiencies(
@@ -70,9 +71,11 @@ def test_sub_functions():
         input_check(1, 1, {'Fe': [1, 2], 'Fe2': [1, 2]}, None)
 
 def test_model_handling():
+    """ Test model_handling.py specific calls """
     # ==== get models
     # link to files
-    url = 'https://github.com/MieNet-org/MieNet/raw/refs/heads/main/ci_test/files/test_setup_1/test_dwl.zip'
+    url = ('https://github.com/MieNet-org/MieNet/raw/refs/heads/main'
+           '/ci_test/files/test_setup_1/test_dwl.zip')
     loc = os.path.dirname(__file__) + '/files/test_setup_1/'
     test = os.path.dirname(__file__) + '/files/test_setup_1/tutorial_model.keras'
     # delete old files if present
@@ -102,6 +105,7 @@ def test_model_handling():
 
 
 def test_create_ai_model():
+    """ Test creation of ai modles """
     # ==== Test generate_training_set
     loc = os.path.dirname(__file__) + '/'
     try:
@@ -126,11 +130,15 @@ def test_create_ai_model():
         pass
 
     ma = MieNet(mute=False, load_ai_model='test_set', default_data_location=loc)
-    ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
-                             wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
+    ma.generate_training_set(
+        'test_set', species=['SiO2', 'MgSiO3'], wavelength_sample=(0.1, 10, 25),
+        particle_size_sample=(0.001, 0.01, 25)
+    )
     with testcase.assertRaises(ValueError):
-        ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
-                                 wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
+        ma.generate_training_set(
+            'test_set', species=['SiO2', 'MgSiO3'], wavelength_sample=(0.1, 10, 25),
+            particle_size_sample=(0.001, 0.01, 25)
+        )
 
     # ==== Test train_ai_model
     ma.train_ai_model('test_set')
@@ -158,10 +166,10 @@ def test_create_ai_model():
 
     # ==== Test created model predictions
     ma = MieNet(mute=False, default_data_location=loc)
-    extinction, scattering, asymmetry = ma.ai_efficiencies(np.linspace(0.1, 10, 8),
-                                                           np.linspace(0.001, 0.01, 8),
-                                                           {'SiO2': np.linspace(0, 1, 8),
-                                                            'MgSiO3': np.linspace(1, 0, 8)})
+    extinction, scattering, asymmetry = ma.ai_efficiencies(
+        np.linspace(0.1, 10, 8), np.linspace(0.001, 0.01, 8),
+        {'SiO2': np.linspace(0, 1, 8), 'MgSiO3': np.linspace(1, 0, 8)}
+    )
 
     os.remove(loc + 'test_set.nc')
     os.remove(loc + 'test_model.keras')
@@ -172,6 +180,7 @@ def test_create_ai_model():
     assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 5, atol = 5)
 
 def test_architecture_functions():
+    """ Test architecture.py specific calls """
     # ==== test three_network
     inp3 = np.asarray([[1, None, None], [2, None, None], [3, None, None]])
     dep3 = {'low_wave': 10**1.5, 'high_wave': 10**2.5}

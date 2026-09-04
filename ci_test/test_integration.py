@@ -8,6 +8,7 @@ from mienet import MieNet
 testcase = unittest.TestCase()
 
 def test_full():
+    """ Test the full calculation """
     ma = MieNet(use_ai=False)
 
     # ==== Test same particle size input
@@ -55,6 +56,7 @@ def test_full():
     assert np.isclose(np.sum(asymmetry), -0.318803615274828)
 
 def test_ai():
+    """ Test the ai calculation """
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
     ma = MieNet(default_data_location=loc, mute=False)
@@ -146,6 +148,7 @@ def test_ai():
 
 
 def test_grid():
+    """ Test the grid calculation """
     # ==== Set up
     loc = os.path.dirname(__file__)
     ma = MieNet(use_ai=False, mute=False, default_data_location=loc)
