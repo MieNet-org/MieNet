@@ -3,6 +3,7 @@
 **/__pycache__/
 data/*.nc
 data/*.keras
+data/config.yaml
 **.nc
 **.DS_Store
 models/*.keras

@@ -30,7 +30,7 @@ def get_models(data_location, overwrite=True, url=None):
     """
     # Zenodo link
     if url is None:
-        url = 'https://zenodo.org/records/22294560/files/models.zip?download=1'
+        url = 'https://zenodo.org/records/22308008/files/models.zip?download=1'
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
@@ -52,7 +52,6 @@ def get_models(data_location, overwrite=True, url=None):
 
     # delete MACOSX folder
     shutil.rmtree(os.path.join(data_location, '__MACOSX'))
-    shutil.rmtree(os.path.join(data_location, 'DS_Store'))
 
 def initialize_ai_models(self):
     """
