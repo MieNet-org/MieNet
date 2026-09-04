@@ -170,13 +170,13 @@ def test_grid():
     # ==== read in grid
     # test file read in
     ma.load_grid_efficiency(file_name='grid_test.nc')
-    lo = ma.default_grids['grid_test.nc']['ds']
+    lo = ma.grids_dict['grid_test.nc']['ds']
     for t, test in enumerate(test_vars):
         assert np.isclose(np.sum(lo[test]), expected_vals[t])
     assert ['SiO2', 'Fe'] == lo.attrs['species']
     # test ds_grid read in
     ma.load_grid_efficiency(ds_grid=ds, file_name=None)
-    assert len(ma.default_grids) == 2
+    assert len(ma.grids_dict) == 2
     # test asserts
     with testcase.assertRaises(ValueError):
         ma.load_grid_efficiency(file_name='grid_that_does_not_exist.nc')

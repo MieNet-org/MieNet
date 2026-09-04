@@ -49,8 +49,8 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
               list(volume_mixing_ratios.keys()))
 
     # ==== Load grid
-    best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids)
-    ds = self.default_grids[best_dataset[0]]['ds']
+    best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.grids_dict)
+    ds = self.grids_dict[best_dataset[0]]['ds']
 
     # ==== Check mixing theory if necessary
     if theory is not None:
@@ -233,7 +233,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         if ds_grid_name is None:
             # if no name is given, use current time
             ds_grid_name = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.default_grids[ds_grid_name] = {'species': ds_grid.attrs['species'], 'ds': ds_grid}
+        self.grids_dict[ds_grid_name] = {'species': ds_grid.attrs['species'], 'ds': ds_grid}
 
     if file_name is not None:
         # ==== Check if only one file should be loaded, or all files from data_path
@@ -249,7 +249,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
             try:
                 # get data and assign it to the dictionary
                 ds = xr.open_dataset(grid_file, engine="h5netcdf")
-                self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
+                self.grids_dict[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
                 if not self.mute:
                     print(f'[INFO] Grid added: ')
                     print(f'   -> File: ' + grid_file)
@@ -264,7 +264,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
                 raise ValueError('[ERROR] The following grid file could not be loded:\n  ', grid_file)
 
     # if at least one grid is loaded, enable grid interpolation
-    if len(self.default_grids) > 0:
+    if len(self.grids_dict) > 0:
         self.use_grid = True
     else:
         if not self.mute:
