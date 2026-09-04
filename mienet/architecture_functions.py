@@ -1,4 +1,23 @@
-""" Architecture dependent functionalities """
+"""
+Architecture dependent functionalities
+----------
+To increase the accuracy of ANN predictions, MieNet's default ANNs are trained on six seperate
+regions of the parameter space. These architecture functions create masks to filter the given
+inputs based which region they belong to, so the most accurate ANN for that input is used.
+
+MieNet's default ANNs use the six_network architecture function, which filters inputs into three
+wavelength and two size parameter regions. The three_network function divides inputs into just
+three wavelength regions.
+
+ANNs created by MieNet's train_ai_model function does not allow for training on different input
+parameter spaces and is classified as "one_network" (as no masks are required for these
+architecture types, there is no one_network architecture function).
+
+If you choose to create your own models using another method and utilize an input split, add an
+architecture function to this file. The name of the function must be the same as the architecture
+parameter of your model in the config file. Architecture functions must have inputs, dependencies,
+and scale as function parameters, and returns masks to work with MieNet's ai_efficiencies.
+"""
 # pylint: disable=C0415,R0902,R0912,R0914,R0915
 
 import numpy as np
