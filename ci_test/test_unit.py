@@ -95,6 +95,8 @@ def test_model_handling():
     ma = MieNet(use_ai=False, default_data_location=loc, mute=False)
     assert ma.initialize_ai_models() is None
     assert ma.force_disabled_ai
+    with testcase.assertRaises(ValueError):
+        ma = MieNet(default_data_location=loc, load_ai_model='TUTORIAL_MODEL', mute=False)
 
 
 def test_create_ai_model():
@@ -130,6 +132,9 @@ def test_create_ai_model():
 
     # ==== Test train_ai_model
     ma.train_ai_model('test_set')
+    assert os.path.exists(loc + 'test_set.keras')
+    os.remove(loc + 'test_set.keras')
+    ma.train_ai_model('test_set', overwrite=True)
     assert os.path.exists(loc + 'test_set.keras')
     ma.train_ai_model('test_set')
     assert os.path.exists(loc + 'test_set1.keras')
