@@ -40,10 +40,10 @@ def read_in_refindex(species, wavelength, files):
         for file in files:
             sp_name = os.path.basename(file).split('/')[0][:-8]
             if spec == sp_name:
-                # get data using pandas
-                content = pd.read_csv(file, sep=r'\s+', header=None, usecols=[1, 2, 3])
+                # read in refractive index data
+                content = np.genfromtxt(file, usecols=[1, 2, 3])
                 # convert to array and flip vertically so wavelength increases
-                data = np.flip(content.to_numpy(), axis=0)
+                data = np.flip(content, axis=0)
         if data is None:
             raise ValueError('No refindex file found for ' + spec)
 
