@@ -1,8 +1,7 @@
 """ General functionalities """
-# pylint: disable=C0415,R0902,R0912,R0914,R0915
+# pylint: disable=R0912,R0913,R0914,R0917
 
 import os
-import pandas as pd
 import numpy as np
 
 def read_in_refindex(species, wavelength, files):
@@ -151,13 +150,13 @@ def calculate_subradii(particle_size, vmr):
 
     return sub_rad, vmr
 
-def select_best_dataset(type, wave, size, vmrs, datasets, theory=None, stop=True):
+def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True):
     """
     Choose best grid or model.
 
     Parameters
     ----------
-    type : String
+    typ : String
         Either 'model' or 'grid'
     wave : np.ndarray
         wavelength
@@ -209,12 +208,11 @@ def select_best_dataset(type, wave, size, vmrs, datasets, theory=None, stop=True
         winner = valid_datasets[0]
         return winner, datasets[winner]['species']
     # if only one entry remains return this entry
-    elif len(valid_datasets) == 0:
+    if len(valid_datasets) == 0:
         if stop:
-            raise ValueError("[ERROR] No " + f'{type}' + " for " + str(l_set) +
+            raise ValueError("[ERROR] No " + f'{typ}' + " for " + str(l_set) +
                              " is available. Please provide one.")
-        else:
-            return None, None
+        return None, None
 
     # ==== Select best dataset
     # first selection is done by number of species

@@ -1,5 +1,5 @@
 """ Calculating different mixing theories for effective refindex """
-# pylint: disable=C0415,R0902,R0912,R0914,R0915
+# pylint: disable=R0914
 
 import numpy as np
 from scipy.optimize import minimize
@@ -51,11 +51,12 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
                 return nk[1] - k_min
             def con_max_k(nk, k_max):
                 return k_max - nk[1]
-            con = [{'type': 'ineq', 'fun': con_min_n, 'args': [np.min(ref_index[:, wav, 0])]},
-                   {'type': 'ineq', 'fun': con_max_n, 'args': [np.max(ref_index[:, wav, 0])]},
-                   {'type': 'ineq', 'fun': con_min_k, 'args': [np.min(ref_index[:, wav, 1])]},
-                   {'type': 'ineq', 'fun': con_max_k, 'args': [np.max(ref_index[:, wav, 1])]},
-                   ]
+            con = [
+                {'type': 'ineq', 'fun': con_min_n, 'args': [np.min(ref_index[:, wav, 0])]},
+                {'type': 'ineq', 'fun': con_max_n, 'args': [np.max(ref_index[:, wav, 0])]},
+                {'type': 'ineq', 'fun': con_min_k, 'args': [np.min(ref_index[:, wav, 1])]},
+                {'type': 'ineq', 'fun': con_max_k, 'args': [np.max(ref_index[:, wav, 1])]},
+            ]
 
             # calculate effective medium theory with Bruggemann minimization
             work = np.asarray([vmr[wav], ref_index[:, wav, 0], ref_index[:, wav, 1]]).T
@@ -113,4 +114,4 @@ def bruggeman_func(eff, work):
         # add to sumation
         sol += work[i, 0]*(e_i-e_e)/(e_i+2*e_e)
 
-    return abs(sol)#sol.real**2 + sol.imag**2
+    return abs(sol)

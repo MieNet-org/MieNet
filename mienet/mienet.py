@@ -1,5 +1,5 @@
 """ MieNet class """
-# pylint: disable=C0415,R0902,R0913,R0912,R0914,R0915
+# pylint: disable=C0415,R0902,R0913,R0912,R0914,R0915,R0917
 
 import sys
 import os
@@ -16,34 +16,37 @@ from . import architecture_functions
 
 class MieNet:
     """
-    MieNet class to calculate mie opacities. For more information please see the Documentation.
+    MieNet class to calculate mie opacities. For more information please see the
+    Documentation.
     """
 
-    # ==== Import functions from sub-files ========================================================
+    # ==== Import functions from sub-files ==============================================
     from .grid import grid_efficiencies, produce_efficiency_grid, load_grid_efficiency
-    from .model_handling import generate_training_set, train_ai_model, initialize_ai_models
+    from .model_handling import (generate_training_set, train_ai_model,
+                                 initialize_ai_models)
 
-    def __init__(self, use_ai=True, default_data_location=None, mute=True, load_ai_model='all',
-                 grid_file=None):
+    def __init__(self, use_ai=True, default_data_location=None, mute=True,
+                 load_ai_model='all', grid_file=None):
         """
         Constructor
 
         Parameters
         ----------
         use_ai : bool
-            If False, AI will be disabled. This allows to use MieNet without installing tensorflow.
+            If False, AI will be disabled. This allows to use MieNet without installing
+            tensorflow.
         default_data_location : str, optional
             Location of opacity data and/or grids. If none, MieNet defaults are used.
         mute : bool, optional
             If True, MieNet will produce no diagnostic outputs and runs quietly.
         load_ai_model : str
-            Which AI model to load. Default is 'all', which loads all models. User can input
-            model names to load a specific model.
+            Which AI model to load. Default is 'all', which loads all models. User can
+            input model names to load a specific model.
         grid_file : str, optional
             If a grid file is given, only this file will be loaded.
         """
 
-        # ==== General preparations ===============================================================
+        # ==== General preparations =====================================================
         # save user inputs
         self.use_ai = use_ai
         self.use_grid = False  # this is default until grids are loaded
@@ -75,11 +78,12 @@ class MieNet:
         else:
             self.data_path = os.path.join(os.path.dirname(__file__), '../data/')
 
-        # ==== Prepare Neural Network =============================================================
+        # ==== Prepare Neural Network ===================================================
         self.models_dict = {}  # default initialisation
         if self.use_ai:
             # check if right python version for tensorflow
-            if sys.version_info[0] > 3 or (sys.version_info[0] == 3 and sys.version_info[1] > 12):
+            if (sys.version_info[0] > 3 or
+                    (sys.version_info[0] == 3 and sys.version_info[1] > 12)):
                 ver = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
                 print(f'[WARN] Your python version ({ver}) is to new and might not work '
                       f'with tensorflow.')
@@ -123,18 +127,19 @@ class MieNet:
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
 
-        # ==== network initialization & retrieval ==================================================
+        # ==== network initialization & retrieval =======================================
 
         # check if neural network is initialized
         if not self.use_ai:
             if self.force_disabled_ai:
-                raise ValueError('[ERROR] No ANNs were successfully loaded, ai_efficiencies '
-                                 'is not available.')
+                raise ValueError('[ERROR] No ANNs were successfully loaded, '
+                                 'ai_efficiencies is not available.')
             raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
 
         # check at least one correct model is initialized if using specific model
         if self.load_ai_model != 'all':
-            if not any(set(volume_mixing_ratios).issubset(self.models_dict[key]['species']) for key in self.load_ai_model):
+            if not any(set(volume_mixing_ratios).issubset(self.models_dict[key]['species'])
+                       for key in self.load_ai_model):
                 raise ValueError(
                     "[ERROR] No correct AI model initialized for this mixture:\n"
                     "   -> Species selected: " + str(volume_mixing_ratios.keys()) + "\n"
@@ -143,19 +148,22 @@ class MieNet:
 
         # find all models that include all species
         best_model = select_best_dataset(
-            'model', wavelength, particle_size, volume_mixing_ratios, self.models_dict, theory=theory
+            'model', wavelength, particle_size, volume_mixing_ratios, self.models_dict,
+            theory=theory
         )
 
         # add zero array to vmr dictionary if using less than the total amount of species
         if len(volume_mixing_ratios.keys()) != len(best_model[1]):
-            missing_species = [key for key in best_model[1] if key not in volume_mixing_ratios]
+            missing_species = [key for key in best_model[1]
+                               if key not in volume_mixing_ratios]
             for species in missing_species:
-                volume_mixing_ratios[species] = np.zeros_like(next(iter(volume_mixing_ratios.values())))
+                volume_mixing_ratios[species] = (
+                    np.zeros_like(next(iter(volume_mixing_ratios.values()))))
 
         # get info for the model
         model_dict = self.models_dict[best_model[0]]
 
-        # ==== Input checks =======================================================================
+        # ==== Input checks =============================================================
         wavelength, particle_size, vmr = input_check(
             wavelength, particle_size, volume_mixing_ratios, best_model[1], self.mute
         )
@@ -196,7 +204,8 @@ class MieNet:
             if self.models_dict[best_model[0]]['theory'] != theory:
                 raise ValueError('[ERROR] Mixing theory dose not match.\n'
                                  '-> Selected: ' + theory + '\n'
-                                 '-> Data set: ' + self.models_dict[best_model[0]]['theory'])
+                                 '-> Data set: '
+                                 + self.models_dict[best_model[0]]['theory'])
 
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
@@ -206,7 +215,7 @@ class MieNet:
         # particle size
         final_vmr = np.tile(vmr, (len(wavelength), 1))
 
-        # ==== Prepare model ======================================================================
+        # ==== Prepare model ============================================================
         # define input array
         num_inputs = 2 + (final_vmr.shape[1] - 1)
         inputs = np.zeros((len(final_wavelength), num_inputs))
@@ -291,7 +300,7 @@ class MieNet:
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
-        # ==== Prepare inputs =====================================================================
+        # ==== Prepare inputs ===========================================================
         if theory is None:
             theory = 'LLL'
 
@@ -316,13 +325,13 @@ class MieNet:
             print('[INFO] Perform full Mie calculation for ',
                   list(volume_mixing_ratios.keys()))
 
-        # ==== Radius averaging ===================================================================
+        # ==== Radius averaging =========================================================
         sub_rad, vmr = calculate_subradii(particle_size, vmr)
 
-        # ==== Load data for each species from files and get refractive index =====================
+        # ==== Load data for each species from files and get refractive index ===========
         ref_index = read_in_refindex(species_list, wavelength, self.files)
 
-        # ==== Combination of all wavelengths and particle size ===================================
+        # ==== Combination of all wavelengths and particle size =========================
         final_wavelength = np.repeat(wavelength, len(sub_rad))
         final_sub_rad = np.tile(sub_rad, len(wavelength))
         final_vmr = np.tile(vmr, (len(wavelength), 1))
@@ -332,13 +341,13 @@ class MieNet:
             final_wavelength, final_ref_index, final_vmr, theory=theory
         )
 
-        # ==== Calculate Mie Efficiencies =========================================================
+        # ==== Calculate Mie Efficiencies ===============================================
         size_param = (2.0 * np.pi * final_sub_rad) / final_wavelength
 
         # qe_temp = extinction, qs_temp = scattering, g_temp = asymmetry
         qe_temp, qs_temp, _, g_temp = mie.efficiencies_mx(mixed_ref_index, size_param)
 
-        # ==== Prepare outputs ====================================================================
+        # ==== Prepare outputs ==========================================================
         if len(sub_rad) != len(particle_size):
             extinction = np.mean(
                 qe_temp.reshape(len(particle_size) * len(wavelength), 6), axis=1
@@ -357,7 +366,8 @@ class MieNet:
 
         return extinction, scattering, asymmetry
 
-    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None):
+    def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
+                          theory=None):
         """
         Calculate mie coefficients using mie fastest method available.
 
@@ -411,7 +421,7 @@ class MieNet:
 
 
     def download_models(self, overwrite=True, url=None):
-        '''
+        """
         Download MieNet data from Zenodo and load all data/specified model.
 
         Parameters
@@ -420,7 +430,7 @@ class MieNet:
             If True, old files will be overwritten.
         url : str, optional
             Download link. If None is given, use the default zotero repository.
-        '''
+        """
         # info
         if not self.mute and url is None:
             print('[INFO] Downloading data from Zenodo')

@@ -1,24 +1,25 @@
 """
 Architecture dependent functionalities
 ----------
-To increase the accuracy of ANN predictions, MieNet's default ANNs are trained on six seperate
-regions of the parameter space. These architecture functions create masks to filter the given
-inputs based which region they belong to, so the most accurate ANN for that input is used.
+To increase the accuracy of ANN predictions, MieNet's default ANNs are trained on six
+seperate regions of the parameter space. These architecture functions create masks to
+filter the given inputs based which region they belong to, so the most accurate ANN for
+that input is used.
 
-MieNet's default ANNs use the six_network architecture function, which filters inputs into three
-wavelength and two size parameter regions. The three_network function divides inputs into just
-three wavelength regions.
+MieNet's default ANNs use the six_network architecture function, which filters inputs
+into three wavelength and two size parameter regions. The three_network function divides
+inputs into just three wavelength regions.
 
-ANNs created by MieNet's train_ai_model function does not allow for training on different input
-parameter spaces and is classified as "one_network" (as no masks are required for these
-architecture types, there is no one_network architecture function).
+ANNs created by MieNet's train_ai_model function does not allow for training on different
+input parameter spaces and is classified as "one_network" (as no masks are required for
+these architecture types, there is no one_network architecture function).
 
-If you choose to create your own models using another method and utilize an input split, add an
-architecture function to this file. The name of the function must be the same as the architecture
-parameter of your model in the config file. Architecture functions must have inputs, dependencies,
-and scale as function parameters, and returns masks to work with MieNet's ai_efficiencies.
+If you choose to create your own models using another method and utilize an input split,
+add an architecture function to this file. The name of the function must be the same as
+the architecture parameter of your model in the config file. Architecture functions must
+have inputs, dependencies, and scale as function parameters, and returns masks to work
+with MieNet's ai_efficiencies.
 """
-# pylint: disable=C0415,R0902,R0912,R0914,R0915
 
 import numpy as np
 
@@ -48,7 +49,8 @@ def three_network(inputs, dependencies, scale):
 
     # masks
     low_mask = wavelength <= dependencies['low_wave']
-    mid_mask = ((wavelength > dependencies['low_wave']) & (wavelength < dependencies['high_wave']))
+    mid_mask = ((wavelength > dependencies['low_wave'])
+                & (wavelength < dependencies['high_wave']))
     high_mask = wavelength >= dependencies['high_wave']
 
     return low_mask, mid_mask, high_mask
@@ -88,13 +90,19 @@ def six_network(inputs, dependencies, scale):
     size_param = (2 * np.pi * particle_size) / wavelength
 
     # masks
-    mask_1A = (wavelength <= dependencies['low_wave']) & (size_param >= dependencies['size_cutoff'])
-    mask_1B = ((wavelength > dependencies['low_wave']) & (wavelength < dependencies['high_wave']) &
+    mask_1a = ((wavelength <= dependencies['low_wave']) &
                (size_param >= dependencies['size_cutoff']))
-    mask_1C = (wavelength >= dependencies['high_wave']) & (size_param >= dependencies['size_cutoff'])
-    mask_2A = (wavelength <= dependencies['low_wave']) & (size_param < dependencies['size_cutoff'])
-    mask_2B = ((wavelength > dependencies['low_wave']) & (wavelength < dependencies['high_wave']) &
+    mask_1b = ((wavelength > dependencies['low_wave']) &
+               (wavelength < dependencies['high_wave']) &
+               (size_param >= dependencies['size_cutoff']))
+    mask_1c = ((wavelength >= dependencies['high_wave']) &
+               (size_param >= dependencies['size_cutoff']))
+    mask_2a = ((wavelength <= dependencies['low_wave']) &
                (size_param < dependencies['size_cutoff']))
-    mask_2C = (wavelength >= dependencies['high_wave']) & (size_param < dependencies['size_cutoff'])
+    mask_2b = ((wavelength > dependencies['low_wave']) &
+               (wavelength < dependencies['high_wave']) &
+               (size_param < dependencies['size_cutoff']))
+    mask_2c = ((wavelength >= dependencies['high_wave']) &
+               (size_param < dependencies['size_cutoff']))
 
-    return mask_1A, mask_1B, mask_1C, mask_2A, mask_2B, mask_2C
+    return mask_1a, mask_1b, mask_1c, mask_2a, mask_2b, mask_2c
