@@ -30,7 +30,7 @@ def get_models(data_location, overwrite=True, url=None):
     """
     # Zenodo link
     if url is None:
-        url = 'https://zenodo.org/records/22147944/files/models.zip?download=1'
+        url = 'https://zenodo.org/records/22294560/files/models.zip?download=1'
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
@@ -40,7 +40,7 @@ def get_models(data_location, overwrite=True, url=None):
     # move files out of models folder
     models_folder = os.path.join(data_location, 'models')
     for f in os.listdir(models_folder):
-        # move and overwirte old files
+        # move and overwrite old files
         if overwrite:
             shutil.move(os.path.join(models_folder, f), os.path.join(data_location, f))
         # move and keep old files
@@ -52,6 +52,7 @@ def get_models(data_location, overwrite=True, url=None):
 
     # delete MACOSX folder
     shutil.rmtree(os.path.join(data_location, '__MACOSX'))
+    shutil.rmtree(os.path.join(data_location, 'DS_Store'))
 
 def initialize_ai_models(self):
     """
