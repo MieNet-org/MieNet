@@ -1,5 +1,5 @@
 .. figure:: TBD ADD LOGO
-   :alt: Nimbus logo
+   :alt: MiNet logo
    :align: center
 
 Welcome to MieNet
