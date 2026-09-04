@@ -212,6 +212,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     wave_points = wavelength_sample[2] # number of wavelength points
     radii_points = particle_size_sample[2] # number of particle size points
     set_size = wave_points * radii_points # total training set size
+    # num_params: Wavelength, particle size, Qext, Qsca, g, VMR_1, ..., VMR_(i-1)
     num_params = 5 + (len(species) - 1) # number of parameters in training set
 
     # check if training set exists
