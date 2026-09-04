@@ -214,7 +214,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     return ds
 
 
-def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
+def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None):
     """
     Load previously calculated opacity grids
 
@@ -235,30 +235,31 @@ def load_grid_efficiency(self, file_name=None, ds_grid=None, ds_grid_name=None):
             ds_grid_name = datetime.now().strftime("%Y%m%d%H%M%S")
         self.default_grids[ds_grid_name] = {'species': ds_grid.attrs['species'], 'ds': ds_grid}
 
-    # ==== Check if only one file should be loaded, or all files from data_path
-    if file_name is None:
-        grid_files = glob(self.data_path + 'grid_*.nc')
-    else:
-        grid_files = [file_name]
+    if file_name is not None:
+        # ==== Check if only one file should be loaded, or all files from data_path
+        if file_name == 'all':
+            grid_files = glob(self.data_path + 'grid_*.nc')
+        else:
+            grid_files = [file_name]
 
-    # ==== Looop over all files
-    for grid_file in grid_files:
-        try:
-            # get data and assign it to the dictionary
-            ds = xr.open_dataset(grid_file, engine="h5netcdf")
-            self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
-            if not self.mute:
-                print(f'[INFO] Grid added: ')
-                print(f'   -> File: ' + grid_file)
-                print(f'   -> Species: ', ds.attrs['species'])
-                print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
-                      f"{round(ds['wavelength'].values[-1], 2)} micron.")
-                print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "
-                      f"{round(ds['particle_size'].values[-1], 2)} micron.")
-            ds.close()
-        except:
-            # this error only rises if the file loaded is not what was expected.
-            raise ValueError('[ERROR] The following grid file could not be loded:\n  ', grid_file)
+        # ==== Looop over all files
+        for grid_file in grid_files:
+            try:
+                # get data and assign it to the dictionary
+                ds = xr.open_dataset(grid_file, engine="h5netcdf")
+                self.default_grids[grid_file] = {'species': ds.attrs['species'], 'ds': ds}
+                if not self.mute:
+                    print(f'[INFO] Grid added: ')
+                    print(f'   -> File: ' + grid_file)
+                    print(f'   -> Species: ', ds.attrs['species'])
+                    print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
+                          f"{round(ds['wavelength'].values[-1], 2)} micron.")
+                    print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "
+                          f"{round(ds['particle_size'].values[-1], 2)} micron.")
+                ds.close()
+            except:
+                # this error only rises if the file loaded is not what was expected.
+                raise ValueError('[ERROR] The following grid file could not be loded:\n  ', grid_file)
 
     # if at least one grid is loaded, enable grid interpolation
     if len(self.default_grids) > 0:

@@ -103,21 +103,30 @@ def calculate_subradii(particle_size, vmr):
     """
     if len(particle_size) > 1:
         if len(set(particle_size)) != 1:
+            # check if particle sizes are sorted
+            idx = np.argsort(particle_size)
+            ps_sorted = particle_size[idx]
+
             # prepare outputs
-            rad_min = np.zeros_like(particle_size)
-            rad_max = np.zeros_like(particle_size)
-            mid_points = (particle_size[1:] + particle_size[:-1]) / 2
+            rad_min = np.zeros_like(ps_sorted)
+            rad_max = np.zeros_like(ps_sorted)
+            mid_points = (ps_sorted[1:] + ps_sorted[:-1]) / 2
 
             # radius minimum and maximum from midpoints
             rad_min[1:] = mid_points
             # smallest radius value >0
-            rad_min[0] = np.max([particle_size[0] - mid_points[0], 0])
+            rad_min[0] = np.max([ps_sorted[0] - mid_points[0], 0])
             rad_max[:-1] = mid_points
-            rad_max[-1] = particle_size[-1] + mid_points[-1]
+            rad_max[-1] = ps_sorted[-1] + mid_points[-1]
 
             # prepare output
-            sub_rad = np.zeros((len(particle_size) * 6))
+            sub_rad = np.zeros((len(ps_sorted) * 6))
             i = 0  # index
+
+            # revert sorting
+            inv_idx = np.argsort(idx)
+            rad_max = rad_max[inv_idx]
+            rad_min = rad_min[inv_idx]
 
             for r_max, r_min in zip(rad_max, rad_min):
                 # six radius points to average over
@@ -234,9 +243,13 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     if len(set(map(len, volume_mixing_ratios.values()))) != 1:
         raise ValueError('[ERROR] Volume mixing ratios must have same shape')
     # each particle size needs a VMR
-    if len(particle_size) != len(volume_mixing_ratios[next(iter(volume_mixing_ratios))]):
-        raise ValueError('[ERROR] Particle size and volume mixing ratio must have '
-                         'same shape')
+    vmr_len = len(volume_mixing_ratios[next(iter(volume_mixing_ratios))])
+    if len(particle_size) != vmr_len:
+        raise ValueError(
+            '[ERROR] Particle size and volume mixing ratio must have same shape:\n'
+            '   -> Shape particle size: ' + str(len(particle_size)) + '\n'
+            '   -> Shape VMR: ' + str(vmr_len) + '\n'
+        )
 
     # create array with vmr values
     vmr = np.zeros((len(particle_size), len(species_list)))
