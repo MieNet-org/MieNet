@@ -13,4 +13,3 @@ MieNet is based on [Attaway et al. (2026)]() and [Kiefer et al. (2026)]().
 Documentation
 -------------
 You can find a description of MieNet, tutorials, and current functionalities in the read the docs [here](https://MieNet.readthedocs.io/en/latest/).
-
