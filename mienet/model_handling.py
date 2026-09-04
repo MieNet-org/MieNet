@@ -129,7 +129,7 @@ def initialize_ai_models(self):
             models_dict[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] AAN added: ')
+                print(f'[INFO] ANN added: ')
                 print(f'   -> Name: ' + model)
                 print(f'   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
@@ -168,7 +168,7 @@ def initialize_ai_models(self):
             loaded_models[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] AAN added: ')
+                print(f'[INFO] ANN added: ')
                 print(f'   -> Name: ' + model)
                 print(f'   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
