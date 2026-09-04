@@ -88,7 +88,7 @@ class MieNet:
 
         # ==== Load predetermined grid dataset
         # default datasets
-        self.default_grids = {}
+        self.grids_dict = {}
         self.load_grid_efficiency(file_name=grid_file)
 
         # ==== Information about the status of MieNet
@@ -99,7 +99,7 @@ class MieNet:
                 print(f'   -> AAN models available: {len(self.models_dict)}')
             else:
                 print('   -> ANN models are unavailable')
-            print(f'   -> Grid models available: {len(self.default_grids)}')
+            print(f'   -> Grid models available: {len(self.grids_dict)}')
 
 
     def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
@@ -385,7 +385,7 @@ class MieNet:
                 )
                 return extinction, scattering, asymmetry
 
-        best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.default_grids, False)
+        best_dataset = select_best_dataset('grid', volume_mixing_ratios, self.grids_dict, False)
 
         # use grid if it exists
         if best_dataset[0] is not None:
