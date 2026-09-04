@@ -220,7 +220,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
 
     Parameters
     ----------
-    file_name : str, optional
+    file_name : str or list, optional
         If given, only this file is loaded, if None, data_path will be checked.
     ds_grid : xarray.Dataset, optional
         from produce_efficiency_grid, also requires ds_grid_name
@@ -239,8 +239,10 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         # ==== Check if only one file should be loaded, or all files from data_path
         if file_name == 'all':
             grid_files = glob(self.data_path + 'grid_*.nc')
-        else:
+        elif isinstance(file_name, str):
             grid_files = [file_name]
+        else:
+            grid_files = file_name
 
         # ==== Looop over all files
         for grid_file in grid_files:
