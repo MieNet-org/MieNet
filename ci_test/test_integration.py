@@ -38,6 +38,22 @@ def test_full():
     with testcase.assertRaises(ValueError):
         ma.efficiencies(1, 1,{'WRONG': 1})
 
+    # ==== Test wrongly sorted particle sizes
+    scramb = [1, 7, 5, 3, 4, 2, 0, 6]
+    ps_unsorted = np.logspace(-3, -2, 8)[scramb]
+    tio2_vmr_unsorted = np.linspace(0, 1, 8)[scramb]
+    fe_vmr_unsorted = np.linspace(1, 0, 8)[scramb]
+    extinction, scattering, asymmetry = ma.efficiencies(
+        np.logspace(-0.5, 1, 8), ps_unsorted,
+        {
+            'TiO2': tio2_vmr_unsorted,
+            'Fe': fe_vmr_unsorted,
+        }
+    )
+    assert np.isclose(np.sum(extinction), 0.22395971588655875)
+    assert np.isclose(np.sum(scattering), 0.03450202166172343)
+    assert np.isclose(np.sum(asymmetry), -0.318803615274828)
+
 def test_ai():
     # ==== Set up
     loc = os.path.dirname(__file__) + '/../docs/tutorial_files/'
@@ -159,7 +175,7 @@ def test_grid():
         assert np.isclose(np.sum(lo[test]), expected_vals[t])
     assert ['SiO2', 'Fe'] == lo.attrs['species']
     # test ds_grid read in
-    ma.load_grid_efficiency(ds_grid=ds)
+    ma.load_grid_efficiency(ds_grid=ds, file_name=None)
     assert len(ma.default_grids) == 2
     # test asserts
     with testcase.assertRaises(ValueError):
