@@ -129,7 +129,7 @@ def initialize_ai_models(self):
             models_dict[model]['models'] = model_list
 
             if not self.mute:
-                print(f'[INFO] AAN added: ')
+                print(f'[INFO] ANN added: ')
                 print(f'   -> Name: ' + model)
                 print(f'   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
@@ -170,7 +170,7 @@ def initialize_ai_models(self):
             loaded_models[model]['quality_metric'] = len(loaded_models[model]['files'])
 
             if not self.mute:
-                print(f'[INFO] AAN added: ')
+                print(f'[INFO] ANN added: ')
                 print(f'   -> Name: ' + model)
                 print(f'   -> Species: ', models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
@@ -362,8 +362,9 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
             # if default name is already used, add number to end
             else:
                 file_end = 1
+                orginal_file = file_name
                 while os.path.exists(self.data_path + file_name + '.keras'):
-                    file_name = file_name + str(file_end)
+                    file_name = orginal_file + str(file_end)
                     model_params['name'] = file_name
                     file_end += 1
 
@@ -394,7 +395,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         model_params['scattering_scale'] = 'log'
 
     if not self.mute:
-        print('[INFO] Generating AAN model with:')
+        print('[INFO] Generating ANN model with:')
         print('   -> Layers: ' + str(model_params['layers']))
         print('   -> Nodes: ' + str(model_params['nodes']))
         print('   -> Activation Function: ' + str(model_params['activation_function']))
@@ -525,3 +526,4 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
 
     # immediately load the model
     self.initialize_ai_models()
+    model_params.clear()

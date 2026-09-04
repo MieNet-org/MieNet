@@ -85,6 +85,8 @@ def test_model_handling():
     ma.use_ai = True
     ma.download_models(overwrite=False, url=url)
     assert os.path.exists(test)
+    ma.download_models(overwrite=True, url=url)
+    assert os.path.exists(test)
     os.remove(test)
 
     # ==== initialize ai
@@ -95,6 +97,8 @@ def test_model_handling():
     ma = MieNet(use_ai=False, default_data_location=loc, mute=False)
     assert ma.initialize_ai_models() is None
     assert ma.force_disabled_ai
+    with testcase.assertRaises(ValueError):
+        ma = MieNet(default_data_location=loc, load_ai_model='TUTORIAL_MODEL', mute=False)
 
 
 def test_create_ai_model():
@@ -109,18 +113,48 @@ def test_create_ai_model():
     except OSError:
         pass
     try:
+        os.remove(loc + 'test_set.keras')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set1.keras')
+    except OSError:
+        pass
+    try:
         os.remove(loc + 'config.yaml')
     except OSError:
         pass
 
-    ma = MieNet(mute=False, default_data_location=loc)
+    ma = MieNet(mute=False, load_ai_model='test_set', default_data_location=loc)
     ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
                              wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
+    with testcase.assertRaises(ValueError):
+        ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
+                                 wavelength_sample=(0.1, 10, 25), particle_size_sample=(0.001, 0.01, 25))
 
     # ==== Test train_ai_model
+    ma.train_ai_model('test_set')
+    assert os.path.exists(loc + 'test_set.keras')
+    os.remove(loc + 'test_set.keras')
+    ma.train_ai_model('test_set', overwrite=True)
+    assert os.path.exists(loc + 'test_set.keras')
+    ma.train_ai_model('test_set')
+    assert os.path.exists(loc + 'test_set1.keras')
+    os.remove(loc + 'test_set.keras')
+    os.remove(loc + 'test_set1.keras')
+    ma = MieNet(mute=False, default_data_location=loc)
     ma.train_ai_model('test_set',
-                      model_params={'name': 'test_model', 'layers': 2, 'batch_size': 32},
+                      model_params={'name': 'test_model'},
                       plot_training=False)
+    with testcase.assertRaises(ValueError):
+        ma.train_ai_model('test_set',
+                      model_params={'name': 'test_model'})
+    with testcase.assertRaises(ValueError):
+        ma.train_ai_model('test_set',
+                          model_params={'wavelength_scale': 'wrong',
+                               'particle_size_scale': 'wrong',
+                               'extinction_scale': 'wrong',
+                               'scattering_scale': 'wrong'})
 
     # ==== Test created model predictions
     ma = MieNet(mute=False, default_data_location=loc)
