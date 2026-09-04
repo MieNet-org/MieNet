@@ -173,40 +173,6 @@ class MieNet:
             print('[INFO] Perform AAN calculation for ',
                   list(volume_mixing_ratios.keys()))
 
-        # check if wavelength and particle_size are in range
-        if min(wavelength) < model_dict['range']['wavelength'][0]:
-            raise ValueError(
-                '[ERROR] Wavelengths requested are out of the model range:\n'
-                '   -> Smallest wavelength selected: ' + str(min(wavelength)) + '\n'
-                '   -> Range of model: ' + str(model_dict['range']['wavelength'])
-            )
-        if max(wavelength) > model_dict['range']['wavelength'][1]:
-            raise ValueError(
-                '[ERROR] Wavelengths requested are out of the model range:\n'
-                '   -> Largest wavelength selected: ' + str(max(wavelength)) + '\n' 
-                '   -> Range of model: ' + str(model_dict['range']['wavelength'])
-            )
-        if min(particle_size) < model_dict['range']['particle_size'][0]:
-            raise ValueError(
-                '[ERROR] Particle sizes requested are out of the model range:\n'
-                '   -> Smallest particle size selected: ' + str(min(particle_size)) + '\n'
-                '   -> Range of model: ' + str(model_dict['range']['particle_size'])
-            )
-        if max(particle_size) > model_dict['range']['particle_size'][1]:
-            raise ValueError(
-                '[ERROR] Particle sizes requested are out of the model range:\n'
-                '   -> Largest particle size selected: ' + str(max(particle_size)) + '\n'
-                '   -> Range of model: ' + str(model_dict['range']['particle_size'])
-            )
-
-        # check if correct mixing theory is used
-        if theory is not None:
-            if self.models_dict[best_model[0]]['theory'] != theory:
-                raise ValueError('[ERROR] Mixing theory dose not match.\n'
-                                 '-> Selected: ' + theory + '\n'
-                                 '-> Data set: '
-                                 + self.models_dict[best_model[0]]['theory'])
-
         # make all possible combinations of wavelength & particle size
         final_wavelength = np.repeat(wavelength, len(particle_size))
         final_particle_size = np.tile(particle_size, len(wavelength))
