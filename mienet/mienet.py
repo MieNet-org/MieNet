@@ -227,7 +227,7 @@ class MieNet:
         else:
             arch_func = getattr(architecture_functions, arch)
 
-            masks = arch_func(inputs, model_dict['dependencies'])
+            masks = arch_func(inputs, model_dict['dependencies'], model_dict['scale'])
 
             # predict outputs
             for i, mask in enumerate(masks):

@@ -141,7 +141,9 @@ def test_architecture_functions():
     # ==== test three_network
     inp3 = np.asarray([[1, None, None], [2, None, None], [3, None, None]])
     dep3 = {'low_wave': 10**1.5, 'high_wave': 10**2.5}
-    res = three_network(inp3, dep3)
+    scale3 = {'wavelength': 'log', 'particle_size': 'log',
+              'extinction': 'log', 'scattering': 'log'}
+    res = three_network(inp3, dep3, scale3)
     assert (res[0] == np.asarray([True, False, False])).all()
     assert (res[1] == np.asarray([False, True, False])).all()
     assert (res[2] == np.asarray([False, False, True])).all()
@@ -152,85 +154,12 @@ def test_architecture_functions():
         [1, -1, None], [2, -2, None], [3, -3, None],
     ])
     dep6 = {'low_wave': 10**1.5, 'high_wave': 10**2.5, 'size_cutoff': 1}
-    res = six_network(inp6, dep6)
+    scale6 = {'wavelength': 'log', 'particle_size': 'log',
+              'extinction': 'log', 'scattering': 'log'}
+    res = six_network(inp6, dep6, scale6)
     for i in range(6):
         for j in range(6):
             if i == j:
                 assert res[i][j]
             else:
                 assert not res[i][j]
-
-# def test_multiple_network_models():
-#     # ==== Generate dataset for test
-#     ma = MieNet(mute=False, default_model_location='ci_test/')
-#     ma.generate_training_set('test_set', species=['SiO2', 'MgSiO3'],
-#                              wavelength_sample=(0.095, 0.1, 100), particle_size_sample=(0.095, 0.1, 100))
-#
-#     # ==== Open dataset and prep inputs and outputs
-#     dataset = xr.open_dataset('ci_test/test_set.nc')
-#     os.remove('ci_test/test_set.nc')
-#     dataset_arr = dataset['data'].to_numpy()
-#     training_inputs = dataset_arr[:, :3]
-#     training_extinction = dataset_arr[:, -3]
-#     training_scattering = dataset_arr[:, -2]
-#     training_asymmetry = dataset_arr[:, -1]
-#
-#     # ==== masks
-#     w1 = dataset_arr[:, 0] < 0.0975
-#     w2 = (dataset_arr[:, 0] >= 0.0975) & (dataset_arr[:, 0] < 0.0985)
-#     w3 = dataset_arr[:, 0] > 0.0985
-#     s1 = ((2*np.pi*dataset_arr[:, 1]) / dataset_arr[:, 0]) > 80.5
-#     s2 = ((2*np.pi*dataset_arr[:, 1]) / dataset_arr[:, 0]) <= 80.5
-#     m1a, m1b, m1c, m2a, m2b, m2c = w1 * s1, w2 * s1, w3 * s1, w1 * s2, w2 * s2, w3 * s2
-#     print(min((2*np.pi*dataset_arr[:, 1]) / dataset_arr[:, 0]))
-#     print(max((2 * np.pi * dataset_arr[:, 1]) / dataset_arr[:, 0]))
-#     print(len(dataset_arr[m1a]))
-#     print(len(dataset_arr[m1b]))
-#     print(len(dataset_arr[m1c]))
-#     print(len(dataset_arr[m2a]))
-#     #print(min((2 * np.pi * dataset_arr[m2b,1]) / dataset_arr[m2b,0]))
-#     print(len(dataset_arr[m2b]))
-#     print(len(dataset_arr[m2c]))
-#     import matplotlib.pyplot as plt
-#     plt.figure()
-#     plt.tricontourf(dataset_arr[:, 0], dataset_arr[:, 1], (2 * np.pi * dataset_arr[:, 1]) / dataset_arr[:, 0])
-#     plt.axvline(0.0975, color='black')
-#     plt.axvline(0.0985, color='black')
-#     plt.colorbar()
-#     plt.xscale('log')
-#     plt.yscale('log')
-#     plt.show()
-#
-#     # ==== Model structure
-#     inputs = keras.Input(shape=(3,), name='inputs')
-#     hidden = keras.layers.Dense(100, activation='relu')(inputs)
-#     hidden = keras.layers.Dense(100, activation='relu')(hidden)
-#     output1 = keras.layers.Dense(1, name='extinction')(hidden)
-#     output2 = keras.layers.Dense(1, name='scattering')(hidden)
-#     output3 = keras.layers.Dense(1, name='asymmetry')(hidden)
-#     model = keras.Model(inputs, outputs=[output1, output2, output3])
-#
-#     # ==== Three and six network data
-#     for i, mask in enumerate([w1, w2, w3, m1a, m1b, m1c, m2a, m2b, m2c]):
-#         print(i)
-#         model.compile(optimizer='adam', loss=['mse', 'mse', 'mse'],
-#                          metrics=['mae', 'mae', 'mae'])
-#         model.fit(training_inputs[mask],
-#                   [training_extinction[mask], training_scattering[mask], training_asymmetry[mask]],
-#                   batch_size=32, epochs=10)
-#         model.save(f'test_model_{i}.keras')
-#
-#     # ==== Test created model predictions
-#     ma = MieNet(mute=False, default_model_location='ci_test/')
-#     extinction, scattering, asymmetry = ma.ai_efficiencies(np.linspace(0.1, 5, 8),
-#                                                            np.linspace(0.001, 0.01, 8),
-#                                                            {'SiO2': np.linspace(0, 1, 8),
-#                                                             'MgSiO3': np.linspace(1, 0, 8)})
-#
-#     os.remove(glob.glob('ci_test/**.keras'))
-#
-#     print(np.sum(extinction), np.sum(scattering), np.sum(asymmetry))
-#
-#     assert np.isclose(np.sum(extinction), 0.5209891121429818)
-#     assert np.isclose(np.sum(scattering), 0.2536509761555041)
-#     assert np.isclose(np.sum(asymmetry), 0.3659575144210919)
