@@ -457,7 +457,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     # layers
     hidden = keras.layers.Dense(model_params['nodes'],
                                 activation = model_params['activation_function'])(inputs)
-    for i in range(model_params['layers'] - 1):
+    for _ in range(model_params['layers'] - 1):
         hidden = keras.layers.Dense(model_params['nodes'],
                                     activation = model_params['activation_function'])(hidden)
 
