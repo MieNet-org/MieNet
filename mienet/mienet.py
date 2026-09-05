@@ -26,7 +26,7 @@ class MieNet:
                                  initialize_ai_models)
 
     def __init__(self, use_ai=True, default_data_location=None, mute=True,
-                 load_ai_model='all', grid_file=None):
+                 load_ai_model='all', grid_file='all'):
         """
         Constructor
 

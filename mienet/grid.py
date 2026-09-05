@@ -123,6 +123,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     # ==== Print gird production information
     if not self.mute:
         print('[INFO] Calculating mie efficiency grid')
+        print('    -> Mixing theory: ' + theory)
         print(f'   -> Wavelengths: {min(wavelengths)} to {max(wavelengths)} microns' )
         print(f'   -> Particle sizes: {min(particle_sizes)} to {max(particle_sizes)} microns')
         print(f'   -> VMR spacing: {round(100/(vmr_data_points-1),2)}%')
