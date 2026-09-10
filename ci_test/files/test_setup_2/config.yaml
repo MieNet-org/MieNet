@@ -12,5 +12,7 @@ TUTORIAL_MODEL:
 
   scale: {'wavelength': 'log', 'particle_size': 'log', 'extinction': 'log', 'scattering': 'log'}
 
+  quality_metric: 2
+
   files:
     - 'tutorial_model.keras'
