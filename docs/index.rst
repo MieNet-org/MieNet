@@ -39,8 +39,8 @@ Also consider citing the softwares MieNet is based on:
 
    Install_And_Quick_Start.ipynb
    Tutorials.ipynb
-    AI_Tutorials.ipynb
-    Grid_Tutorials.ipynb
-    Advanced_Usage.ipynb
+   AI_Tutorials.ipynb
+   Grid_Tutorials.ipynb
+   Advanced_Usage.ipynb
 
 
