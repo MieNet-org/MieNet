@@ -222,7 +222,7 @@ def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True)
     nr = [datasets[name]['quality_metric'] for name in valid_datasets]
     valid_datasets = [name for name, val in zip(valid_datasets, nr) if val == max(nr)]
     # Either there is only 1 dataset left, or we need to make a random choice
-    # in both casees, we decide to return the first datset in the list
+    # in both cases, we decide to return the first dataset in the list
     winner = valid_datasets[0]
     return winner, datasets[winner]['species']
 

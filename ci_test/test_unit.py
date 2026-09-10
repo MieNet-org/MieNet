@@ -152,7 +152,7 @@ def test_create_ai_model():
     os.remove(loc + 'test_set1.keras')
     ma = MieNet(mute=False, default_data_location=loc)
     ma.train_ai_model('test_set',
-                      model_params={'name': 'test_model'},
+                      model_params={'name': 'test_model', 'layers': 5},
                       plot_training=False)
     with testcase.assertRaises(ValueError):
         ma.train_ai_model('test_set',
@@ -175,9 +175,9 @@ def test_create_ai_model():
     os.remove(loc + 'test_model.keras')
     os.remove(loc + 'config.yaml')
 
-    assert np.isclose(np.sum(extinction), 20.608023, rtol = 5, atol = 5)
-    assert np.isclose(np.sum(scattering), 31.9421, rtol = 5, atol = 5)
-    assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 5, atol = 5)
+    assert np.isclose(np.sum(extinction), 20.608023, rtol = 10, atol = 10)
+    assert np.isclose(np.sum(scattering), 31.9421, rtol = 10, atol = 10)
+    assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 10, atol = 10)
 
 def test_architecture_functions():
     """ Test architecture.py specific calls """

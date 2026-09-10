@@ -99,6 +99,7 @@ def initialize_ai_models(self):
         models_dict[model]['dependencies'] = model_info['dependencies']
         models_dict[model]['range'] = model_info['range']
         models_dict[model]['scale'] = model_info['scale']
+        models_dict[model]['quality_metric'] = model_info['quality_metric']
 
     # load all models by default if one is not specified
     if self.load_ai_model == 'all':
@@ -336,7 +337,8 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         'wavelength_scale' (optional): str, - 'log' (default) trains model on log(wavelength)
         'particle_size_scale' (optional): str, - 'normal' trains model on the normal data
         'extinction_scale' (optional): str,
-        'scattering_scale' (optional): str,}
+        'scattering_scale' (optional): str,
+        'quality_metric' (optional): int(quality of model)}
     plot_training : boolean, optional
         Whether or not to plot the training loss and accuracy
     """
@@ -397,6 +399,8 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         model_params['extinction_scale'] = 'log'
     if 'scattering_scale' not in model_params:
         model_params['scattering_scale'] = 'log'
+    if 'quality_metric' not in model_params:
+        model_params['quality_metric'] = 2
 
     if not self.mute:
         print('[INFO] Generating ANN model with:')
@@ -412,6 +416,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         print('   -> Particle size scale: ' + str(model_params['particle_size_scale']))
         print('   -> Extinction scale: ' + str(model_params['extinction_scale']))
         print('   -> Scattering scale: ' + str(model_params['scattering_scale']))
+        print('   -> Quality metric: ' + str(model_params['quality_metric']))
 
     # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS =====================================
     # import tensorflow here so MieNet can be used without it
@@ -516,6 +521,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
                                                      model_params['particle_size_scale'],
                                                  'extinction': model_params['extinction_scale'],
                                                  'scattering': model_params['scattering_scale']},
+                                       'quality_metric': model_params['quality_metric'],
                                        'files': [model_params['name'] + '.keras']}
                 }
 
