@@ -125,13 +125,13 @@ def test_ai():
 
     # ==== Test wavelength and paticle size limit
     with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+        ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4]})
     with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+        ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4]})
     with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+        ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4]})
     with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4], 'Fe': [0.4],})
+        ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4]})
 
     # ==== Test wrong theory catch
     with testcase.assertRaises(ValueError):
