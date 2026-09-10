@@ -131,8 +131,8 @@ def test_create_ai_model():
 
     ma = MieNet(mute=False, load_ai_model='test_set', default_data_location=loc)
     ma.generate_training_set(
-        'test_set', species=['SiO2', 'MgSiO3'], wavelength_sample=(0.1, 10, 25),
-        particle_size_sample=(0.001, 0.01, 25)
+        'test_set', species=['SiO2', 'Fe'], wavelength_sample=(100, 110, 25),
+        particle_size_sample=(0.001, 0.005, 25)
     )
     with testcase.assertRaises(ValueError):
         ma.generate_training_set(
@@ -152,7 +152,7 @@ def test_create_ai_model():
     os.remove(loc + 'test_set1.keras')
     ma = MieNet(mute=False, default_data_location=loc)
     ma.train_ai_model('test_set',
-                      model_params={'name': 'test_model', 'layers': 5},
+                      model_params={'name': 'test_model'},
                       plot_training=False)
     with testcase.assertRaises(ValueError):
         ma.train_ai_model('test_set',
@@ -167,17 +167,17 @@ def test_create_ai_model():
     # ==== Test created model predictions
     ma = MieNet(mute=False, default_data_location=loc)
     extinction, scattering, asymmetry = ma.ai_efficiencies(
-        np.linspace(0.1, 10, 8), np.linspace(0.001, 0.01, 8),
-        {'SiO2': np.linspace(0, 1, 8), 'MgSiO3': np.linspace(1, 0, 8)}
+        np.linspace(100, 110, 8), np.linspace(0.001, 0.005, 8),
+        {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
     )
 
     os.remove(loc + 'test_set.nc')
     os.remove(loc + 'test_model.keras')
     os.remove(loc + 'config.yaml')
 
-    assert np.isclose(np.sum(extinction), 20.608023, rtol = 10, atol = 10)
-    assert np.isclose(np.sum(scattering), 31.9421, rtol = 10, atol = 10)
-    assert np.isclose(np.sum(asymmetry), -72.7534, rtol = 10, atol = 10)
+    assert np.isclose(np.sum(extinction), 2.188828, rtol = 10, atol = 10)
+    assert np.isclose(np.sum(scattering), 63.973137, rtol = 10, atol = 10)
+    assert np.isclose(np.sum(asymmetry), -2.6252236, rtol = 10, atol = 10)
 
 def test_architecture_functions():
     """ Test architecture.py specific calls """
