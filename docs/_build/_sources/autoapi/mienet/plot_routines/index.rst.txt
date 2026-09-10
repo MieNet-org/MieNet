@@ -1,0 +1,54 @@
+mienet.plot_routines
+====================
+
+.. py:module:: mienet.plot_routines
+
+.. autoapi-nested-parse::
+
+   Plotting functions, this file is not tested
+
+   ..
+       !! processed by numpydoc !!
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   mienet.plot_routines.plot_train_ai_model
+
+
+Module Contents
+---------------
+
+.. py:function:: plot_train_ai_model(model_params, history)
+
+   
+   Plot for ai training success.
+
+
+   :Parameters:
+
+       **model_params** : dict
+           Dictionary of model parameters.
+
+       **history** : tensorflow object
+           History of AAN training.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
