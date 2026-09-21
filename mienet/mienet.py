@@ -398,11 +398,12 @@ class MieNet:
             Download link. If None is given, use the default zotero repository.
         """
         # info
-        if not self.mute and url is None:
-            print('[INFO] Downloading data from Zenodo')
-        else:
-            print('[INFO] Downloading data from: ' + url)
-        print('   -> Saving data to: ' + self.data_path)
+        if not self.mute:
+            if url is None:
+                print('[INFO] Downloading data from Zenodo')
+            else:
+                print('[INFO] Downloading data from: ' + url)
+            print('   -> Saving data to: ' + self.data_path)
 
         # download models
         get_models(self.data_path, overwrite, url)
