@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid interpolation &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Usage" href="Advanced_Usage.html" />
+    <link rel="prev" title="AI Tutorials" href="AI_Tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Basic_Tutorials.html">Basic Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="AI_Tutorials.html">AI Tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Grid Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Step-1:-Creating-a-grid">Step 1: Creating a grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Step-2:-Load-Grid-into-MieNEt">Step 2: Load Grid into MieNEt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Step-3:-You-are-ready-to-use-grid-interpolation">Step 3: You are ready to use grid interpolation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Usage.html">Advanced Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="Tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Grid interpolation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Grid_Tutorials.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Grid-interpolation">
+<h1>Grid interpolation<a class="headerlink" href="#Grid-interpolation" title="Link to this heading"></a></h1>
+<p>If opacity calculations have to be quick but no AI model is available, Grid interpolation provides a useful alternative. In contrast to AI models, grids are readily created, but take up more storage and are less accurate. Here we show the three steps of grid interpolation.</p>
+<section id="Step-1:-Creating-a-grid">
+<h2>Step 1: Creating a grid<a class="headerlink" href="#Step-1:-Creating-a-grid" title="Link to this heading"></a></h2>
+<p>To create a grid three things are required:</p>
+<ul class="simple">
+<li><p>wavelength range: Ideally, this should be tailored to your need. A smaller wavelength range helps to reduce the storage space and increases the accuracy.</p></li>
+<li><p>cloud particle size range: The default grid is ideal for most applications. However, if you would like higher accuracy you can increase the number of cloud particle radii considered.</p></li>
+<li><p>Number of volume mixing ratios: This value determines the accuracy in the mixing between materials and is inverse to the steps in mixing percentage. A value of 20 will result in a 5% accuracy.</p></li>
+</ul>
+<p>The total number of datapoints calculated is equal to (number of wavelengths) * (number of radii) * (number of VMRs)^(number of species - 1). Reducing the number of VMRs is therefore the best way to minimize storage and computation time if more than 2 species are considered. Giving a save file name will save the grid as xarray.Dataset which can later be re-loaded into MieNet. The file name should start with ‘grid_’ and end with ‘.nc’ to be automatically recognized by MieNet. Producing the
+grid is done with the following MieNet function:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>import numpy as np
+from mienet import MieNet
+
+# import mie ai
+ma = MieNet(use_ai=False, mute=False)
+
+# determine grid parameters
+species = [&#39;Fe&#39;, &#39;SiO2&#39;, &#39;TiO2&#39;]
+wavelength_range = np.logspace(0, 1, 200)  # Infrared for cloud feature studies
+radius_range = np.logspace(-4, 3.1, 100)  # This is the default value
+vmr_points = 3  # This is a low value for the tutorial, 20 or higher is recommended
+
+# calculate grid
+ds = ma.produce_efficiency_grid(
+    species, wavelengths=wavelength_range,
+    particle_sizes=radius_range, vmr_data_points=vmr_points,
+    save_file=&#39;tutorial_files/grid_tutorial.nc&#39;
+)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Step-2:-Load-Grid-into-MieNEt">
+<h2>Step 2: Load Grid into MieNEt<a class="headerlink" href="#Step-2:-Load-Grid-into-MieNEt" title="Link to this heading"></a></h2>
+<p>The easiest way to load grids into MieNet is by naming them ‘grid_YOURNAME.nc’ and storing them in the data folder of MieNet. This way, they will be automatically loaded whenever you initialize the MieNet class. You can also manually load data grids, using the following MieNet functions:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span># load grid from file
+ma.load_grid_efficiency(file_name=&#39;tutorial_files/grid_tutorial.nc&#39;)
+
+# load grid from dataset
+ma.load_grid_efficiency(ds_grid=ds, ds_grid_name=&#39;test_grid&#39;)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Step-3:-You-are-ready-to-use-grid-interpolation">
+<h2>Step 3: You are ready to use grid interpolation<a class="headerlink" href="#Step-3:-You-are-ready-to-use-grid-interpolation" title="Link to this heading"></a></h2>
+<p>Now you are ready to use the grid interpolation fucntion of MieNet!</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>import matplotlib.pyplot as plt
+
+# determine grid parameters
+species = [&#39;Fe&#39;, &#39;SiO2&#39;, &#39;TiO2&#39;]
+wavelength_range = np.logspace(0.3, 1, 100)  # Infrared for cloud feature studies
+radius_range = np.logspace(-3, 2, 100)  # This is the default value
+vmrs = {
+    &#39;Fe&#39;: 0.2 * np.ones_like(radius_range),
+    &#39;SiO2&#39;: 0.5 * np.ones_like(radius_range),
+    &#39;TiO2&#39;: 0.3 * np.ones_like(radius_range),
+}
+
+# get efficiencies from grid interpolation
+qext, qsca, asym = ma.grid_efficiencies(wavelength_range, radius_range, vmrs)
+
+# plot results
+plt.figure()
+plt.plot(wavelength_range, np.mean(qext, axis=0), &#39;k&#39;)
+plt.xlabel(&#39;Wavelength (micron)&#39;)
+plt.ylabel(&#39;Extinction Efficiency&#39;)
+plt.show()
+</pre></div>
+</div>
+</div>
+<p>To increase the accuracy of the grid interpolation, the number of VMR and wavelength data points can be increased. However, both lead to large grid files and it might take a long time to create the datasets.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="AI_Tutorials.html" class="btn btn-neutral float-left" title="AI Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Advanced_Usage.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

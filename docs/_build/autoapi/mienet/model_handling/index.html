@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mienet.model_handling &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mienet.plot_routines" href="../plot_routines/index.html" />
+    <link rel="prev" title="mienet.mixing_theory" href="../mixing_theory/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">mienet</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../architecture_functions/index.html">mienet.architecture_functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../grid/index.html">mienet.grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mienet/index.html">mienet.mienet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../mixing_theory/index.html">mienet.mixing_theory</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">mienet.model_handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plot_routines/index.html">mienet.plot_routines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sub_functions/index.html">mienet.sub_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#classes">Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">mienet</a></li>
+      <li class="breadcrumb-item active">mienet.model_handling</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/mienet/model_handling/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mienet.model_handling">
+<span id="mienet-model-handling"></span><h1>mienet.model_handling<a class="headerlink" href="#module-mienet.model_handling" title="Link to this heading"></a></h1>
+<p>Model handling functionalities</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mienet.model_handling.get_models" title="mienet.model_handling.get_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_models</span></code></a>(data_location[, overwrite, url])</p></td>
+<td><p>Download and unzip AI models from Zenodo</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mienet.model_handling.initialize_ai_models" title="mienet.model_handling.initialize_ai_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_ai_models</span></code></a>(self)</p></td>
+<td><p>Load ai tensorflow models and store them in self.models_dict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mienet.model_handling.generate_training_set" title="mienet.model_handling.generate_training_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_training_set</span></code></a>(self, file_name, species, ...[, ...])</p></td>
+<td><p>Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#mienet.model_handling.train_ai_model" title="mienet.model_handling.train_ai_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_ai_model</span></code></a>(self, file_name[, model_params, ...])</p></td>
+<td><p>Train a neural network with TensorFlow.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mienet.model_handling.get_models">
+<span class="sig-prename descclassname"><span class="pre">mienet.model_handling.</span></span><span class="sig-name descname"><span class="pre">get_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mienet/model_handling.html#get_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.model_handling.get_models" title="Link to this definition"></a></dt>
+<dd><p>Download and unzip AI models from Zenodo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_location</strong><span class="classifier">str</span></dt><dd><p>location where the data should be stored</p>
+</dd>
+<dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>In case some files already exist: overwrite old data if True, discard new data if False</p>
+</dd>
+<dt><strong>url</strong><span class="classifier">str, optional</span></dt><dd><p>Download link. If None is given, use the default zotero repository.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mienet.model_handling.initialize_ai_models">
+<span class="sig-prename descclassname"><span class="pre">mienet.model_handling.</span></span><span class="sig-name descname"><span class="pre">initialize_ai_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mienet/model_handling.html#initialize_ai_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.model_handling.initialize_ai_models" title="Link to this definition"></a></dt>
+<dd><p>Load ai tensorflow models and store them in self.models_dict.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mienet.model_handling.generate_training_set">
+<span class="sig-prename descclassname"><span class="pre">mienet.model_handling.</span></span><span class="sig-name descname"><span class="pre">generate_training_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength_sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_size_sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixing_theory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LLL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mienet/model_handling.html#generate_training_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.model_handling.generate_training_set" title="Link to this definition"></a></dt>
+<dd><p>Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be
+formatted as: (wavelength, particle_size, vmr1, vmr2, …, extinction, scattering, asymmetry).
+The first use of this function will create the xarray dataset and start generating
+and saving the data. Further uses of this function with the same input parameters will
+continue generating and saving data in the same xarray dataset until the dataset is full.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_name</strong><span class="classifier">str</span></dt><dd><p>Name for the training set file</p>
+</dd>
+<dt><strong>species</strong><span class="classifier">list[str]</span></dt><dd><p>List of species to include in the training set</p>
+</dd>
+<dt><strong>wavelength_sample</strong><span class="classifier">tuple</span></dt><dd><p>(wavelength_min, wavelength_max, number_of_wavelengths)</p>
+</dd>
+<dt><strong>particle_size_sample</strong><span class="classifier">tuple</span></dt><dd><p>(particle_size_min, particle_size_max, number_of_particle_sizes)</p>
+</dd>
+<dt><strong>mixing_theory</strong><span class="classifier">str (optional)</span></dt><dd><p>Mixing theory used, can either be ‘LLL’ (Default) or ‘Bruggeman’</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mienet.model_handling.train_ai_model">
+<span class="sig-prename descclassname"><span class="pre">mienet.model_handling.</span></span><span class="sig-name descname"><span class="pre">train_ai_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mienet/model_handling.html#train_ai_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.model_handling.train_ai_model" title="Link to this definition"></a></dt>
+<dd><p>Train a neural network with TensorFlow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file_name: str</strong></dt><dd><p>File name of the xarray training set</p>
+</dd>
+<dt><strong>model_params</strong><span class="classifier">dict</span></dt><dd><p>{‘name’ (optional): str(name to give to model),
+‘layers’ (optional): int(number of hidden layers),
+‘nodes’ (optional): int(number of nodes per hidden layer),
+‘activation_function’ (optional): str(activation function),
+‘optimizer’ (optional): str(optimizer),
+‘loss’ (optional): str(loss function),
+‘metrics’ (optional): str(metric function),
+‘batch_size’ (optional): int(batch size),
+‘epochs’ (optional): int(number of epochs),
+‘wavelength_scale’ (optional): str, - ‘log’ (default) trains model on log(wavelength)
+‘particle_size_scale’ (optional): str, - ‘normal’ trains model on the normal data
+‘extinction_scale’ (optional): str,
+‘scattering_scale’ (optional): str,
+‘quality_metric’ (optional): int(quality of model)}</p>
+</dd>
+<dt><strong>plot_training</strong><span class="classifier">boolean, optional</span></dt><dd><p>Whether or not to plot the training loss and accuracy</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mixing_theory/index.html" class="btn btn-neutral float-left" title="mienet.mixing_theory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../plot_routines/index.html" class="btn btn-neutral float-right" title="mienet.plot_routines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

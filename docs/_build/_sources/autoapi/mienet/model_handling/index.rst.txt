@@ -1,0 +1,172 @@
+mienet.model_handling
+=====================
+
+.. py:module:: mienet.model_handling
+
+.. autoapi-nested-parse::
+
+   Model handling functionalities 
+
+   ..
+       !! processed by numpydoc !!
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   mienet.model_handling.get_models
+   mienet.model_handling.initialize_ai_models
+   mienet.model_handling.generate_training_set
+   mienet.model_handling.train_ai_model
+
+
+Module Contents
+---------------
+
+.. py:function:: get_models(data_location, overwrite=True, url=None)
+
+   
+   Download and unzip AI models from Zenodo
+
+
+   :Parameters:
+
+       **data_location** : str
+           location where the data should be stored
+
+       **overwrite** : bool, optional
+           In case some files already exist: overwrite old data if True, discard new data if False
+
+       **url** : str, optional
+           Download link. If None is given, use the default zotero repository.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: initialize_ai_models(self)
+
+   
+   Load ai tensorflow models and store them in self.models_dict.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample, mixing_theory='LLL')
+
+   
+   Generate a neural network training set. The set will be saved as a xarray.Dataset, and will be
+   formatted as: (wavelength, particle_size, vmr1, vmr2, ..., extinction, scattering, asymmetry).
+   The first use of this function will create the xarray dataset and start generating
+   and saving the data. Further uses of this function with the same input parameters will
+   continue generating and saving data in the same xarray dataset until the dataset is full.
+
+
+   :Parameters:
+
+       **file_name** : str
+           Name for the training set file
+
+       **species** : list[str]
+           List of species to include in the training set
+
+       **wavelength_sample** : tuple
+           (wavelength_min, wavelength_max, number_of_wavelengths)
+
+       **particle_size_sample** : tuple
+           (particle_size_min, particle_size_max, number_of_particle_sizes)
+
+       **mixing_theory** : str (optional)
+           Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: train_ai_model(self, file_name, model_params={}, plot_training=False, overwrite=False)
+
+   
+   Train a neural network with TensorFlow.
+
+
+   :Parameters:
+
+       **file_name: str**
+           File name of the xarray training set
+
+       **model_params** : dict
+           {'name' (optional): str(name to give to model),
+           'layers' (optional): int(number of hidden layers),
+           'nodes' (optional): int(number of nodes per hidden layer),
+           'activation_function' (optional): str(activation function),
+           'optimizer' (optional): str(optimizer),
+           'loss' (optional): str(loss function),
+           'metrics' (optional): str(metric function),
+           'batch_size' (optional): int(batch size),
+           'epochs' (optional): int(number of epochs),
+           'wavelength_scale' (optional): str, - 'log' (default) trains model on log(wavelength)
+           'particle_size_scale' (optional): str, - 'normal' trains model on the normal data
+           'extinction_scale' (optional): str,
+           'scattering_scale' (optional): str,
+           'quality_metric' (optional): int(quality of model)}
+
+       **plot_training** : boolean, optional
+           Whether or not to plot the training loss and accuracy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

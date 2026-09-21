@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mienet.architecture_functions &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mienet.architecture_functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mienet.architecture_functions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Architecture dependent functionalities</span>
+<span class="sd">----------</span>
+<span class="sd">To increase the accuracy of ANN predictions, MieNet&#39;s default ANNs are trained on six</span>
+<span class="sd">seperate regions of the parameter space. These architecture functions create masks to</span>
+<span class="sd">filter the given inputs based which region they belong to, so the most accurate ANN for</span>
+<span class="sd">that input is used.</span>
+
+<span class="sd">MieNet&#39;s default ANNs use the six_network architecture function, which filters inputs</span>
+<span class="sd">into three wavelength and two size parameter regions. The three_network function divides</span>
+<span class="sd">inputs into just three wavelength regions.</span>
+
+<span class="sd">ANNs created by MieNet&#39;s train_ai_model function does not allow for training on different</span>
+<span class="sd">input parameter spaces and is classified as &quot;one_network&quot; (as no masks are required for</span>
+<span class="sd">these architecture types, there is no one_network architecture function).</span>
+
+<span class="sd">If you choose to create your own models using another method and utilize an input split,</span>
+<span class="sd">add an architecture function to this file. The name of the function must be the same as</span>
+<span class="sd">the architecture parameter of your model in the config file. Architecture functions must</span>
+<span class="sd">have inputs, dependencies, and scale as function parameters, and returns masks to work</span>
+<span class="sd">with MieNet&#39;s ai_efficiencies.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<div class="viewcode-block" id="three_network">
+<a class="viewcode-back" href="../../autoapi/mienet/architecture_functions/index.html#mienet.architecture_functions.three_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">three_network</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predict outputs with three ANNs using two wavelength cutoffs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs: np.array with shape: (num_parameters, data_length)</span>
+<span class="sd">        num_parameters: number of parameters (contains wavelength, radius, and VMRs)</span>
+<span class="sd">        data_length: number of data points</span>
+<span class="sd">    dependencies: Dictionary</span>
+<span class="sd">        Contains 2 wavelength cutoffs</span>
+<span class="sd">    scale: Dictionary</span>
+<span class="sd">        Contains scaling of wavelength, particle_size, extinction, and scattering</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    masks: low_mask, mid_mask, and high_mask for masking model inputs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># change wavelength scaling to be the same as wavelength cutoffs</span>
+    <span class="k">if</span> <span class="n">scale</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># masks</span>
+    <span class="n">low_mask</span> <span class="o">=</span> <span class="n">wavelength</span> <span class="o">&lt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">]</span>
+    <span class="n">mid_mask</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&gt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">])</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">]))</span>
+    <span class="n">high_mask</span> <span class="o">=</span> <span class="n">wavelength</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">low_mask</span><span class="p">,</span> <span class="n">mid_mask</span><span class="p">,</span> <span class="n">high_mask</span></div>
+
+
+
+<div class="viewcode-block" id="six_network">
+<a class="viewcode-back" href="../../autoapi/mienet/architecture_functions/index.html#mienet.architecture_functions.six_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">six_network</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predict outputs with six ANNs using two wavelength cutoffs and one size parameter cutoff.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs: np.array with shape: (num_parameters, data_length)</span>
+<span class="sd">        num_parameters: number of parameters (contains wavelength, radius, and VMRs)</span>
+<span class="sd">        data_length: number of data points</span>
+<span class="sd">    dependencies: Dictionary</span>
+<span class="sd">        Contains 2 wavelength cutoffs and 1 size parameter cutoff</span>
+<span class="sd">    scale: Dictionary</span>
+<span class="sd">        Contains scaling of wavelength, particle_size, extinction, and scattering</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    masks: 6 masks for masking model inputs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># change wavelength scaling to be the same as wavelength cutoffs</span>
+    <span class="k">if</span> <span class="n">scale</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># change particle size scaling to be the same as particle size cutoffs</span>
+    <span class="k">if</span> <span class="n">scale</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+        <span class="n">particle_size</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">inputs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">particle_size</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># calculate size parameter</span>
+    <span class="n">size_param</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">particle_size</span><span class="p">)</span> <span class="o">/</span> <span class="n">wavelength</span>
+
+    <span class="c1"># masks</span>
+    <span class="n">mask_1a</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&lt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+    <span class="n">mask_1b</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&gt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+    <span class="n">mask_1c</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+    <span class="n">mask_2a</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&lt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+    <span class="n">mask_2b</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&gt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;low_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+    <span class="n">mask_2c</span> <span class="o">=</span> <span class="p">((</span><span class="n">wavelength</span> <span class="o">&gt;=</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;high_wave&#39;</span><span class="p">])</span> <span class="o">&amp;</span>
+               <span class="p">(</span><span class="n">size_param</span> <span class="o">&lt;</span> <span class="n">dependencies</span><span class="p">[</span><span class="s1">&#39;size_cutoff&#39;</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">mask_1a</span><span class="p">,</span> <span class="n">mask_1b</span><span class="p">,</span> <span class="n">mask_1c</span><span class="p">,</span> <span class="n">mask_2a</span><span class="p">,</span> <span class="n">mask_2b</span><span class="p">,</span> <span class="n">mask_2c</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

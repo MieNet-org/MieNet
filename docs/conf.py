@@ -40,7 +40,10 @@ extensions = [
     "numpydoc",
     "nbsphinx",
     "recommonmark",
+    "autoapi.extension",
 ]
+
+autoapi_dirs = ["../mienet"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

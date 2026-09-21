@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mienet.grid &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mienet.grid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mienet.grid</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; This file contains all functionalities to use the pre-calculated grids &quot;&quot;&quot;</span>
+<span class="c1"># pylint: disable=R0913,R0914,R0915,R0917</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sub_functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">select_best_dataset</span><span class="p">,</span> <span class="n">input_check</span>
+
+<div class="viewcode-block" id="grid_efficiencies">
+<a class="viewcode-back" href="../../autoapi/mienet/grid/index.html#mienet.grid.grid_efficiencies">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid_efficiencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Approximate mie coefficients using mie python and LLL Approximation read in from</span>
+<span class="sd">    the grid_file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelength : np.ndarray or float of size N</span>
+<span class="sd">        Wavelength of the light [micron]</span>
+<span class="sd">    particle_size : np.ndarray or float of size M</span>
+<span class="sd">        Size of the cloud particle [micron]</span>
+<span class="sd">    volume_mixing_ratios : dict of np.ndarray or float of size M for each species</span>
+<span class="sd">        Fraction of each cloud material given as float or array</span>
+<span class="sd">    theory : str, optional</span>
+<span class="sd">        If a mixing theory is given here, it will be checked that the grid has the</span>
+<span class="sd">        same theory.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    optical properties : np.ndarray of size (M, N)</span>
+<span class="sd">        extinction coefficient, scattering coefficient, and asymmetries parameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ==== Break if no grids loaded</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_grid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;[ERROR] No grid was loaded before calling grid_efficiencies&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ==== check input</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="c1"># check input validity</span>
+    <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">vmr</span> <span class="o">=</span> <span class="n">input_check</span><span class="p">(</span>
+        <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ==== Information</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Perform grid interpolation for &#39;</span><span class="p">,</span>
+              <span class="nb">list</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="c1"># ==== Load grid</span>
+    <span class="n">best_dataset</span> <span class="o">=</span> <span class="n">select_best_dataset</span><span class="p">(</span>
+        <span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">,</span>
+        <span class="n">theory</span><span class="o">=</span><span class="n">theory</span>
+    <span class="p">)</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">[</span><span class="n">best_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;ds&#39;</span><span class="p">]</span>
+
+    <span class="c1"># ==== Check mixing theory if necessary</span>
+    <span class="k">if</span> <span class="n">theory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">theory</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;[ERROR] Mixing theory dose not match.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                             <span class="s1">&#39;-&gt; Selected: &#39;</span> <span class="o">+</span> <span class="n">theory</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                             <span class="s1">&#39;-&gt; Data set: &#39;</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">])</span>
+
+    <span class="c1"># ==== read out data</span>
+    <span class="c1"># define arguments for interpolation from xarray</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;wavelength&#39;</span><span class="p">:</span> <span class="n">wavelength</span><span class="p">,</span>
+        <span class="s2">&quot;particle_size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">),</span>
+        <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;linear&#39;</span>
+    <span class="p">}</span>
+    <span class="c1"># loop over all species</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">]:</span>
+        <span class="c1"># skip implicit species</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;implicit_species&#39;</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="c1"># if the species is given, use the vmr</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+            <span class="c1"># add non-implicit species</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">vmr</span><span class="p">[:,</span> <span class="n">species</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">spec</span><span class="p">)])</span>
+        <span class="c1"># if the species is not given, set it to 0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)))</span>
+
+    <span class="c1"># interpolate from xarray</span>
+    <span class="n">extinction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;qext&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">scattering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;qsca&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">asymmetry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;asym&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span></div>
+
+
+
+<div class="viewcode-block" id="produce_efficiency_grid">
+<a class="viewcode-back" href="../../autoapi/mienet/grid/index.html#mienet.grid.produce_efficiency_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">produce_efficiency_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">wavelengths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="p">,</span><span class="mf">1.3</span> <span class="p">,</span><span class="mi">200</span><span class="p">),</span>
+                            <span class="n">particle_sizes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span> <span class="p">,</span><span class="mf">3.1</span> <span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="n">vmr_data_points</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                            <span class="n">theory</span><span class="o">=</span><span class="s1">&#39;LLL&#39;</span><span class="p">,</span> <span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate mie coefficient grid using mie python and LLL Approximation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    species : List</span>
+<span class="sd">        Species names</span>
+<span class="sd">    wavelengths : np.ndarray or float of size N</span>
+<span class="sd">        Wavelength of the light [micron]</span>
+<span class="sd">    particle_sizes : np.ndarray or float of size M</span>
+<span class="sd">        Size of the cloud particle [micron]</span>
+<span class="sd">    vmr_data_points : int</span>
+<span class="sd">        Number of volume fraction mixing ratio points</span>
+<span class="sd">    theory : str, optional</span>
+<span class="sd">        Mixing theory used, can either be &#39;LLL&#39; (Default) or &#39;Bruggeman&#39;</span>
+<span class="sd">    save_file : str</span>
+<span class="sd">        Path to save the grid file</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    ds : xarray.DataSet</span>
+<span class="sd">        Data set containing the extinction coefficient, scattering coefficient, and</span>
+<span class="sd">        asymmetries parameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ==== Print gird production information</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Calculating mie efficiency grid&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Species: &#39;</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Mixing theory: &#39;</span> <span class="o">+</span> <span class="n">theory</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; Wavelengths: </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span><span class="si">}</span><span class="s1"> microns&#39;</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; Particle sizes: </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">particle_sizes</span><span class="p">)</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">particle_sizes</span><span class="p">)</span><span class="si">}</span><span class="s1"> microns&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; VMR spacing: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">/</span><span class="p">(</span><span class="n">vmr_data_points</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Starting grid calculation ...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># ==== get shape of output array and prepare coordinates of dataset</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_sizes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)]</span>  <span class="c1"># shape of data array</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">,</span> <span class="s1">&#39;wavelength&#39;</span><span class="p">]</span>  <span class="c1"># name of dimensions</span>
+    <span class="n">vmrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vmr_data_points</span><span class="p">)</span>  <span class="c1"># vmr spacing</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;particle_size&#39;</span><span class="p">:</span> <span class="n">particle_sizes</span><span class="p">,</span>
+        <span class="s1">&#39;wavelength&#39;</span><span class="p">:</span> <span class="n">wavelengths</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># ==== prepare standard vmr array</span>
+    <span class="n">vmr</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">vmr_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_sizes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
+        <span class="n">vmr</span><span class="p">[</span><span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="n">vmr_array</span><span class="o">.</span><span class="n">copy</span>
+
+    <span class="c1"># ==== adatpitve fill in for species, last on is implicit</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vmr_data_points</span><span class="p">)</span>
+        <span class="n">dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vmr_data_points</span><span class="p">)</span>
+
+    <span class="c1"># ==== data array</span>
+    <span class="n">qext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">qsca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">asym</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># ==== get indexing for vmrs</span>
+    <span class="n">arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">vmr_data_points</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species</span> <span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="n">grids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">arrays</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+    <span class="n">vmr_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">grids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span> <span class="p">)</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># ==== Fill in Grid</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">vmri</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vmr_index</span><span class="p">):</span>
+
+        <span class="c1"># ETA calculation</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="p">)</span> <span class="o">/</span> <span class="n">v</span> <span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vmr_index</span> <span class="p">)</span> <span class="o">-</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">time</span><span class="p">())</span>
+            <span class="n">eta</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+            <span class="n">eta</span> <span class="o">=</span> <span class="n">eta</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eta</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; Progress: </span><span class="si">{</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">vmr_index</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">% (ETA: </span><span class="si">{</span><span class="n">eta</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+
+        <span class="c1"># vmr values for this loop</span>
+        <span class="n">vmr_last</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">vmr</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">vmr</span><span class="p">[</span><span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="n">vmrs</span><span class="p">[</span><span class="n">vmri</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="p">]</span> <span class="o">*</span><span class="n">vmr_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">vmr_last</span> <span class="o">+=</span> <span class="n">vmrs</span><span class="p">[</span><span class="n">vmri</span><span class="p">[</span><span class="n">s</span><span class="p">]]</span>
+        <span class="n">vmr</span><span class="p">[</span><span class="n">species</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">vmr_last</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="o">*</span><span class="n">vmr_array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># run calculations but mute</span>
+        <span class="n">mute_save</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mute</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># mute for the calculation only</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiencies</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">particle_sizes</span><span class="p">,</span> <span class="n">vmr</span><span class="p">,</span> <span class="n">theory</span><span class="o">=</span><span class="n">theory</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mute</span> <span class="o">=</span> <span class="n">mute_save</span>
+
+        <span class="c1"># save results</span>
+        <span class="n">qext</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">*</span><span class="n">vmri</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">qsca</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">*</span><span class="n">vmri</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">asym</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">*</span><span class="n">vmri</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># ==== Generate dataset</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;qext&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">qext</span><span class="p">),</span>
+            <span class="s1">&#39;qsca&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">qsca</span><span class="p">),</span>
+            <span class="s1">&#39;asym&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">asym</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;species&#39;</span><span class="p">:</span> <span class="n">species</span><span class="p">,</span>
+            <span class="s1">&#39;implicit_species&#39;</span><span class="p">:</span> <span class="n">species</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;theory&#39;</span><span class="p">:</span> <span class="n">theory</span><span class="p">,</span>
+            <span class="s1">&#39;date_created&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ==== Save dataset if a save file is given</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Grid calculation complete&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;h5netcdf&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Grid saved as: &#39;</span> <span class="o">+</span> <span class="n">save_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<div class="viewcode-block" id="load_grid_efficiency">
+<a class="viewcode-back" href="../../autoapi/mienet/grid/index.html#mienet.grid.load_grid_efficiency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_grid_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">ds_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ds_grid_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load previously calculated opacity grids</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_name : str or list, optional</span>
+<span class="sd">        If given, only this file is loaded, if None, data_path will be checked.</span>
+<span class="sd">    ds_grid : xarray.Dataset, optional</span>
+<span class="sd">        from produce_efficiency_grid, also requires ds_grid_name</span>
+<span class="sd">    ds_grid_name : string, optional</span>
+<span class="sd">        name under which ds_grid is saved</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ==== Load a dataset if it is given</span>
+    <span class="k">if</span> <span class="n">ds_grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ds_grid_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># if no name is given, use current time</span>
+            <span class="n">ds_grid_name</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span>
+
+        <span class="c1"># size of data set is used to determine quality of the dataset</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">])</span>
+                <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]))</span>
+
+        <span class="c1"># load in grid file to grids_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">[</span><span class="n">ds_grid_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;species&#39;</span><span class="p">:</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;ds&#39;</span><span class="p">:</span> <span class="n">ds_grid</span><span class="p">,</span>
+            <span class="s1">&#39;theory&#39;</span><span class="p">:</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;quality_metric&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+            <span class="s1">&#39;range&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;wavelength&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="s1">&#39;particle_size&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Grid added: &#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Species: &#39;</span><span class="p">,</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Mixing theory: &#39;</span><span class="p">,</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   -&gt; Wavelength: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> micron.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   -&gt; Particle size: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> micron.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">file_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># ==== Check if only one file should be loaded, or all files from data_path</span>
+        <span class="k">if</span> <span class="n">file_name</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">grid_files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">+</span> <span class="s1">&#39;grid_*.nc&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">grid_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grid_files</span> <span class="o">=</span> <span class="n">file_name</span>
+
+        <span class="c1"># ==== Looop over all files</span>
+        <span class="k">for</span> <span class="n">grid_file</span> <span class="ow">in</span> <span class="n">grid_files</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># get data and assign it to the dictionary</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">grid_file</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;h5netcdf&quot;</span><span class="p">)</span>
+
+                <span class="c1"># size of data set is used to determine quality of the dataset</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">])</span>
+                        <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;VMR_&#39;</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]]))</span>
+
+                <span class="c1"># assign everything to the grids_dict</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">[</span><span class="n">grid_file</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;species&#39;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;ds&#39;</span><span class="p">:</span> <span class="n">ds</span><span class="p">,</span>
+                    <span class="s1">&#39;theory&#39;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;quality_metric&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+                    <span class="s1">&#39;range&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;wavelength&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="p">],</span>
+                        <span class="s1">&#39;particle_size&#39;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">ds</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Grid added: &#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; File: &#39;</span> <span class="o">+</span> <span class="n">grid_file</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Species: &#39;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;species&#39;</span><span class="p">])</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Mixing theory: &#39;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;theory&#39;</span><span class="p">])</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   -&gt; Wavelength: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> micron.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   -&gt; Particle size: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> to &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> micron.&quot;</span><span class="p">)</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c1"># this error only rises if the file loaded is not what was expected.</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;[ERROR] The following grid file could not be loded:</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="p">,</span> <span class="n">grid_file</span>
+                <span class="p">)</span>
+
+    <span class="c1"># if at least one grid is loaded, enable grid interpolation</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_grid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[WARN] No grid files found&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
