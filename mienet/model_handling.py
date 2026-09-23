@@ -99,7 +99,8 @@ def initialize_ai_models(self):
         models_dict[model]['dependencies'] = model_info['dependencies']
         models_dict[model]['range'] = model_info['range']
         models_dict[model]['scale'] = model_info['scale']
-        models_dict[model]['quality_metric'] = model_info['quality_metric']
+        # current models do not include this, uncomment after Zenodo update
+        models_dict[model]['quality_metric'] = 0  # model_info['quality_metric']
 
     # load all models by default if one is not specified
     if self.load_ai_model == 'all':

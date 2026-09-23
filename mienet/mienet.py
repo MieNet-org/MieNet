@@ -212,7 +212,7 @@ class MieNet:
 
         # predict models if no masking required
         if arch == 'one_network':
-            extinction, scattering, asymmetry = model_dict['models'][0].predict(inputs)
+            extinction, scattering, asymmetry = model_dict['models'][0](inputs, verbose=0)
 
         # get masks from arch function
         else:
@@ -223,9 +223,8 @@ class MieNet:
             # predict outputs
             for i, mask in enumerate(masks):
                 if mask.any():
-                    print(inputs.shape, inputs[mask].shape)
                     extinction[mask], scattering[mask], asymmetry[mask] = \
-                    model_dict['models'][i].predict(inputs[mask])
+                    model_dict['models'][i](inputs[mask], verbose=0)
 
         # reshape outputs
         ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T

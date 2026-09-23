@@ -193,12 +193,14 @@ def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True)
         # A dataset must have the correct mixing theory
         if theory is not None and datasets[name]['theory'] != theory:
             continue
+        # This is removed for now since accessing out of scope variables works
+        # in most instances and is needed for integration into other frameworks
         # A dataset must cover the whole wavelength and particle size range
-        if (datasets[name]['range']['wavelength'][0] > np.min([wave]) or
-            datasets[name]['range']['wavelength'][1] < np.max([wave]) or
-            datasets[name]['range']['particle_size'][0] > np.min([size]) or
-            datasets[name]['range']['particle_size'][1] < np.max([size])):
-            continue
+        # if (datasets[name]['range']['wavelength'][0] > np.min([wave]) or
+        #     datasets[name]['range']['wavelength'][1] < np.max([wave]) or
+        #     datasets[name]['range']['particle_size'][0] > np.min([size]) or
+        #     datasets[name]['range']['particle_size'][1] < np.max([size])):
+        #     continue
         # if all tests passed, add it to the valid datasets
         valid_datasets.append(name)
 
