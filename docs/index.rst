@@ -21,6 +21,10 @@ To choose the fastest method available:
 
 Fully trained models are provided on `Zenodo <https://zenodo.org/records/20346256>`_, or can be trained by yourself according to your needs. MieNet is under active development and contributions are welcomed. If you want to run MieNet checkout the `quick start guide <Install_And_Quick_Start.ipynb>`_.
 
+A Note on Requirements
+----------------------
+To use MieNet's AI functionalities, `TensorFlow <https://www.tensorflow.org/>`_ is requied, which currently only works with Python 3.9-3.12. We also recommend using an older version of `miepython <https://miepython.readthedocs.io/en/latest/>`_ for faster computation times.
+
 Credit
 ------
 If you use MieNet, please cite the following papers:
