@@ -121,8 +121,8 @@ class MieNet:
         theory: str, optional
             Mixing theory used to train ai model
 
-        Return
-        ------
+        Returns
+        -------
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
@@ -260,8 +260,8 @@ class MieNet:
         theory : str, optional
             Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
 
-        Return
-        ------
+        Returns
+        -------
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """
@@ -347,8 +347,8 @@ class MieNet:
         theory : str, optional
             Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
 
-        Return
-        ------
+        Returns
+        -------
         optical properties : np.ndarray of size (M, N)
             extinction coefficient, scattering coefficient, and asymmetries parameter
         """

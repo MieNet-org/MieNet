@@ -26,8 +26,8 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
         If a mixing theory is given here, it will be checked that the grid has the
         same theory.
 
-    Return
-    ------
+    Returns
+    -------
     optical properties : np.ndarray of size (M, N)
         extinction coefficient, scattering coefficient, and asymmetries parameter
     """
@@ -113,8 +113,8 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     save_file : str
         Path to save the grid file
 
-    Return
-    ------
+    Returns
+    -------
     ds : xarray.DataSet
         Data set containing the extinction coefficient, scattering coefficient, and
         asymmetries parameter

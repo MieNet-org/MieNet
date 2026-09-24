@@ -38,7 +38,7 @@ def three_network(inputs, dependencies, scale):
         Contains scaling of wavelength, particle_size, extinction, and scattering
 
     Returns
-    ----------
+    -------
     masks: low_mask, mid_mask, and high_mask for masking model inputs
     """
     # change wavelength scaling to be the same as wavelength cutoffs
@@ -71,7 +71,7 @@ def six_network(inputs, dependencies, scale):
         Contains scaling of wavelength, particle_size, extinction, and scattering
 
     Returns
-    ----------
+    -------
     masks: 6 masks for masking model inputs
     """
     # change wavelength scaling to be the same as wavelength cutoffs

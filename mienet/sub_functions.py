@@ -17,8 +17,8 @@ def read_in_refindex(species, wavelength, files):
     files : List
         Refractive index files
 
-    Return
-    ------
+    Returns
+    -------
     ref_index : np.ndarray of size (N, M, 2)
         Refractive index data: real, and imaginary part.
     """
@@ -95,8 +95,8 @@ def calculate_subradii(particle_size, vmr):
     vmr : ndarray
         Fraction of each cloud material
 
-    Return
-    ------
+    Returns
+    -------
     sub_rad, vmr : (ndarray(M*6), ndarray)
         Sub-spacing of radii and adjusted vmr.
     """
@@ -172,7 +172,7 @@ def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True)
         If True, an error is raised if no set is found. If False, (None, None) is returned.
 
     Returns
-    ----------
+    -------
     best_dataset : tuple, (name, species)
         name: str of model/grid name
         species: list of species name
@@ -247,8 +247,8 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
         If True, MieNet will produce no diagnostic outputs and runs quietly.
 
 
-    Return
-    ------
+    Returns
+    -------
     wavelength : np.ndarray of size N
         Wavelength of the light [micron]
     particle_size : np.ndarray of size M
