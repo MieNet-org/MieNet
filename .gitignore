@@ -7,3 +7,4 @@ data/config.yaml
 **.nc
 **.DS_Store
 models/*.keras
+docs/_build

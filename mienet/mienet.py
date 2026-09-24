@@ -66,9 +66,9 @@ class MieNet:
 
         # ==== Intro
         if not self.mute:
-            print('=============================================')
-            print('              Welcome to MieNet              ')
-            print('=============================================')
+            print("=============================================")
+            print("              Welcome to MieNet              ")
+            print("=============================================")
 
         # ==== Data location
         # user input data location
@@ -85,8 +85,8 @@ class MieNet:
             if (sys.version_info[0] > 3 or
                     (sys.version_info[0] == 3 and sys.version_info[1] > 12)):
                 ver = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
-                print(f'[WARN] Your python version ({ver}) is to new and might not work '
-                      f'with tensorflow.')
+                print(f"[WARN] Your python version ({ver}) is to new and might not work "
+                      f"with tensorflow.")
             # initialize ai models
             self.initialize_ai_models()
 
@@ -97,13 +97,13 @@ class MieNet:
 
         # ==== Information about the status of MieNet
         if not self.mute:
-            print('[INFO] MieNet successfully initialised')
-            print('   -> Data location: ' + self.data_path)
+            print("[INFO] MieNet successfully initialised")
+            print("   -> Data location: " + self.data_path)
             if self.use_ai:
-                print(f'   -> AAN models available: {len(self.models_dict)}')
+                print(f"   -> AAN models available: {len(self.models_dict)}")
             else:
-                print('   -> ANN models are unavailable')
-            print(f'   -> Grid models available: {len(self.grids_dict)}')
+                print("   -> ANN models are unavailable")
+            print(f"   -> Grid models available: {len(self.grids_dict)}")
 
 
     def ai_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory='LLL'):
@@ -132,9 +132,9 @@ class MieNet:
         # check if neural network is initialized
         if not self.use_ai:
             if self.force_disabled_ai:
-                raise ValueError('[ERROR] No ANNs were successfully loaded, '
-                                 'ai_efficiencies is not available.')
-            raise ValueError('[ERROR] use_ai must be set to true to use ai_efficiencies.')
+                raise ValueError("[ERROR] No ANNs were successfully loaded, "
+                                 "i_efficiencies is not available.")
+            raise ValueError("[ERROR] use_ai must be set to true to use ai_efficiencies.")
 
         # check at least one correct model is initialized if using specific model
         if self.load_ai_model != 'all':
@@ -170,7 +170,7 @@ class MieNet:
 
         # ==== Information
         if not self.mute:
-            print('[INFO] Perform AAN calculation for ',
+            print("[INFO] Perform AAN calculation for ",
                   list(volume_mixing_ratios.keys()))
 
         # make all possible combinations of wavelength & particle size
@@ -287,7 +287,7 @@ class MieNet:
 
         # ==== Information
         if not self.mute:
-            print('[INFO] Perform full Mie calculation for ',
+            print("[INFO] Perform full Mie calculation for ",
                   list(volume_mixing_ratios.keys()))
 
         # ==== Radius averaging =========================================================
@@ -399,17 +399,17 @@ class MieNet:
         # info
         if not self.mute:
             if url is None:
-                print('[INFO] Downloading data from Zenodo')
+                print("[INFO] Downloading data from Zenodo")
             else:
-                print('[INFO] Downloading data from: ' + url)
-            print('   -> Saving data to: ' + self.data_path)
+                print("[INFO] Downloading data from: " + url)
+            print("   -> Saving data to: " + self.data_path)
 
         # download models
         get_models(self.data_path, overwrite, url)
 
         # done
         if not self.mute:
-            print('   -> Download successful')
+            print("   -> Download successful")
 
         # load data
         self.load_grid_efficiency()

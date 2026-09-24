@@ -72,8 +72,8 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
 
             # check if it worked
             if not resul.success:
-                raise ValueError('[ERROR] Failieur of Brugeman minization at '
-                                 + str(wavelength[wav] * 1e4) + ' micron.')
+                raise ValueError("[ERROR] Failieur of Brugeman minization at "
+                                 + str(wavelength[wav] * 1e4) + " micron.")
 
             # save results
             mixed_ref_index[wav] = complex(m_eff[0], -m_eff[1])

@@ -130,9 +130,9 @@ def initialize_ai_models(self):
             models_dict[model]['models'] = model_list
 
             if not self.mute:
-                print('[INFO] ANN added: ')
-                print('   -> Name: ' + model)
-                print('   -> Species: ', models_dict[model]['species'])
+                print("[INFO] ANN added: ")
+                print("   -> Name: " + model)
+                print("   -> Species: ", models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
                       f"{models_dict[model]['range']['wavelength'][1]} micron.")
                 print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} "
@@ -161,8 +161,8 @@ def initialize_ai_models(self):
                     model_list[i] = load_model(os.path.join(self.data_path + file))
                 else:
                     raise ValueError(
-                        f'[ERROR] Model files for mixture {model} not found.\n'
-                        '   -> Missing file: ' + str(os.path.join(self.data_path + file))
+                        f"[ERROR] Model files for mixture {model} not found.\n"
+                        "   -> Missing file: " + str(os.path.join(self.data_path + file))
                     )
 
             loaded_models[model]['models'] = model_list
@@ -170,9 +170,9 @@ def initialize_ai_models(self):
             loaded_models[model]['quality_metric'] = len(loaded_models[model]['files'])
 
             if not self.mute:
-                print('[INFO] ANN added: ')
-                print('   -> Name: ' + model)
-                print('   -> Species: ', models_dict[model]['species'])
+                print("[INFO] ANN added: ")
+                print("   -> Name: " + model)
+                print("   -> Species: ", models_dict[model]['species'])
                 print(f"   -> Wavelength: {models_dict[model]['range']['wavelength'][0]} to "
                       f"{models_dict[model]['range']['wavelength'][1]} micron.")
                 print(f"   -> Particle size: {models_dict[model]['range']['particle_size'][0]} "
@@ -189,7 +189,7 @@ def initialize_ai_models(self):
         self.use_ai = False
         self.force_disabled_ai = True
         if not self.mute:
-            print('[WARN] No ANN models found, disabling ANN functionalities.')
+            print("[WARN] No ANN models found, disabling ANN functionalities.")
 
 def generate_training_set(self, file_name, species, wavelength_sample, particle_size_sample,
                           mixing_theory='LLL'):
@@ -249,8 +249,8 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     # check if training set is finished generating
     if ds.attrs['idx'] >= set_size:
         raise ValueError(
-            '[ERROR] Training set generation is complete, no more space in training set:'
-            + store_path + ' Please provide a new filename to generate more data.'
+            "[ERROR] Training set generation is complete, no more space in training set:"
+            + store_path + " Please provide a new filename to generate more data."
         )
 
     # ==== Calculations ===========================================================================
@@ -270,8 +270,8 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
             now = datetime.fromtimestamp(time())
             eta = now + timedelta(seconds=dt)
             eta = eta.strftime("%Y-%m-%d %H:%M:%S")
-            print(f'   -> Progress: { ds.attrs["idx"]/set_size*100:.1f}% (ETA: {eta})'
-                  + ' '*10, end='\r')
+            print(f"   -> Progress: { ds.attrs['idx']/set_size*100:.1f}% (ETA: {eta})"
+                  + " "*10, end='\r')
 
         # generate volume mixing ratios
         alpha = [0.5] * len(species) # controls distribution
@@ -311,7 +311,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
         ds.to_netcdf(store_path)
 
     if not self.mute:
-        print('   -> Progress: Done' + ' '*30)
+        print("   -> Progress: Done" + " "*30)
 
     # if finished add time when done
     ds.attrs['date_finished'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -355,9 +355,8 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         if ((os.path.exists(self.data_path + model_params['name'] + '.keras'))
                 & (overwrite is False)):
             raise ValueError(
-                '[ERROR] Model with the name' + model_params['name'] + 'already exists. '
-                'Please provide a new name.'
-            )
+                "[ERROR] Model with the name" + model_params['name'] + "already exists. "
+                "lease provide a new name."            )
     else:
         # default name is same as training set file name
         if overwrite is True:
@@ -404,20 +403,20 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         model_params['quality_metric'] = 2
 
     if not self.mute:
-        print('[INFO] Generating ANN model with:')
-        print('   -> Layers: ' + str(model_params['layers']))
-        print('   -> Nodes: ' + str(model_params['nodes']))
-        print('   -> Activation Function: ' + str(model_params['activation_function']))
-        print('   -> Optimizer: ' + str(model_params['optimizer']))
-        print('   -> Loss: ' + str(model_params['loss']))
-        print('   -> Metrics: ' + str(model_params['metrics']))
-        print('   -> Batch Size: ' + str(model_params['batch_size']))
-        print('   -> Epochs: ' + str(model_params['epochs']))
-        print('   -> Wavelength scale: ' + str(model_params['wavelength_scale']))
-        print('   -> Particle size scale: ' + str(model_params['particle_size_scale']))
-        print('   -> Extinction scale: ' + str(model_params['extinction_scale']))
-        print('   -> Scattering scale: ' + str(model_params['scattering_scale']))
-        print('   -> Quality metric: ' + str(model_params['quality_metric']))
+        print("[INFO] Generating ANN model with:")
+        print("   -> Layers: " + str(model_params['layers']))
+        print("   -> Nodes: " + str(model_params['nodes']))
+        print("   -> Activation Function: " + str(model_params['activation_function']))
+        print("   -> Optimizer: " + str(model_params['optimizer']))
+        print("   -> Loss: " + str(model_params['loss']))
+        print("   -> Metrics: " + str(model_params['metrics']))
+        print("   -> Batch Size: " + str(model_params['batch_size']))
+        print("   -> Epochs: " + str(model_params['epochs']))
+        print("   -> Wavelength scale: " + str(model_params['wavelength_scale']))
+        print("   -> Particle size scale: " + str(model_params['particle_size_scale']))
+        print("   -> Extinction scale: " + str(model_params['extinction_scale']))
+        print("   -> Scattering scale: " + str(model_params['scattering_scale']))
+        print("   -> Quality metric: " + str(model_params['quality_metric']))
 
     # ==== PREPARE TRAINING AND VALIDATION INPUTS AND OUTPUTS =====================================
     # import tensorflow here so MieNet can be used without it
@@ -477,7 +476,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
 
     # ==== TRAIN AND SAVE MODEL ===================================================================
     if not self.mute:
-        print('[INFO] Training started ...')
+        print("[INFO] Training started ...")
 
     # compile model for training
     model.compile(optimizer = model_params['optimizer'],
@@ -501,7 +500,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
         plot_train_ai_model(model_params, history)
 
     if not self.mute:
-        print('[INFO] Training done')
+        print("[INFO] Training done")
 
     # ==== ADD MODEL TO CONFIG FILE ===============================================================
     # path to config file
@@ -542,7 +541,7 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
             yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)
 
     if not self.mute:
-        print('[INFO] Model added to config.yaml')
+        print("[INFO] Model added to config.yaml")
 
     # immediately load the model
     self.initialize_ai_models()

@@ -260,15 +260,15 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     # check inputs are correct type
     if (not isinstance(wavelength, np.ndarray)
             and not isinstance(wavelength, (float, int))):
-        raise ValueError('[ERROR] Wavelength must be of type np.ndarray or float\n'
-                         '   -> currently given: ' + str(type(wavelength)))
+        raise ValueError("[ERROR] Wavelength must be of type np.ndarray or float\n"
+                         "   -> currently given: " + str(type(wavelength)))
     if (not isinstance(particle_size, np.ndarray)
             and not isinstance(particle_size, (float, int))):
-        raise ValueError('[ERROR] Particle size must be of type np.ndarray or float\n'
-                         '   -> currently given: ' + str(type(particle_size)))
+        raise ValueError("[ERROR] Particle size must be of type np.ndarray or float\n"
+                         "   -> currently given: " + str(type(particle_size)))
     if not isinstance(volume_mixing_ratios, dict):
-        raise ValueError('[ERROR] Volume mixing ratio must be of type dict\n'
-                         '   -> currently given: ' + str(type(volume_mixing_ratios)))
+        raise ValueError("[ERROR] Volume mixing ratio must be of type dict\n"
+                         "   -> currently given: " + str(type(volume_mixing_ratios)))
 
     # convert floats to arrays
     if isinstance(wavelength, (float, int)):
@@ -289,9 +289,9 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     vmr_len = len(volume_mixing_ratios[next(iter(volume_mixing_ratios))])
     if len(particle_size) != vmr_len:
         raise ValueError(
-            '[ERROR] Particle size and volume mixing ratio must have same shape:\n'
-            '   -> Shape particle size: ' + str(len(particle_size)) + '\n'
-            '   -> Shape VMR: ' + str(vmr_len) + '\n'
+            "[ERROR] Particle size and volume mixing ratio must have same shape:\n"
+            "   -> Shape particle size: " + str(len(particle_size)) + "\n"
+            "   -> Shape VMR: " + str(vmr_len) + "\n"
         )
 
     # create array with vmr values
@@ -302,8 +302,8 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     # Check if all VMRs add up to 1 and normalize if necessary
     vmr_sum = np.sum(vmr, axis=1)
     if any(vmr_sum != 1) and not mute:
-        print('[WARN] Volume mixing ratios do not add up to 1. '
-              'The ratios have been renormalized.')
+        print("[WARN] Volume mixing ratios do not add up to 1. "
+              "The ratios have been renormalized.")
     idx = np.asarray(np.where(vmr_sum != 1))
     for i in idx[0]:
         vmr[i] = vmr[i] / sum(vmr[i])

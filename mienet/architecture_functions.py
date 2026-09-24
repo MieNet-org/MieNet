@@ -1,6 +1,6 @@
 """
 Architecture dependent functionalities
-----------
+--------------------------------------
 To increase the accuracy of ANN predictions, MieNet's default ANNs are trained on six
 seperate regions of the parameter space. These architecture functions create masks to
 filter the given inputs based which region they belong to, so the most accurate ANN for

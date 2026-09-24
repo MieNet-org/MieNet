@@ -46,7 +46,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
 
     # ==== Information
     if not self.mute:
-        print('[INFO] Perform grid interpolation for ',
+        print("[INFO] Perform grid interpolation for ",
               list(volume_mixing_ratios.keys()))
 
     # ==== Load grid
@@ -60,9 +60,9 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     # ==== Check mixing theory if necessary
     if theory is not None:
         if ds.attrs['theory'] != theory:
-            raise ValueError('[ERROR] Mixing theory dose not match.\n'
-                             '-> Selected: ' + theory + '\n'
-                             '-> Data set: ' + ds.attrs['theory'])
+            raise ValueError("[ERROR] Mixing theory dose not match.\n"
+                             "> Selected: "+ theory + '\n'
+                             "-> Data set: " + ds.attrs['theory'])
 
     # ==== read out data
     # define arguments for interpolation from xarray
@@ -122,13 +122,13 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
 
     # ==== Print gird production information
     if not self.mute:
-        print('[INFO] Calculating mie efficiency grid')
-        print('   -> Species: ', species)
-        print('   -> Mixing theory: ' + theory)
-        print(f'   -> Wavelengths: {min(wavelengths)} to {max(wavelengths)} microns' )
-        print(f'   -> Particle sizes: {min(particle_sizes)} to {max(particle_sizes)} microns')
-        print(f'   -> VMR spacing: {round(100/(vmr_data_points-1),2)}%')
-        print('[INFO] Starting grid calculation ...')
+        print("[INFO] Calculating mie efficiency grid")
+        print("   -> Species: ", species)
+        print("   -> Mixing theory: " + theory)
+        print(f"   -> Wavelengths: {min(wavelengths)} to {max(wavelengths)} microns" )
+        print(f"   -> Particle sizes: {min(particle_sizes)} to {max(particle_sizes)} microns")
+        print(f"   -> VMR spacing: {round(100/(vmr_data_points-1),2)}%")
+        print("[INFO] Starting grid calculation ...")
 
     # ==== get shape of output array and prepare coordinates of dataset
     shape = [len(particle_sizes), len(wavelengths)]  # shape of data array
@@ -174,7 +174,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         else:
             eta = '--'
         if not self.mute:
-            print(f'   -> Progress: { v /len(vmr_index ) *100:.1f}% (ETA: {eta})')
+            print(f"   -> Progress: { v /len(vmr_index ) *100:.1f}% (ETA: {eta})")
 
         # vmr values for this loop
         vmr_last = 0
@@ -213,11 +213,11 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
 
     # ==== Save dataset if a save file is given
     if not self.mute:
-        print('   -> Grid calculation complete')
+        print("   -> Grid calculation complete")
     if save_file is not None:
         ds.to_netcdf(save_file, engine="h5netcdf")
         if not self.mute:
-            print('[INFO] Grid saved as: ' + save_file)
+            print("[INFO] Grid saved as: " + save_file)
 
     return ds
 
@@ -265,9 +265,9 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         }
 
         if not self.mute:
-            print('[INFO] Grid added: ')
-            print('   -> Species: ', ds_grid.attrs['species'])
-            print('   -> Mixing theory: ', ds_grid.attrs['theory'])
+            print("[INFO] Grid added: ")
+            print("   -> Species: ", ds_grid.attrs['species'])
+            print("   -> Mixing theory: ", ds_grid.attrs['theory'])
             print(f"   -> Wavelength: {round(ds_grid['wavelength'].values[0], 2)} to "
                   f"{round(ds_grid['wavelength'].values[-1], 2)} micron.")
             print(f"   -> Particle size: {round(ds_grid['particle_size'].values[0], 2)} to "
@@ -311,10 +311,10 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
                 }
 
                 if not self.mute:
-                    print('[INFO] Grid added: ')
-                    print('   -> File: ' + grid_file)
-                    print('   -> Species: ', ds.attrs['species'])
-                    print('   -> Mixing theory: ', ds.attrs['theory'])
+                    print("[INFO] Grid added: ")
+                    print("   -> File: " + grid_file)
+                    print("   -> Species: ", ds.attrs['species'])
+                    print("   -> Mixing theory: ", ds.attrs['theory'])
                     print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
                           f"{round(ds['wavelength'].values[-1], 2)} micron.")
                     print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "
@@ -323,7 +323,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
             except:
                 # this error only rises if the file loaded is not what was expected.
                 raise ValueError(
-                    '[ERROR] The following grid file could not be loded:\n  ', grid_file
+                    "[ERROR] The following grid file could not be loded:\n  ", grid_file
                 )
 
     # if at least one grid is loaded, enable grid interpolation
@@ -331,4 +331,4 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         self.use_grid = True
     else:
         if not self.mute:
-            print('[WARN] No grid files found')
+            print("[WARN] No grid files found")
