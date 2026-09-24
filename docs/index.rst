@@ -23,7 +23,7 @@ Fully trained models are provided on `Zenodo <https://zenodo.org/records/2034625
 
 A Note on Requirements
 ----------------------
-To use MieNet's AI functionalities, `TensorFlow <https://www.tensorflow.org/>`_ is requied, which currently only works with Python 3.9-3.12. We also recommend using an older version of `miepython <https://miepython.readthedocs.io/en/latest/>`_ for faster computation times.
+To use MieNet's AI functionalities, `TensorFlow <https://www.tensorflow.org/>`_ is requied, which currently only works with Python 3.9-3.12. We recommend using versions 3.0 and older of `miepython <https://miepython.readthedocs.io/en/latest/>`_ for faster computation times.
 
 Credit
 ------
