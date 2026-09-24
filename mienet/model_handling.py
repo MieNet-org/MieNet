@@ -270,7 +270,7 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
             now = datetime.fromtimestamp(time())
             eta = now + timedelta(seconds=dt)
             eta = eta.strftime("%Y-%m-%d %H:%M:%S")
-            print(f'   -> Progress: { ds.attrs['idx']/set_size*100:.1f}% (ETA: {eta})'
+            print(f'   -> Progress: { ds.attrs["idx"]/set_size*100:.1f}% (ETA: {eta})'
                   + ' '*10, end='\r')
 
         # generate volume mixing ratios
