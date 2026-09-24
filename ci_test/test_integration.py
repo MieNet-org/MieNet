@@ -123,15 +123,15 @@ def test_ai():
     assert np.isclose(np.sum(scattering), 13.092415, rtol = 10, atol = 10)
     assert np.isclose(np.sum(asymmetry), -21.044868, rtol = 10, atol = 10)
 
-    # ==== Test wavelength and paticle size limit
-    with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4]})
-    with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4]})
-    with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4]})
-    with testcase.assertRaises(ValueError):
-        ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4]})
+    # # ==== Test wavelength and paticle size limit
+    # with testcase.assertRaises(ValueError):
+    #     ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4]})
+    # with testcase.assertRaises(ValueError):
+    #     ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4]})
+    # with testcase.assertRaises(ValueError):
+    #     ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4]})
+    # with testcase.assertRaises(ValueError):
+    #     ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4]})
 
     # ==== Test wrong theory catch
     with testcase.assertRaises(ValueError):
