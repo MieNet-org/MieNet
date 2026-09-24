@@ -100,7 +100,7 @@ class MieNet:
             print("[INFO] MieNet successfully initialised")
             print("   -> Data location: " + self.data_path)
             if self.use_ai:
-                print(f"   -> AAN models available: {len(self.models_dict)}")
+                print(f"   -> ANN models available: {len(self.models_dict)}")
             else:
                 print("   -> ANN models are unavailable")
             print(f"   -> Grid models available: {len(self.grids_dict)}")
@@ -170,7 +170,7 @@ class MieNet:
 
         # ==== Information
         if not self.mute:
-            print("[INFO] Perform AAN calculation for ",
+            print("[INFO] Perform ANN calculation for ",
                   list(volume_mixing_ratios.keys()))
 
         # make all possible combinations of wavelength & particle size
@@ -227,9 +227,9 @@ class MieNet:
                     model_dict['models'][i](inputs[mask], verbose=0)
 
         # reshape outputs
-        ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
-        sca = scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
-        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size))).T
+        ext = extinction[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
+        sca = scattering[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
+        asym = asymmetry[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
 
         # check extinction scaling
         if model_dict['scale']['extinction'] == 'log':
