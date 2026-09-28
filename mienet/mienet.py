@@ -213,6 +213,8 @@ class MieNet:
         # predict models if no masking required
         if arch == 'one_network':
             extinction, scattering, asymmetry = model_dict['models'][0](inputs, verbose=0)
+            extinction, scattering, asymmetry = (
+                extinction.numpy(), scattering.numpy(), asymmetry.numpy())
 
         # get masks from arch function
         else:
@@ -227,9 +229,9 @@ class MieNet:
                     model_dict['models'][i](inputs[mask], verbose=0)
 
         # reshape outputs
-        ext = extinction[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
-        sca = scattering[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
-        asym = asymmetry[:, 0].numpy().reshape((len(wavelength), len(particle_size))).T
+        ext = extinction[:, 0].reshape((len(wavelength), len(particle_size))).T
+        sca = scattering[:, 0].reshape((len(wavelength), len(particle_size))).T
+        asym = asymmetry[:, 0].reshape((len(wavelength), len(particle_size))).T
 
         # check extinction scaling
         if model_dict['scale']['extinction'] == 'log':
