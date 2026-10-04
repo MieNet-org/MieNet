@@ -20,3 +20,25 @@ TUTORIAL_MODEL:
   quality_metric: 1
   files:
   - tutorial_model.keras
+
+TEST_SIX_NETWORK:
+
+  architecture: 'six_network'
+  theory: 'LLL'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
+
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'normal', 'particle_size': 'normal', 'extinction': 'normal', 'scattering': 'normal'}
+
+  files:
+    - 'vmodeltest_six_net_1A.keras'
+    - 'vmodeltest_six_net_1B.keras'
+    - 'vmodeltest_six_net_1C.keras'
+    - 'vmodeltest_six_net_2A.keras'
+    - 'vmodeltest_six_net_2B.keras'
+    - 'vmodeltest_six_net_2C.keras'

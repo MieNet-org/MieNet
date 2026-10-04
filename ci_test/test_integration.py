@@ -123,16 +123,6 @@ def test_ai():
     assert np.isclose(np.sum(scattering), 13.092415, rtol = 10, atol = 10)
     assert np.isclose(np.sum(asymmetry), -21.044868, rtol = 10, atol = 10)
 
-    # # ==== Test wavelength and paticle size limit
-    # with testcase.assertRaises(ValueError):
-    #     ma.ai_efficiencies(1e10, 0.005,{'Mg2SiO4': [0.4]})
-    # with testcase.assertRaises(ValueError):
-    #     ma.ai_efficiencies(1e-10, 0.005,{'Mg2SiO4': [0.4]})
-    # with testcase.assertRaises(ValueError):
-    #     ma.ai_efficiencies(3, 1e10,{'Mg2SiO4': [0.4]})
-    # with testcase.assertRaises(ValueError):
-    #     ma.ai_efficiencies(3, 1e-10,{'Mg2SiO4': [0.4]})
-
     # ==== Test wrong theory catch
     with testcase.assertRaises(ValueError):
         ma.ai_efficiencies(3, 0.005,{'Mg2SiO4': [0.4], 'Fe': [0.4],}, theory='WRONG')
@@ -141,11 +131,20 @@ def test_ai():
     with testcase.assertRaises(ValueError):
         MieNet(default_data_location=loc, load_ai_model='NON_EXISTING')
 
-    # ==== Test non-initialisation error
+    # ==== Test non-initialization error
     with testcase.assertRaises(ValueError):
         ma = MieNet(use_ai=False)
         ma.ai_efficiencies(None, None, None)
 
+    # Test scaling and calling architecture functions
+    ma = MieNet(default_data_location=loc, load_ai_model='TEST_SIX_NETWORK')
+    extinction, scattering, asymmetry = ma.ai_efficiencies(
+        np.array([0.9, 0.9, 10, 10, 101, 101]),
+        np.array([0.01, 1, 0.1, 10, 10, 100]),
+        {'SiO2':np.repeat(0.5, 6), 'MgSiO3':np.repeat(0.5, 6)})
+    assert np.all(np.isfinite(extinction))
+    assert np.all(np.isfinite(scattering))
+    assert np.all(np.isfinite(asymmetry))
 
 def test_grid():
     """ Test the grid calculation """
