@@ -113,10 +113,6 @@ def test_create_ai_model():
     except OSError:
         pass
     try:
-        os.remove(loc + 'test_model.keras')
-    except OSError:
-        pass
-    try:
         os.remove(loc + 'test_set.keras')
     except OSError:
         pass
@@ -141,24 +137,27 @@ def test_create_ai_model():
         )
 
     # ==== Test train_ai_model
-    ma.train_ai_model('test_set')
+    ma = MieNet(mute=False, default_data_location=loc)
+    ma.train_ai_model('test_set.nc',
+                      model_params={'name': 'test_set'})
     assert os.path.exists(loc + 'test_set.keras')
     os.remove(loc + 'test_set.keras')
-    ma.train_ai_model('test_set', overwrite=True)
+    ma.train_ai_model('test_set.nc',
+                      model_params={'name': 'test_set'}, overwrite=True)
     assert os.path.exists(loc + 'test_set.keras')
-    ma.train_ai_model('test_set')
+    ma.train_ai_model('test_set.nc',
+                      model_params={'name': 'test_set1'})
     assert os.path.exists(loc + 'test_set1.keras')
     os.remove(loc + 'test_set.keras')
     os.remove(loc + 'test_set1.keras')
-    ma = MieNet(mute=False, default_data_location=loc)
-    ma.train_ai_model('test_set',
-                      model_params={'name': 'test_model'},
+    ma.train_ai_model('test_set.nc',
+                      model_params={'name': 'test_set'},
                       plot_training=False)
     with testcase.assertRaises(ValueError):
-        ma.train_ai_model('test_set',
-                      model_params={'name': 'test_model'})
+        ma.train_ai_model('test_set.nc',
+                      model_params={'name': 'test_set'})
     with testcase.assertRaises(ValueError):
-        ma.train_ai_model('test_set',
+        ma.train_ai_model('test_set.nc',
                           model_params={'wavelength_scale': 'wrong',
                                'particle_size_scale': 'wrong',
                                'extinction_scale': 'wrong',
@@ -171,9 +170,18 @@ def test_create_ai_model():
         {'SiO2': np.linspace(0, 1, 8), 'Fe': np.linspace(1, 0, 8)}
     )
 
-    os.remove(loc + 'test_set.nc')
-    os.remove(loc + 'test_model.keras')
-    os.remove(loc + 'config.yaml')
+    try:
+        os.remove(loc + 'test_set.nc')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set.keras')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'config.yaml')
+    except OSError:
+        pass
 
     assert np.isclose(np.sum(extinction), 2.188828, rtol = 10, atol = 10)
     assert np.isclose(np.sum(scattering), 63.973137, rtol = 10, atol = 10)

@@ -317,14 +317,14 @@ def generate_training_set(self, file_name, species, wavelength_sample, particle_
     ds.attrs['date_finished'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     ds.to_netcdf(store_path)
 
-def train_ai_model(self, file_name, model_params={}, plot_training=False, overwrite=False):
+def train_ai_model(self, files, model_params={}, plot_training=False, overwrite=False):
     """
     Train a neural network with TensorFlow.
 
     Parameters
     ----------
-    file_name: str
-        File name of the xarray training set
+    files: str or list of str
+        File name(s) of the xarray training set(s)
     model_params : dict
         {'name' (optional): str(name to give to model),
         'layers' (optional): int(number of hidden layers),
@@ -343,9 +343,33 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
     plot_training : boolean, optional
         Whether or not to plot the training loss and accuracy
     """
-    # open xarray and get training set as array
-    dataset = xr.open_dataset(self.data_path + file_name + '.nc')
-    training_set = dataset['data'].to_numpy()
+    # open xarray file(s) and get training set
+    if type(files) == str:
+        # open file and get array
+        dataset = xr.open_dataset(self.data_path + files)
+        training_set = dataset['data'].to_numpy()
+        files = [files]
+    else:
+        set_size = 0
+        num_params = []
+        # get number of datapoints and parameters of each file
+        for file in files:
+            ds = xr.open_dataset(self.data_path + file)
+            set_size += ds.attrs['idx']
+            num_params.append(len(ds.coords['dim']))
+        # check that the number of parameters is the same
+        if len(set(num_params)) == 1:
+            params = list(set(num_params))[0]
+        else:
+            raise ValueError('Parameter size of training sets are not the same.')
+        # open each file and add data to training set
+        training_set = np.zeros((set_size, params))
+        i, idx = 0, 0
+        for file in files:
+            dataset = xr.open_dataset(self.data_path + file)
+            idx += dataset.attrs['idx']
+            training_set[i:idx,] = dataset['data'].to_numpy()
+            i += idx
 
     # ==== DEFAULT MODEL PARAMETERS ===============================================================
 
@@ -356,23 +380,21 @@ def train_ai_model(self, file_name, model_params={}, plot_training=False, overwr
                 & (overwrite is False)):
             raise ValueError(
                 "[ERROR] Model with the name" + model_params['name'] + "already exists. "
-                "lease provide a new name."            )
+                "Please provide a new name.")
     else:
-        # default name is same as training set file name
+        # default name is time
         if overwrite is True:
-            model_params['name'] = file_name
+            model_params['name'] = datetime.now().strftime("%Y%m%d%H%M%S")
         else:
-            # set default name to file name if available
-            if not os.path.exists(self.data_path + file_name + '.keras'):
-                model_params['name'] = file_name
-            # if default name is already used, add number to end
+            # set default name to time if available
+            if not os.path.exists(self.data_path
+                                  + datetime.now().strftime("%Y%m%d%H%M%S") + '.keras'):
+                model_params['name'] = datetime.now().strftime("%Y%m%d%H%M%S")
+            # if default name is already used, raise error
             else:
-                file_end = 1
-                original_file = file_name
-                while os.path.exists(self.data_path + file_name + '.keras'):
-                    file_name = original_file + str(file_end)
-                    model_params['name'] = file_name
-                    file_end += 1
+                raise ValueError('[ERROR] Model with the name' +
+                                 datetime.now().strftime("%Y%m%d%H%M%S") +
+                                 "already exists. Please provide a new name." )
 
     # ==== set defaults if model parameter not given
     if 'layers' not in model_params:
