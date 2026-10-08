@@ -125,21 +125,28 @@ def test_create_ai_model():
     except OSError:
         pass
     try:
+        os.remove(loc + 'test_set2.nc')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set3.nc')
+    except OSError:
+        pass
+    try:
         os.remove(loc + 'config.yaml')
     except OSError:
         pass
 
     ma = MieNet(mute=False, load_ai_model='test_set', default_data_location=loc)
-    ma.generate_training_set(
-        'test_set', species=['SiO2', 'Fe'], wavelength_sample=(100, 110, 25),
+    ma.generate_training_set(file_name='test_set', species=['SiO2', 'Fe'], wavelength_sample=(100, 110, 25),
         particle_size_sample=(0.001, 0.005, 25)
     )
     ma.generate_training_set(
-        'test_set2', species=['SiO2', 'Fe'], wavelength_sample=(100, 110, 5),
+        file_name='test_set2', species=['SiO2', 'Fe', 'TiO2'], wavelength_sample=(100, 110, 5),
         particle_size_sample=(0.001, 0.005, 5)
     )
     ma.generate_training_set(
-        'test_set3', species=['SiO2', 'Fe'], wavelength_sample=(100, 110, 5),
+        file_name='test_set3', species=['SiO2', 'Fe', 'TiO2'], wavelength_sample=(100, 110, 5),
         particle_size_sample=(0.001, 0.005, 5)
     )
     with testcase.assertRaises(ValueError):
@@ -168,19 +175,19 @@ def test_create_ai_model():
     with testcase.assertRaises(ValueError):
         ma.train_ai_model('test_set.nc',
                       model_params={'name': 'test_set'})
+    ma.train_ai_model(['test_set2.nc', 'test_set3.nc'],
+                      model_params={'name': 'test_set2'})
+    assert os.path.exists(loc + 'test_set2.keras')
+    with testcase.assertRaises(ValueError):
+        ma.train_ai_model(['test_set.nc', 'test_set2.nc'],
+                          model_params={'name': 'test_set2'}, overwrite=True)
+    os.remove(loc + 'test_set2.keras')
     with testcase.assertRaises(ValueError):
         ma.train_ai_model('test_set.nc',
                           model_params={'wavelength_scale': 'wrong',
                                'particle_size_scale': 'wrong',
                                'extinction_scale': 'wrong',
                                'scattering_scale': 'wrong'})
-    os.remove(loc + 'test_set.keras')
-    ma.train_ai_model(['test_set2.nc', 'test_set3.nc'],
-                      model_params={'name': 'test_set'})
-    assert os.path.exists(loc + 'test_set.keras')
-    with testcase.assertRaises(ValueError):
-        ma.train_ai_model(['test_set.nc', 'test_set2.nc'],
-                      model_params={'name': 'test_set'})
 
     # ==== Test created model predictions
     ma = MieNet(mute=False, default_data_location=loc)
@@ -195,6 +202,18 @@ def test_create_ai_model():
         pass
     try:
         os.remove(loc + 'test_set.keras')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set1.keras')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set2.nc')
+    except OSError:
+        pass
+    try:
+        os.remove(loc + 'test_set3.nc')
     except OSError:
         pass
     try:
