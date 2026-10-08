@@ -22,11 +22,11 @@ def get_models(data_location, overwrite=True, url=None):
     Parameters
     ----------
     data_location : str
-        location where the data should be stored
+        Location where the data should be stored
     overwrite : bool, optional
         In case some files already exist: overwrite old data if True, discard new data if False
     url : str, optional
-        Download link. If None is given, use the default zotero repository.
+        Download link. If None is given, use the default zenodo repository.
     """
     # Zenodo link
     if url is None:
@@ -55,7 +55,7 @@ def get_models(data_location, overwrite=True, url=None):
 
 def initialize_ai_models(self):
     """
-    Load ai tensorflow models and store them in self.models_dict.
+    Load AI tensorflow models and store them in self.models_dict.
     """
     # import tensorflow here, so MieNet can be used without it
     from tensorflow.keras.models import load_model
@@ -107,7 +107,7 @@ def initialize_ai_models(self):
 
         # load all models for each mixture
         for model in keys:
-            skip = False  # if not all keras file could be loaded, skip
+            skip = False  # if not all keras files could be loaded, skip
 
             # prepare model list for dictionary
             model_list = np.empty(len(models_dict[model]['files']), dtype = object)
@@ -122,7 +122,7 @@ def initialize_ai_models(self):
                     skip = True  # remember that this model is incomplete
                     break  # stop searching for more models
 
-            # if not all keras file could be loaded, skip
+            # if not all keras files could be loaded, skip
             if skip:
                 continue
 
@@ -556,7 +556,7 @@ def train_ai_model(self, files, model_params={}, plot_training=False, overwrite=
         with open(config_path, 'w', encoding='utf-8') as file:
             yaml.safe_dump(current_data, file, default_flow_style=False, sort_keys=False)
 
-    # create config file if none exist
+    # create config file if none exists
     else:
         with open(config_path, 'w', encoding='utf-8') as file:
             yaml.safe_dump(new_data, file, default_flow_style=False, sort_keys=False)

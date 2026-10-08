@@ -1,4 +1,4 @@
-""" Calculating different mixing theories for effective refindex """
+""" Calculating different mixing theories for effective refractive index """
 # pylint: disable=R0914
 
 import numpy as np
@@ -11,13 +11,13 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
     Parameters
     ----------
     wavelength: np.ndarray[N]
-        Wavelenght grid
+        Wavelength grid
     ref_index: np.ndarray[M, N, 2]
-        Refractive index at each wavlength and for each material
+        Refractive index at each wavelength and for each material
     vmr: np.ndarray[N, M]
         The volume mixing ratio of each of the M species
     theory : str, optional
-        Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+        Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
 
     Returns
     -------
@@ -64,7 +64,7 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
                              constraints=con, method='SLSQP')
             m_eff = resul.x
 
-            # here, negative values can still occure due to tollarances. Prevent these.
+            # here, negative values can still occur due to tolerances. Prevent these.
             if m_eff[0] < 0:
                 m_eff[0] = 0
             if m_eff[1] < 0:
@@ -72,7 +72,7 @@ def mixing_theory(wavelength, ref_index, vmr, theory='LLL'):
 
             # check if it worked
             if not resul.success:
-                raise ValueError("[ERROR] Failieur of Brugeman minization at "
+                raise ValueError("[ERROR] Failure of Bruggeman minimization at "
                                  + str(wavelength[wav] * 1e4) + " micron.")
 
             # save results
@@ -93,7 +93,7 @@ def bruggeman_func(eff, work):
     Parameters
     ----------
     eff: np.ndarray[2]
-        effective reffrective index. First index real part, second index
+        effective refractive index. First index real part, second index
         imaginary part
     work: np.ndarray[s, 3]
         The volume mixing fraction, real refractive index and imaginary
@@ -107,11 +107,11 @@ def bruggeman_func(eff, work):
     sol = complex(0, 0)
 
     for i, _ in enumerate(work):
-        # get dielectic constants from refractive index
+        # get dielectric constants from refractive index
         e_i = complex(work[i, 1], work[i, 2])**2
         e_e = complex(eff[0], eff[1])**2
 
-        # add to sumation
+        # add to summation
         sol += work[i, 0]*(e_i-e_e)/(e_i+2*e_e)
 
     return abs(sol)

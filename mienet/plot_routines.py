@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 
 def plot_train_ai_model(model_params, history):
     """
-    Plot for ai training success.
+    Plot for AI training success.
 
     Parameters
     ----------
     model_params : dict
         Dictionary of model parameters.
     history : tensorflow object
-        History of AAN training.
+        History of ANN training.
     """
 
     epoch = range(1, model_params['epochs'] + 1)

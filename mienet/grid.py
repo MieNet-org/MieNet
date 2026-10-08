@@ -29,7 +29,7 @@ def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, the
     Returns
     -------
     optical properties : np.ndarray of size (M, N)
-        extinction coefficient, scattering coefficient, and asymmetries parameter
+        extinction coefficient, scattering coefficient, and asymmetry parameter
     """
 
     # ==== Break if no grids loaded
@@ -120,7 +120,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
         asymmetries parameter
     """
 
-    # ==== Print gird production information
+    # ==== Print grid production information
     if not self.mute:
         print("[INFO] Calculating mie efficiency grid")
         print("   -> Species: ", species)
@@ -145,7 +145,7 @@ def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200)
     for _, spec in enumerate(species):
         vmr[spec] = vmr_array.copy
 
-    # ==== adatpitve fill in for species, last on is implicit
+    # ==== adaptive fill in for species, last one is implicit
     for _, spec in enumerate(species[:-1]):
         shape.append(vmr_data_points)
         dims.append('VMR_' + spec)
@@ -282,7 +282,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
         else:
             grid_files = file_name
 
-        # ==== Looop over all files
+        # ==== Loop over all files
         for grid_file in grid_files:
             try:
                 # get data and assign it to the dictionary
@@ -323,7 +323,7 @@ def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
             except:
                 # this error only rises if the file loaded is not what was expected.
                 raise ValueError(
-                    "[ERROR] The following grid file could not be loded:\n  ", grid_file
+                    "[ERROR] The following grid file could not be loaded:\n  ", grid_file
                 )
 
     # if at least one grid is loaded, enable grid interpolation

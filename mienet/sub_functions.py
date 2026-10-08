@@ -175,10 +175,10 @@ def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True)
     -------
     best_dataset : tuple, (name, species)
         name: str of model/grid name
-        species: list of species name
+        species: list of species names
     """
 
-    # ==== Initialisation
+    # ==== Initialization
     # Start with all datasets
     valid_datasets = [] #list(datasets.keys())
     # species selected
@@ -193,7 +193,7 @@ def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True)
         # A dataset must have the correct mixing theory
         if theory is not None and datasets[name]['theory'] != theory:
             continue
-        # This is removed for now since accessing out of scope variables works
+        # This is removed for now since accessing out-of-scope variables works
         # in most instances and is needed for integration into other frameworks
         # A dataset must cover the whole wavelength and particle size range
         # if (datasets[name]['range']['wavelength'][0] > np.min([wave]) or
@@ -244,7 +244,7 @@ def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, m
     species_list : List of strings of size P
         Name of species that must be included
     mute : bool, optional
-        If True, MieNet will produce no diagnostic outputs and runs quietly.
+        If True, MieNet will produce no diagnostic outputs and run quietly.
 
 
     Returns

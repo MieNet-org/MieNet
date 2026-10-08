@@ -2,15 +2,15 @@
 Architecture dependent functionalities
 --------------------------------------
 To increase the accuracy of ANN predictions, MieNet's default ANNs are trained on six
-seperate regions of the parameter space. These architecture functions create masks to
-filter the given inputs based which region they belong to, so the most accurate ANN for
+separate regions of the parameter space. These architecture functions create masks to
+filter the given inputs based on the region they belong to, so the most accurate ANN for
 that input is used.
 
 MieNet's default ANNs use the six_network architecture function, which filters inputs
 into three wavelength and two size parameter regions. The three_network function divides
 inputs into just three wavelength regions.
 
-ANNs created by MieNet's train_ai_model function does not allow for training on different
+ANNs created by MieNet's train_ai_model function do not allow for training on different
 input parameter spaces and is classified as "one_network" (as no masks are required for
 these architecture types, there is no one_network architecture function).
 

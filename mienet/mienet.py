@@ -16,7 +16,7 @@ from . import architecture_functions
 
 class MieNet:
     """
-    MieNet class to calculate mie opacities. For more information please see the
+    MieNet class to calculate mie opacities. For more information, please see the
     Documentation.
     """
 
@@ -33,7 +33,7 @@ class MieNet:
         Parameters
         ----------
         use_ai : bool
-            If False, AI will be disabled. This allows to use MieNet without installing
+            If False, AI will be disabled. This allows use of MieNet without installing
             tensorflow.
         default_data_location : str, optional
             Location of opacity data and/or grids. If none, MieNet defaults are used.
@@ -79,7 +79,7 @@ class MieNet:
             self.data_path = os.path.join(os.path.dirname(__file__), '../data/')
 
         # ==== Prepare Neural Network ===================================================
-        self.models_dict = {}  # default initialisation
+        self.models_dict = {}  # default initialization
         if self.use_ai:
             # check if right python version for tensorflow
             if (sys.version_info[0] > 3 or
@@ -97,7 +97,7 @@ class MieNet:
 
         # ==== Information about the status of MieNet
         if not self.mute:
-            print("[INFO] MieNet successfully initialised")
+            print("[INFO] MieNet successfully initialized")
             print("   -> Data location: " + self.data_path)
             if self.use_ai:
                 print(f"   -> ANN models available: {len(self.models_dict)}")
@@ -124,7 +124,7 @@ class MieNet:
         Returns
         -------
         optical properties : np.ndarray of size (M, N)
-            extinction coefficient, scattering coefficient, and asymmetries parameter
+            extinction coefficient, scattering coefficient, and asymmetry parameter
         """
 
         # ==== network initialization & retrieval =======================================
@@ -265,7 +265,7 @@ class MieNet:
         Returns
         -------
         optical properties : np.ndarray of size (M, N)
-            extinction coefficient, scattering coefficient, and asymmetries parameter
+            extinction coefficient, scattering coefficient, and asymmetry parameter
         """
         # ==== Prepare inputs ===========================================================
         if theory is None:
@@ -336,7 +336,7 @@ class MieNet:
     def auto_efficiencies(self, wavelength, particle_size, volume_mixing_ratios,
                           theory=None):
         """
-        Calculate mie coefficients using mie fastest method available.
+        Calculate mie coefficients using fastest method available.
 
         Parameters
         ----------
@@ -347,12 +347,12 @@ class MieNet:
         volume_mixing_ratios : dict of np.ndarray or float of size M for each species
             Fraction of each cloud material given as float or array
         theory : str, optional
-            Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+            Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
 
         Returns
         -------
         optical properties : np.ndarray of size (M, N)
-            extinction coefficient, scattering coefficient, and asymmetries parameter
+            extinction coefficient, scattering coefficient, and asymmetry parameter
         """
 
         if self.use_ai:
@@ -396,7 +396,7 @@ class MieNet:
         overwrite : bool, optional
             If True, old files will be overwritten.
         url : str, optional
-            Download link. If None is given, use the default zotero repository.
+            Download link. If None is given, use the default Zenodo repository.
         """
         # info
         if not self.mute:
