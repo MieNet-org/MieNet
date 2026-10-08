@@ -19,7 +19,7 @@ To choose the fastest method available:
 
 - 'Auto': Use fastest MieNet method available to calculate Mie coefficients.
 
-Fully trained models are provided on `Zenodo <https://zenodo.org/records/20346256>`_, or can be trained by yourself according to your needs. MieNet is under active development and contributions are welcomed. If you want to run MieNet checkout the `quick start guide <Install_And_Quick_Start.ipynb>`_.
+Fully trained models are provided on `Zenodo <https://zenodo.org/records/23231663>`_, or can be trained by yourself according to your needs. MieNet is under active development and contributions are welcomed. If you want to run MieNet checkout the `quick start guide <Install_And_Quick_Start.ipynb>`_.
 
 A Note on Requirements
 ----------------------

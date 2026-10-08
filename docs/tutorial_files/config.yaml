@@ -2,6 +2,7 @@ TUTORIAL_MODEL:
   architecture: one_network
   theory: LLL
   dependencies: {}
+  quality_metric: 1
   species:
   - Fe
   - Mg2SiO4
@@ -17,7 +18,6 @@ TUTORIAL_MODEL:
     particle_size: log
     extinction: log
     scattering: log
-  quality_metric: 1
   files:
   - tutorial_model.keras
 
@@ -26,7 +26,7 @@ TEST_SIX_NETWORK:
   architecture: 'six_network'
   theory: 'LLL'
   dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
-
+  quality_metric: 6
   species:
     - 'SiO2'
     - 'MgSiO3'

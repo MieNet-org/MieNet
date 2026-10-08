@@ -30,7 +30,7 @@ def get_models(data_location, overwrite=True, url=None):
     """
     # Zenodo link
     if url is None:
-        url = 'https://zenodo.org/records/22308008/files/models.zip?download=1'
+        url = 'https://zenodo.org/records/23231663/files/models.zip?download=1'
 
     # download and unzip folder from Zenodo
     os.makedirs(data_location, exist_ok=True)
@@ -99,8 +99,7 @@ def initialize_ai_models(self):
         models_dict[model]['dependencies'] = model_info['dependencies']
         models_dict[model]['range'] = model_info['range']
         models_dict[model]['scale'] = model_info['scale']
-        # current models do not include this, uncomment after Zenodo update
-        models_dict[model]['quality_metric'] = 0  # model_info['quality_metric']
+        models_dict[model]['quality_metric'] = model_info['quality_metric']
 
     # load all models by default if one is not specified
     if self.load_ai_model == 'all':
@@ -422,7 +421,7 @@ def train_ai_model(self, files, model_params={}, plot_training=False, overwrite=
     if 'scattering_scale' not in model_params:
         model_params['scattering_scale'] = 'log'
     if 'quality_metric' not in model_params:
-        model_params['quality_metric'] = 2
+        model_params['quality_metric'] = 1
 
     if not self.mute:
         print("[INFO] Generating ANN model with:")
