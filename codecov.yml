@@ -1,0 +1,2 @@
+ignore:
+  - "mienet/plot_routines.py"

@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Tutorials &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid interpolation" href="Grid_Tutorials.html" />
+    <link rel="prev" title="Tutorials" href="Basic_Tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Basic_Tutorials.html">Basic Tutorial</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">AI Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Using-ANN-Predictions">Using ANN Predictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Making-your-own-AI-Model">Making your own AI Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Step-1:-Creating-a-training-set">Step 1: Creating a training set</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Step-2:-Training-a-neural-network">Step 2: Training a neural network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Grid_Tutorials.html">Grid Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Usage.html">Advanced Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="Tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">AI Tutorials</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/AI_Tutorials.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="AI-Tutorials">
+<h1>AI Tutorials<a class="headerlink" href="#AI-Tutorials" title="Link to this heading"></a></h1>
+<p>Here we present examples on how MieNet’s ai functionalities can be used.</p>
+<section id="Using-ANN-Predictions">
+<h2>Using ANN Predictions<a class="headerlink" href="#Using-ANN-Predictions" title="Link to this heading"></a></h2>
+<p>ANN predictions provide fast and accurate opacity calculations. To see how to make your own training set and train a model, see instructions after this example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mienet</span><span class="w"> </span><span class="kn">import</span> <span class="n">MieNet</span>
+
+<span class="c1"># determine model inputs</span>
+<span class="n">species</span> <span class="o">=</span>  <span class="p">[</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;Mg2SiO4&#39;</span><span class="p">]</span>
+<span class="n">wavelength_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>  <span class="c1"># microns, within range of model</span>
+<span class="n">radius_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>  <span class="c1"># microns, within range of model</span>
+<span class="n">vmrs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Fe&#39;</span><span class="p">:</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">radius_range</span><span class="p">),</span>
+    <span class="s1">&#39;Mg2SiO4&#39;</span><span class="p">:</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">radius_range</span><span class="p">)}</span>
+
+<span class="c1"># name of model in config.yaml file</span>
+<span class="n">config_name</span> <span class="o">=</span> <span class="s1">&#39;TUTORIAL_MODEL&#39;</span>
+
+<span class="c1"># initialize MieNet again after adding AI model</span>
+<span class="n">ma</span> <span class="o">=</span> <span class="n">MieNet</span><span class="p">(</span><span class="n">load_ai_model</span> <span class="o">=</span> <span class="n">config_name</span><span class="p">,</span> <span class="n">default_data_location</span> <span class="o">=</span> <span class="s1">&#39;tutorial_files/&#39;</span><span class="p">)</span>
+    <span class="c1"># set load_ai_model = name of desired model in config file, default is &#39;all&#39; and loads every model</span>
+
+<span class="c1"># predict efficiencies</span>
+<span class="n">qext</span><span class="p">,</span> <span class="n">qsca</span><span class="p">,</span> <span class="n">asym</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">ai_efficiencies</span><span class="p">(</span><span class="n">wavelength_range</span><span class="p">,</span> <span class="n">radius_range</span><span class="p">,</span> <span class="n">vmrs</span><span class="p">)</span>
+
+<span class="c1"># plot results</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wavelength_range</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">qext</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Wavelength ($\mu$m)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Extinction Efficiency&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-bold">79/79</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 583us/step
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/AI_Tutorials_2_1.png" src="_images/AI_Tutorials_2_1.png" />
+</div>
+</div>
+</section>
+<section id="Making-your-own-AI-Model">
+<h2>Making your own AI Model<a class="headerlink" href="#Making-your-own-AI-Model" title="Link to this heading"></a></h2>
+<p>Here we present information on how to use MieNet to train your own ANN.</p>
+<section id="Step-1:-Creating-a-training-set">
+<h3>Step 1: Creating a training set<a class="headerlink" href="#Step-1:-Creating-a-training-set" title="Link to this heading"></a></h3>
+<p>Training set inputs:</p>
+<ul class="simple">
+<li><p>wavelength sample</p></li>
+<li><p>cloud particle size sample</p></li>
+<li><p>volume mixing ratios</p></li>
+</ul>
+<p>The smaller your wavelengths and particle sizes are and the smaller amount of materials in your mixture, the smaller your training set will need to be. The total training set size is equal to (number of wavelengths) * (number of particle sizes). Wavelengths and volume mixing ratios will be randomly sampled, and particle sizes are sampled in a fixed grid. MieNet’s function to produce a training set saves it as an xarray.Dataset, and allows users to stop and continue generating data until the
+dataset is full:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mienet</span><span class="w"> </span><span class="kn">import</span> <span class="n">MieNet</span>
+
+<span class="c1"># import mienet</span>
+<span class="n">ma</span> <span class="o">=</span> <span class="n">MieNet</span><span class="p">(</span><span class="n">default_data_location</span> <span class="o">=</span> <span class="s1">&#39;tutorial_files/&#39;</span><span class="p">)</span>
+    <span class="c1"># default option is default_data_location = None to save in data folder</span>
+    <span class="c1"># OR set default_data_location = &#39;path/to/your/folder/&#39; for specific folder</span>
+
+<span class="c1"># determine file name, materials, and mixing theory</span>
+<span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;tutorial_training_set&#39;</span>
+<span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="s1">&#39;Mg2SiO4&#39;</span><span class="p">]</span>
+<span class="n">mixing_theory</span> <span class="o">=</span> <span class="s1">&#39;LLL&#39;</span> <span class="c1"># optional, either LLL (default) or Bruggeman</span>
+
+<span class="c1"># determine particle size &amp; wavelength sampling</span>
+<span class="n">radii_sampling</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="c1"># (min particle size, max particle size, number of radii points)</span>
+<span class="n">wavelength_sampling</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span> <span class="c1"># (min wavelength, max wavelength, number of wavelength points)</span>
+    <span class="c1"># number of radii points and wavelength points are low for tutorial and small ranges, 1000+ recommended</span>
+
+<span class="c1"># generate dataset</span>
+<span class="n">ma</span><span class="o">.</span><span class="n">generate_training_set</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">wavelength_sampling</span><span class="p">,</span> <span class="n">radii_sampling</span><span class="p">,</span> <span class="n">mixing_theory</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Step-2:-Training-a-neural-network">
+<h3>Step 2: Training a neural network<a class="headerlink" href="#Step-2:-Training-a-neural-network" title="Link to this heading"></a></h3>
+<p>MieNet uses <a class="reference external" href="https://www.tensorflow.org/">TensorFlow</a> to train and save AI models. To build a neural network and train it with MieNet, the following is used:</p>
+<ul class="simple">
+<li><p>Training set</p></li>
+<li><p>Model parameters</p></li>
+</ul>
+<p>Model parameters are not required, but there are several parameters available to customize your model. To train an AI model, use the following function:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">ma</span> <span class="o">=</span> <span class="n">MieNet</span><span class="p">(</span><span class="n">default_data_location</span> <span class="o">=</span> <span class="s1">&#39;tutorial_files/&#39;</span><span class="p">)</span>
+
+<span class="c1"># set model parameters</span>
+<span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tutorial_model&#39;</span><span class="p">,</span> <span class="c1"># file name of AI model</span>
+                <span class="s1">&#39;layers&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">}</span> <span class="c1"># number of hidden layers</span>
+    <span class="c1"># other optional parameters: nodes, activation_function, optimizer, loss, metrics, batch_size, epochs, log_wavelength, log_particle_size, log_extinction, log_scattering</span>
+
+<span class="c1"># train your model</span>
+<span class="n">ma</span><span class="o">.</span><span class="n">train_ai_model</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">model_params</span><span class="p">,</span> <span class="n">plot_training</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># plot_training is optional, default is no plotting</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Epoch 1/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">1s</span> 78ms/step - asymmetry_loss: 0.0870 - asymmetry_mae: 0.2471 - extinction_loss: 1.5915 - extinction_mae: 1.1208 - loss: 2.0694 - scattering_loss: 0.3890 - scattering_mae: 0.2690 - val_asymmetry_loss: 0.0762 - val_asymmetry_mae: 0.2708 - val_extinction_loss: 2.0408 - val_extinction_mae: 1.4034 - val_loss: 2.1173 - val_scattering_loss: 2.7071e-04 - val_scattering_mae: 0.0152
+Epoch 2/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 15ms/step - asymmetry_loss: 0.0809 - asymmetry_mae: 0.2386 - extinction_loss: 1.3679 - extinction_mae: 1.0331 - loss: 1.8238 - scattering_loss: 0.3830 - scattering_mae: 0.2695 - val_asymmetry_loss: 0.0669 - val_asymmetry_mae: 0.2531 - val_extinction_loss: 1.5824 - val_extinction_mae: 1.2300 - val_loss: 1.6504 - val_scattering_loss: 0.0011 - val_scattering_mae: 0.0327
+Epoch 3/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 14ms/step - asymmetry_loss: 0.0752 - asymmetry_mae: 0.2268 - extinction_loss: 0.9965 - extinction_mae: 0.8899 - loss: 1.4563 - scattering_loss: 0.3911 - scattering_mae: 0.2788 - val_asymmetry_loss: 0.0503 - val_asymmetry_mae: 0.2182 - val_extinction_loss: 0.8792 - val_extinction_mae: 0.9018 - val_loss: 0.9353 - val_scattering_loss: 0.0058 - val_scattering_mae: 0.0745
+Epoch 4/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 15ms/step - asymmetry_loss: 0.0598 - asymmetry_mae: 0.2018 - extinction_loss: 0.5541 - extinction_mae: 0.6608 - loss: 0.9870 - scattering_loss: 0.3586 - scattering_mae: 0.3037 - val_asymmetry_loss: 0.0218 - val_asymmetry_mae: 0.1389 - val_extinction_loss: 0.1381 - val_extinction_mae: 0.3222 - val_loss: 0.1871 - val_scattering_loss: 0.0272 - val_scattering_mae: 0.1642
+Epoch 5/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 17ms/step - asymmetry_loss: 0.0467 - asymmetry_mae: 0.1621 - extinction_loss: 0.4576 - extinction_mae: 0.5344 - loss: 0.8597 - scattering_loss: 0.3798 - scattering_mae: 0.3618 - val_asymmetry_loss: 0.0021 - val_asymmetry_mae: 0.0363 - val_extinction_loss: 0.0856 - val_extinction_mae: 0.2152 - val_loss: 0.1322 - val_scattering_loss: 0.0445 - val_scattering_mae: 0.2101
+Epoch 6/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 15ms/step - asymmetry_loss: 0.0438 - asymmetry_mae: 0.1250 - extinction_loss: 0.4628 - extinction_mae: 0.4971 - loss: 0.8734 - scattering_loss: 0.3664 - scattering_mae: 0.3635 - val_asymmetry_loss: 0.0028 - val_asymmetry_mae: 0.0358 - val_extinction_loss: 0.0524 - val_extinction_mae: 0.1939 - val_loss: 0.0831 - val_scattering_loss: 0.0280 - val_scattering_mae: 0.1664
+Epoch 7/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 14ms/step - asymmetry_loss: 0.0365 - asymmetry_mae: 0.1107 - extinction_loss: 0.3101 - extinction_mae: 0.4408 - loss: 0.7061 - scattering_loss: 0.3465 - scattering_mae: 0.3315 - val_asymmetry_loss: 0.0019 - val_asymmetry_mae: 0.0326 - val_extinction_loss: 0.1678 - val_extinction_mae: 0.3676 - val_loss: 0.1859 - val_scattering_loss: 0.0163 - val_scattering_mae: 0.1266
+Epoch 8/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 14ms/step - asymmetry_loss: 0.0306 - asymmetry_mae: 0.1029 - extinction_loss: 0.3291 - extinction_mae: 0.4915 - loss: 0.7107 - scattering_loss: 0.3506 - scattering_mae: 0.3100 - val_asymmetry_loss: 0.0025 - val_asymmetry_mae: 0.0454 - val_extinction_loss: 0.2272 - val_extinction_mae: 0.4300 - val_loss: 0.2417 - val_scattering_loss: 0.0120 - val_scattering_mae: 0.1089
+Epoch 9/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 15ms/step - asymmetry_loss: 0.0303 - asymmetry_mae: 0.0952 - extinction_loss: 0.3343 - extinction_mae: 0.5035 - loss: 0.7088 - scattering_loss: 0.3585 - scattering_mae: 0.3015 - val_asymmetry_loss: 0.0019 - val_asymmetry_mae: 0.0395 - val_extinction_loss: 0.1430 - val_extinction_mae: 0.3414 - val_loss: 0.1561 - val_scattering_loss: 0.0111 - val_scattering_mae: 0.1047
+Epoch 10/10
+<span class="ansi-bold">3/3</span> <span class="ansi-green-fg">━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-bold">0s</span> 14ms/step - asymmetry_loss: 0.0273 - asymmetry_mae: 0.0837 - extinction_loss: 0.2785 - extinction_mae: 0.4476 - loss: 0.6529 - scattering_loss: 0.3388 - scattering_mae: 0.3022 - val_asymmetry_loss: 0.0016 - val_asymmetry_mae: 0.0258 - val_extinction_loss: 0.0489 - val_extinction_mae: 0.1732 - val_loss: 0.0632 - val_scattering_loss: 0.0127 - val_scattering_mae: 0.1118
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/AI_Tutorials_6_1.png" src="_images/AI_Tutorials_6_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/AI_Tutorials_6_2.png" src="_images/AI_Tutorials_6_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Basic_Tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Grid_Tutorials.html" class="btn btn-neutral float-right" title="Grid interpolation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

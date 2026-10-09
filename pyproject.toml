@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MieNet"
+version = "2.0.0"
+authors = [
+  { name="Daisy Attaway", email="kiefersv.mail@gmail.com" },
+]
+description = "machine learning mie calculations"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+    'numpy',
+    'xarray',
+    'miepython',
+    'scipy',
+    'matplotlib',
+    'pyyaml',
+    'h5netcdf'
+]
+
+[project.urls]
+"Homepage" = "https://mienet.readthedocs.io/en/latest/index.html"
+"Download" = "https://github.com/MieNet-org/MieNet"

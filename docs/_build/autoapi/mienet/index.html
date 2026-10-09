@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mienet &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mienet.architecture_functions" href="architecture_functions/index.html" />
+    <link rel="prev" title="API Reference" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">mienet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="architecture_functions/index.html">mienet.architecture_functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="grid/index.html">mienet.grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mienet/index.html">mienet.mienet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mixing_theory/index.html">mienet.mixing_theory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="model_handling/index.html">mienet.model_handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="plot_routines/index.html">mienet.plot_routines</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sub_functions/index.html">mienet.sub_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#package-contents">Package Contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mienet.MieNet"><code class="docutils literal notranslate"><span class="pre">MieNet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mienet.get_models"><code class="docutils literal notranslate"><span class="pre">get_models()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">mienet</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/autoapi/mienet/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mienet">
+<span id="mienet"></span><h1>mienet<a class="headerlink" href="#module-mienet" title="Link to this heading"></a></h1>
+<p>Basic mienet class import</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture_functions/index.html">mienet.architecture_functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid/index.html">mienet.grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mienet/index.html">mienet.mienet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mixing_theory/index.html">mienet.mixing_theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_handling/index.html">mienet.model_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_routines/index.html">mienet.plot_routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sub_functions/index.html">mienet.sub_functions</a></li>
+</ul>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mienet.MieNet" title="mienet.MieNet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MieNet</span></code></a></p></td>
+<td><p>MieNet class to calculate mie opacities. For more information please see the</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#mienet.get_models" title="mienet.get_models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_models</span></code></a>(data_location[, overwrite, url])</p></td>
+<td><p>Download and unzip AI models from Zenodo</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mienet.MieNet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mienet.</span></span><span class="sig-name descname"><span class="pre">MieNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_ai</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_data_location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_ai_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/mienet.html#MieNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.MieNet" title="Link to this definition"></a></dt>
+<dd><p>MieNet class to calculate mie opacities. For more information please see the
+Documentation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.use_ai">
+<span class="sig-name descname"><span class="pre">use_ai</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#mienet.MieNet.use_ai" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.use_grid">
+<span class="sig-name descname"><span class="pre">use_grid</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#mienet.MieNet.use_grid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.mute">
+<span class="sig-name descname"><span class="pre">mute</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#mienet.MieNet.mute" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.force_disabled_ai">
+<span class="sig-name descname"><span class="pre">force_disabled_ai</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#mienet.MieNet.force_disabled_ai" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.files">
+<span class="sig-name descname"><span class="pre">files</span></span><a class="headerlink" href="#mienet.MieNet.files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.available_species">
+<span class="sig-name descname"><span class="pre">available_species</span></span><a class="headerlink" href="#mienet.MieNet.available_species" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.models_dict">
+<span class="sig-name descname"><span class="pre">models_dict</span></span><a class="headerlink" href="#mienet.MieNet.models_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mienet.MieNet.grids_dict">
+<span class="sig-name descname"><span class="pre">grids_dict</span></span><a class="headerlink" href="#mienet.MieNet.grids_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mienet.MieNet.ai_efficiencies">
+<span class="sig-name descname"><span class="pre">ai_efficiencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_mixing_ratios</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LLL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/mienet.html#MieNet.ai_efficiencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.MieNet.ai_efficiencies" title="Link to this definition"></a></dt>
+<dd><p>Calculate mie coefficients using a pre-trained neural network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>wavelength</strong><span class="classifier">np.ndarray or float of size N</span></dt><dd><p>Wavelength of the light [micron]</p>
+</dd>
+<dt><strong>particle_size</strong><span class="classifier">np.ndarray or float of size M</span></dt><dd><p>Size of the cloud particle [micron]</p>
+</dd>
+<dt><strong>volume_mixing_ratios</strong><span class="classifier">dict of np.ndarray or float of size M for each species</span></dt><dd><p>Fraction of each cloud material given as float or array</p>
+</dd>
+<dt><strong>theory: str, optional</strong></dt><dd><p>Mixing theory used to train ai model</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mienet.MieNet.efficiencies">
+<span class="sig-name descname"><span class="pre">efficiencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_mixing_ratios</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/mienet.html#MieNet.efficiencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.MieNet.efficiencies" title="Link to this definition"></a></dt>
+<dd><p>Calculate mie coefficients using mie python and LLL Approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>wavelength</strong><span class="classifier">np.ndarray or float of size N</span></dt><dd><p>Wavelength of the light [micron]</p>
+</dd>
+<dt><strong>particle_size</strong><span class="classifier">np.ndarray or float of size M</span></dt><dd><p>Size of the cloud particle [micron]</p>
+</dd>
+<dt><strong>volume_mixing_ratios</strong><span class="classifier">dict of np.ndarray or float of size M for each species</span></dt><dd><p>Fraction of each cloud material given as float or array</p>
+</dd>
+<dt><strong>theory</strong><span class="classifier">str, optional</span></dt><dd><p>Mixing theory used, can either be ‘LLL’ (Default) or ‘Bruggeman’</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mienet.MieNet.auto_efficiencies">
+<span class="sig-name descname"><span class="pre">auto_efficiencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume_mixing_ratios</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/mienet.html#MieNet.auto_efficiencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.MieNet.auto_efficiencies" title="Link to this definition"></a></dt>
+<dd><p>Calculate mie coefficients using mie fastest method available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>wavelength</strong><span class="classifier">np.ndarray or float of size N</span></dt><dd><p>Wavelength of the light [micron]</p>
+</dd>
+<dt><strong>particle_size</strong><span class="classifier">np.ndarray or float of size M</span></dt><dd><p>Size of the cloud particle [micron]</p>
+</dd>
+<dt><strong>volume_mixing_ratios</strong><span class="classifier">dict of np.ndarray or float of size M for each species</span></dt><dd><p>Fraction of each cloud material given as float or array</p>
+</dd>
+<dt><strong>theory</strong><span class="classifier">str, optional</span></dt><dd><p>Mixing theory used, can either be ‘LLL’ (Default) or ‘Burggeman’</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mienet.MieNet.download_models">
+<span class="sig-name descname"><span class="pre">download_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/mienet.html#MieNet.download_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.MieNet.download_models" title="Link to this definition"></a></dt>
+<dd><p>Download MieNet data from Zenodo and load all data/specified model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, old files will be overwritten.</p>
+</dd>
+<dt><strong>url</strong><span class="classifier">str, optional</span></dt><dd><p>Download link. If None is given, use the default zotero repository.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mienet.get_models">
+<span class="sig-prename descclassname"><span class="pre">mienet.</span></span><span class="sig-name descname"><span class="pre">get_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mienet/model_handling.html#get_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mienet.get_models" title="Link to this definition"></a></dt>
+<dd><p>Download and unzip AI models from Zenodo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_location</strong><span class="classifier">str</span></dt><dd><p>location where the data should be stored</p>
+</dd>
+<dt><strong>overwrite</strong><span class="classifier">bool, optional</span></dt><dd><p>In case some files already exist: overwrite old data if True, discard new data if False</p>
+</dd>
+<dt><strong>url</strong><span class="classifier">str, optional</span></dt><dd><p>Download link. If None is given, use the default zotero repository.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="architecture_functions/index.html" class="btn btn-neutral float-right" title="mienet.architecture_functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

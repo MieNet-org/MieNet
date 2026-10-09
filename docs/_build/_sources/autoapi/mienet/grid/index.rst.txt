@@ -1,0 +1,139 @@
+mienet.grid
+===========
+
+.. py:module:: mienet.grid
+
+.. autoapi-nested-parse::
+
+   This file contains all functionalities to use the pre-calculated grids 
+
+   ..
+       !! processed by numpydoc !!
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   mienet.grid.grid_efficiencies
+   mienet.grid.produce_efficiency_grid
+   mienet.grid.load_grid_efficiency
+
+
+Module Contents
+---------------
+
+.. py:function:: grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None)
+
+   
+   Approximate mie coefficients using mie python and LLL Approximation read in from
+   the grid_file.
+
+
+   :Parameters:
+
+       **wavelength** : np.ndarray or float of size N
+           Wavelength of the light [micron]
+
+       **particle_size** : np.ndarray or float of size M
+           Size of the cloud particle [micron]
+
+       **volume_mixing_ratios** : dict of np.ndarray or float of size M for each species
+           Fraction of each cloud material given as float or array
+
+       **theory** : str, optional
+           If a mixing theory is given here, it will be checked that the grid has the
+           same theory.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: produce_efficiency_grid(self, species, wavelengths=np.logspace(-1, 1.3, 200), particle_sizes=np.logspace(-4, 3.1, 100), vmr_data_points=20, theory='LLL', save_file=None)
+
+   
+   Calculate mie coefficient grid using mie python and LLL Approximation.
+
+
+   :Parameters:
+
+       **species** : List
+           Species names
+
+       **wavelengths** : np.ndarray or float of size N
+           Wavelength of the light [micron]
+
+       **particle_sizes** : np.ndarray or float of size M
+           Size of the cloud particle [micron]
+
+       **vmr_data_points** : int
+           Number of volume fraction mixing ratio points
+
+       **theory** : str, optional
+           Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
+
+       **save_file** : str
+           Path to save the grid file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None)
+
+   
+   Load previously calculated opacity grids
+
+
+   :Parameters:
+
+       **file_name** : str or list, optional
+           If given, only this file is loaded, if None, data_path will be checked.
+
+       **ds_grid** : xarray.Dataset, optional
+           from produce_efficiency_grid, also requires ds_grid_name
+
+       **ds_grid_name** : string, optional
+           name under which ds_grid is saved
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

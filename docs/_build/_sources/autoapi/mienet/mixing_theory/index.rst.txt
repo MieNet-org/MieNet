@@ -1,0 +1,101 @@
+mienet.mixing_theory
+====================
+
+.. py:module:: mienet.mixing_theory
+
+.. autoapi-nested-parse::
+
+   Calculating different mixing theories for effective refindex 
+
+   ..
+       !! processed by numpydoc !!
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   mienet.mixing_theory.mixing_theory
+   mienet.mixing_theory.bruggeman_func
+
+
+Module Contents
+---------------
+
+.. py:function:: mixing_theory(wavelength, ref_index, vmr, theory='LLL')
+
+   
+   Calculate refractive index of mixed species.
+
+
+   :Parameters:
+
+       **wavelength: np.ndarray[N]**
+           Wavelenght grid
+
+       **ref_index: np.ndarray[M, N, 2]**
+           Refractive index at each wavlength and for each material
+
+       **vmr: np.ndarray[N, M]**
+           The volume mixing ratio of each of the M species
+
+       **theory** : str, optional
+           Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+
+
+
+   :Returns:
+
+       **mixed_ref_index** : np.ndarray[N]
+           Complex array with the refractive index of the mixed material
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: bruggeman_func(eff, work)
+
+   
+   Bruggeman mixing function.
+
+
+   :Parameters:
+
+       **eff: np.ndarray[2]**
+           effective reffrective index. First index real part, second index
+           imaginary part
+
+       **work: np.ndarray[s, 3]**
+           The volume mixing fraction, real refractive index and imaginary
+           refractive index for each bulk material species s.
+
+
+
+   :Returns:
+
+       **quality_of_fit** : float
+           A quality of fit parameter. Should be as close to zero as possible.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+

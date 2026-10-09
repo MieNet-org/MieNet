@@ -1,0 +1,334 @@
+""" This file contains all functionalities to use the pre-calculated grids """
+# pylint: disable=R0913,R0914,R0915,R0917
+
+from glob import glob
+from time import time
+from datetime import datetime, timedelta
+import numpy as np
+import xarray as xr
+
+from .sub_functions import select_best_dataset, input_check
+
+def grid_efficiencies(self, wavelength, particle_size, volume_mixing_ratios, theory=None):
+    """
+    Approximate mie coefficients using mie python and LLL Approximation read in from
+    the grid_file.
+
+    Parameters
+    ----------
+    wavelength : np.ndarray or float of size N
+        Wavelength of the light [micron]
+    particle_size : np.ndarray or float of size M
+        Size of the cloud particle [micron]
+    volume_mixing_ratios : dict of np.ndarray or float of size M for each species
+        Fraction of each cloud material given as float or array
+    theory : str, optional
+        If a mixing theory is given here, it will be checked that the grid has the
+        same theory.
+
+    Returns
+    -------
+    optical properties : np.ndarray of size (M, N)
+        extinction coefficient, scattering coefficient, and asymmetry parameter
+    """
+
+    # ==== Break if no grids loaded
+    if not self.use_grid:
+        raise ValueError("[ERROR] No grid was loaded before calling grid_efficiencies")
+
+    # ==== check input
+    species = list(volume_mixing_ratios.keys())
+
+    # check input validity
+    wavelength, particle_size, vmr = input_check(
+        wavelength, particle_size, volume_mixing_ratios, species, self.mute
+    )
+
+    # ==== Information
+    if not self.mute:
+        print("[INFO] Perform grid interpolation for ",
+              list(volume_mixing_ratios.keys()))
+
+    # ==== Load grid
+    best_dataset = select_best_dataset(
+        'grid', wavelength, particle_size, volume_mixing_ratios, self.grids_dict,
+        theory=theory
+    )
+
+    ds = self.grids_dict[best_dataset[0]]['ds']
+
+    # ==== Check mixing theory if necessary
+    if theory is not None:
+        if ds.attrs['theory'] != theory:
+            raise ValueError("[ERROR] Mixing theory dose not match.\n"
+                             "> Selected: "+ theory + '\n'
+                             "-> Data set: " + ds.attrs['theory'])
+
+    # ==== read out data
+    # define arguments for interpolation from xarray
+    args = {
+        'wavelength': wavelength,
+        "particle_size": ("points", particle_size),
+        'method': 'linear'
+    }
+    # loop over all species
+    for spec in ds.attrs['species']:
+        # skip implicit species
+        if spec == ds.attrs['implicit_species']:
+            continue
+        # if the species is given, use the vmr
+        if spec in species:
+            # add non-implicit species
+            args['VMR_' + spec] = ("points", vmr[:, species.index(spec)])
+        # if the species is not given, set it to 0
+        else:
+            args['VMR_' + spec] = ("points", np.zeros(len(particle_size)))
+
+    # interpolate from xarray
+    extinction = np.nan_to_num(ds['qext'].interp(**args))
+    scattering = np.nan_to_num(ds['qsca'].interp(**args))
+    asymmetry = np.nan_to_num(ds['asym'].interp(**args))
+
+    return extinction, scattering, asymmetry
+
+
+def produce_efficiency_grid(self, species, wavelengths=np.logspace(-1 ,1.3 ,200),
+                            particle_sizes=np.logspace(-4 ,3.1 ,100), vmr_data_points=20,
+                            theory='LLL', save_file=None):
+    """
+    Calculate mie coefficient grid using mie python and LLL Approximation.
+
+    Parameters
+    ----------
+    species : List
+        Species names
+    wavelengths : np.ndarray or float of size N
+        Wavelength of the light [micron]
+    particle_sizes : np.ndarray or float of size M
+        Size of the cloud particle [micron]
+    vmr_data_points : int
+        Number of volume fraction mixing ratio points
+    theory : str, optional
+        Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
+    save_file : str
+        Path to save the grid file
+
+    Returns
+    -------
+    ds : xarray.DataSet
+        Data set containing the extinction coefficient, scattering coefficient, and
+        asymmetries parameter
+    """
+
+    # ==== Print grid production information
+    if not self.mute:
+        print("[INFO] Calculating mie efficiency grid")
+        print("   -> Species: ", species)
+        print("   -> Mixing theory: " + theory)
+        print(f"   -> Wavelengths: {min(wavelengths)} to {max(wavelengths)} microns" )
+        print(f"   -> Particle sizes: {min(particle_sizes)} to {max(particle_sizes)} microns")
+        print(f"   -> VMR spacing: {round(100/(vmr_data_points-1),2)}%")
+        print("[INFO] Starting grid calculation ...")
+
+    # ==== get shape of output array and prepare coordinates of dataset
+    shape = [len(particle_sizes), len(wavelengths)]  # shape of data array
+    dims = ['particle_size', 'wavelength']  # name of dimensions
+    vmrs = np.linspace(0, 1, vmr_data_points)  # vmr spacing
+    coords = {
+        'particle_size': particle_sizes,
+        'wavelength': wavelengths,
+    }
+
+    # ==== prepare standard vmr array
+    vmr = {}
+    vmr_array = np.ones(len(particle_sizes))
+    for _, spec in enumerate(species):
+        vmr[spec] = vmr_array.copy
+
+    # ==== adaptive fill in for species, last one is implicit
+    for _, spec in enumerate(species[:-1]):
+        shape.append(vmr_data_points)
+        dims.append('VMR_' + spec)
+        coords['VMR_' + spec] = np.linspace(0, 1, vmr_data_points)
+
+    # ==== data array
+    qext = np.zeros(shape)
+    qsca = np.zeros(shape)
+    asym = np.zeros(shape)
+
+    # ==== get indexing for vmrs
+    arrays = [np.arange(vmr_data_points) for _ in range(len(species ) -1)]
+    grids = np.meshgrid(*arrays, indexing='ij')
+    vmr_index = np.stack(grids, axis=-1).reshape(-1, len(species ) -1)
+
+    # ==== Fill in Grid
+    start_time = time()
+    for v, vmri in enumerate(vmr_index):
+
+        # ETA calculation
+        if v > 0:
+            dt = (time() - start_time ) / v *(len(vmr_index ) -v)
+            now = datetime.fromtimestamp(time())
+            eta = now + timedelta(seconds=dt)
+            eta = eta.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            eta = '--'
+        if not self.mute:
+            print(f"   -> Progress: { v /len(vmr_index ) *100:.1f}% (ETA: {eta})")
+
+        # vmr values for this loop
+        vmr_last = 0
+        vmr = {}
+        for s, spec in enumerate(species[:-1]):
+            vmr[spec] = vmrs[vmri[s] ] *vmr_array.copy()
+            vmr_last += vmrs[vmri[s]]
+        vmr[species[-1]] = np.max([1 - vmr_last, 0] ) *vmr_array.copy()
+
+        # run calculations but mute
+        mute_save = self.mute
+        self.mute = True  # mute for the calculation only
+        line = self.efficiencies(wavelengths, particle_sizes, vmr, theory=theory)
+        self.mute = mute_save
+
+        # save results
+        qext[:, :, *vmri] = line[0]
+        qsca[:, :, *vmri] = line[1]
+        asym[:, :, *vmri] = line[2]
+
+    # ==== Generate dataset
+    ds = xr.Dataset(
+        data_vars={
+            'qext': (dims, qext),
+            'qsca': (dims, qsca),
+            'asym': (dims, asym),
+        },
+        coords=coords,
+        attrs={
+            'species': species,
+            'implicit_species': species[-1],
+            'theory': theory,
+            'date_created': str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        }
+    )
+
+    # ==== Save dataset if a save file is given
+    if not self.mute:
+        print("   -> Grid calculation complete")
+    if save_file is not None:
+        ds.to_netcdf(save_file, engine="h5netcdf")
+        if not self.mute:
+            print("[INFO] Grid saved as: " + save_file)
+
+    return ds
+
+
+def load_grid_efficiency(self, file_name='all', ds_grid=None, ds_grid_name=None):
+    """
+    Load previously calculated opacity grids
+
+    Parameters
+    ----------
+    file_name : str or list, optional
+        If given, only this file is loaded, if None, data_path will be checked.
+    ds_grid : xarray.Dataset, optional
+        from produce_efficiency_grid, also requires ds_grid_name
+    ds_grid_name : string, optional
+        name under which ds_grid is saved
+    """
+
+    # ==== Load a dataset if it is given
+    if ds_grid is not None:
+        if ds_grid_name is None:
+            # if no name is given, use current time
+            ds_grid_name = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        # size of data set is used to determine quality of the dataset
+        size = (len(ds_grid['particle_size']) * len(ds_grid['wavelength'])
+                * len(ds_grid['VMR_' + ds_grid.attrs['species'][0]]))
+
+        # load in grid file to grids_dict
+        self.grids_dict[ds_grid_name] = {
+            'species': ds_grid.attrs['species'],
+            'ds': ds_grid,
+            'theory': ds_grid.attrs['theory'],
+            'quality_metric': size,
+            'range': {
+                'wavelength': [
+                    ds_grid['wavelength'].values[0],
+                    ds_grid['wavelength'].values[-1]
+                ],
+                'particle_size': [
+                    ds_grid['particle_size'].values[0],
+                    ds_grid['particle_size'].values[-1]
+                ]
+            },
+        }
+
+        if not self.mute:
+            print("[INFO] Grid added: ")
+            print("   -> Species: ", ds_grid.attrs['species'])
+            print("   -> Mixing theory: ", ds_grid.attrs['theory'])
+            print(f"   -> Wavelength: {round(ds_grid['wavelength'].values[0], 2)} to "
+                  f"{round(ds_grid['wavelength'].values[-1], 2)} micron.")
+            print(f"   -> Particle size: {round(ds_grid['particle_size'].values[0], 2)} to "
+                  f"{round(ds_grid['particle_size'].values[-1], 2)} micron.")
+
+    if file_name is not None:
+        # ==== Check if only one file should be loaded, or all files from data_path
+        if file_name == 'all':
+            grid_files = glob(self.data_path + 'grid_*.nc')
+        elif isinstance(file_name, str):
+            grid_files = [file_name]
+        else:
+            grid_files = file_name
+
+        # ==== Loop over all files
+        for grid_file in grid_files:
+            try:
+                # get data and assign it to the dictionary
+                ds = xr.open_dataset(grid_file, engine="h5netcdf")
+
+                # size of data set is used to determine quality of the dataset
+                size = (len(ds['particle_size']) * len(ds['wavelength'])
+                        * len(ds['VMR_' + ds.attrs['species'][0]]))
+
+                # assign everything to the grids_dict
+                self.grids_dict[grid_file] = {
+                    'species': ds.attrs['species'],
+                    'ds': ds,
+                    'theory': ds.attrs['theory'],
+                    'quality_metric': size,
+                    'range': {
+                        'wavelength': [
+                            ds['wavelength'].values[0],
+                            ds['wavelength'].values[-1]
+                        ],
+                        'particle_size': [
+                            ds['particle_size'].values[0],
+                            ds['particle_size'].values[-1]
+                        ]
+                    },
+                }
+
+                if not self.mute:
+                    print("[INFO] Grid added: ")
+                    print("   -> File: " + grid_file)
+                    print("   -> Species: ", ds.attrs['species'])
+                    print("   -> Mixing theory: ", ds.attrs['theory'])
+                    print(f"   -> Wavelength: {round(ds['wavelength'].values[0], 2)} to "
+                          f"{round(ds['wavelength'].values[-1], 2)} micron.")
+                    print(f"   -> Particle size: {round(ds['particle_size'].values[0], 2)} to "
+                          f"{round(ds['particle_size'].values[-1], 2)} micron.")
+                ds.close()
+            except:
+                # this error only rises if the file loaded is not what was expected.
+                raise ValueError(
+                    "[ERROR] The following grid file could not be loaded:\n  ", grid_file
+                )
+
+    # if at least one grid is loaded, enable grid interpolation
+    if len(self.grids_dict) > 0:
+        self.use_grid = True
+    else:
+        if not self.mute:
+            print("[WARN] No grid files found")

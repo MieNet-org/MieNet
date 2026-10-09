@@ -1,0 +1,7 @@
+numpydoc
+ipython
+nbsphinx
+numpy
+recommonmark
+sphinx_rtd_theme
+sphinx-autoapi

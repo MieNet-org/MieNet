@@ -1,0 +1,562 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mienet.mienet &mdash; MieNet 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            MieNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Install_And_Quick_Start.html">Installation and Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/MieNet-org/MieNet">Github</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">MieNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mienet.mienet</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mienet.mienet</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; MieNet class &quot;&quot;&quot;</span>
+<span class="c1"># pylint: disable=C0415,R0902,R0913,R0912,R0914,R0915,R0917</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">miepython</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mie</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sub_functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">read_in_refindex</span><span class="p">,</span> <span class="n">calculate_subradii</span><span class="p">,</span>
+                            <span class="n">select_best_dataset</span><span class="p">,</span> <span class="n">input_check</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.mixing_theory</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixing_theory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model_handling</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">architecture_functions</span>
+
+
+<div class="viewcode-block" id="MieNet">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MieNet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MieNet class to calculate mie opacities. For more information please see the</span>
+<span class="sd">    Documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ==== Import functions from sub-files ==============================================</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_efficiencies</span><span class="p">,</span> <span class="n">produce_efficiency_grid</span><span class="p">,</span> <span class="n">load_grid_efficiency</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.model_handling</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">generate_training_set</span><span class="p">,</span> <span class="n">train_ai_model</span><span class="p">,</span>
+                                 <span class="n">initialize_ai_models</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_ai</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_data_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">load_ai_model</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">grid_file</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        use_ai : bool</span>
+<span class="sd">            If False, AI will be disabled. This allows to use MieNet without installing</span>
+<span class="sd">            tensorflow.</span>
+<span class="sd">        default_data_location : str, optional</span>
+<span class="sd">            Location of opacity data and/or grids. If none, MieNet defaults are used.</span>
+<span class="sd">        mute : bool, optional</span>
+<span class="sd">            If True, MieNet will produce no diagnostic outputs and runs quietly.</span>
+<span class="sd">        load_ai_model : str</span>
+<span class="sd">            Which AI model to load. Default is &#39;all&#39;, which loads all models. User can</span>
+<span class="sd">            input model names to load a specific model.</span>
+<span class="sd">        grid_file : str, optional</span>
+<span class="sd">            If a grid file is given, only this file will be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ==== General preparations =====================================================</span>
+        <span class="c1"># save user inputs</span>
+<div class="viewcode-block" id="MieNet.use_ai">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.use_ai">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span> <span class="o">=</span> <span class="n">use_ai</span></div>
+
+<div class="viewcode-block" id="MieNet.use_grid">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.use_grid">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_grid</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># this is default until grids are loaded</span></div>
+
+<div class="viewcode-block" id="MieNet.mute">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.mute">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mute</span> <span class="o">=</span> <span class="n">mute</span></div>
+
+        <span class="k">if</span> <span class="n">load_ai_model</span> <span class="o">!=</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">load_ai_model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_ai_model</span> <span class="o">=</span> <span class="p">[</span><span class="n">load_ai_model</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_ai_model</span> <span class="o">=</span> <span class="n">load_ai_model</span>
+
+        <span class="c1"># working variables</span>
+<div class="viewcode-block" id="MieNet.force_disabled_ai">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.force_disabled_ai">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_disabled_ai</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># This will give a warning if MieNet breaks</span></div>
+
+
+        <span class="c1"># Load species data from files</span>
+<div class="viewcode-block" id="MieNet.files">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.files">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/opacity_files/*.refrind&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MieNet.available_species">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.available_species">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">available_species</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">8</span><span class="p">]</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">]</span></div>
+
+
+        <span class="c1"># ==== Intro</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=============================================&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;              Welcome to MieNet              &#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=============================================&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ==== Data location</span>
+        <span class="c1"># user input data location</span>
+        <span class="k">if</span> <span class="n">default_data_location</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">=</span> <span class="n">default_data_location</span>
+        <span class="c1"># default data location</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;../data/&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ==== Prepare Neural Network ===================================================</span>
+<div class="viewcode-block" id="MieNet.models_dict">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.models_dict">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># default initialisation</span></div>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span><span class="p">:</span>
+            <span class="c1"># check if right python version for tensorflow</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="ow">or</span>
+                    <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">)):</span>
+                <span class="n">ver</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[WARN] Your python version (</span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s1">) is to new and might not work &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;with tensorflow.&#39;</span><span class="p">)</span>
+            <span class="c1"># initialize ai models</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize_ai_models</span><span class="p">()</span>
+
+        <span class="c1"># ==== Load predetermined grid dataset</span>
+        <span class="c1"># default datasets</span>
+<div class="viewcode-block" id="MieNet.grids_dict">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.grids_dict">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_grid_efficiency</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">grid_file</span><span class="p">)</span>
+
+        <span class="c1"># ==== Information about the status of MieNet</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] MieNet successfully initialised&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Data location: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; AAN models available: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; ANN models are unavailable&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;   -&gt; Grid models available: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MieNet.ai_efficiencies">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.ai_efficiencies">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ai_efficiencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span><span class="o">=</span><span class="s1">&#39;LLL&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate mie coefficients using a pre-trained neural network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray or float of size N</span>
+<span class="sd">            Wavelength of the light [micron]</span>
+<span class="sd">        particle_size : np.ndarray or float of size M</span>
+<span class="sd">            Size of the cloud particle [micron]</span>
+<span class="sd">        volume_mixing_ratios : dict of np.ndarray or float of size M for each species</span>
+<span class="sd">            Fraction of each cloud material given as float or array</span>
+<span class="sd">        theory: str, optional</span>
+<span class="sd">            Mixing theory used to train ai model</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ------</span>
+<span class="sd">        optical properties : np.ndarray of size (M, N)</span>
+<span class="sd">            extinction coefficient, scattering coefficient, and asymmetries parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># ==== network initialization &amp; retrieval =======================================</span>
+
+        <span class="c1"># check if neural network is initialized</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_disabled_ai</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;[ERROR] No ANNs were successfully loaded, &#39;</span>
+                                 <span class="s1">&#39;ai_efficiencies is not available.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;[ERROR] use_ai must be set to true to use ai_efficiencies.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># check at least one correct model is initialized if using specific model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_ai_model</span> <span class="o">!=</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;species&#39;</span><span class="p">])</span>
+                       <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_ai_model</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;[ERROR] No correct AI model initialized for this mixture:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;   -&gt; Species selected: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;   -&gt; Find out which ANNs are loaded by setting MieNet(mute=False) &quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># find all models that include all species</span>
+        <span class="n">best_model</span> <span class="o">=</span> <span class="n">select_best_dataset</span><span class="p">(</span>
+            <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span><span class="p">,</span>
+            <span class="n">theory</span><span class="o">=</span><span class="n">theory</span>
+        <span class="p">)</span>
+
+        <span class="c1"># add zero array to vmr dictionary if using less than the total amount of species</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">best_model</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">missing_species</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">best_model</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                               <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volume_mixing_ratios</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">missing_species</span><span class="p">:</span>
+                <span class="n">volume_mixing_ratios</span><span class="p">[</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">values</span><span class="p">()))))</span>
+
+        <span class="c1"># get info for the model</span>
+        <span class="n">model_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span><span class="p">[</span><span class="n">best_model</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="c1"># ==== Input checks =============================================================</span>
+        <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">vmr</span> <span class="o">=</span> <span class="n">input_check</span><span class="p">(</span>
+            <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">best_model</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ==== Information</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Perform AAN calculation for &#39;</span><span class="p">,</span>
+                  <span class="nb">list</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="c1"># make all possible combinations of wavelength &amp; particle size</span>
+        <span class="n">final_wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span>
+        <span class="n">final_particle_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">particle_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">))</span>
+
+        <span class="c1"># make volume mixing ratios have the same dimensions as final wavelength &amp; final</span>
+        <span class="c1"># particle size</span>
+        <span class="n">final_vmr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">vmr</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># ==== Prepare model ============================================================</span>
+        <span class="c1"># define input array</span>
+        <span class="n">num_inputs</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">final_vmr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">final_wavelength</span><span class="p">),</span> <span class="n">num_inputs</span><span class="p">))</span>
+
+        <span class="c1"># assign wavelength input</span>
+        <span class="k">if</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">][</span><span class="s1">&#39;wavelength&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">final_wavelength</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_wavelength</span>
+
+        <span class="c1"># assign particle size input</span>
+        <span class="k">if</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">][</span><span class="s1">&#39;particle_size&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">final_particle_size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_particle_size</span>
+
+        <span class="c1"># assign volume mixing ratio inputs</span>
+        <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">final_vmr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">inputs</span><span class="p">[:,</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">material</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_vmr</span><span class="p">[:,</span> <span class="n">material</span><span class="p">]</span>
+
+        <span class="c1"># prepare output</span>
+        <span class="n">extinction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">scattering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">asymmetry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># get architecture-dependent masks</span>
+        <span class="n">arch</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;architecture&#39;</span><span class="p">]</span>
+
+        <span class="c1"># predict models if no masking required</span>
+        <span class="k">if</span> <span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;one_network&#39;</span><span class="p">:</span>
+            <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span> <span class="o">=</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="c1"># get masks from arch function</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">arch_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">architecture_functions</span><span class="p">,</span> <span class="n">arch</span><span class="p">)</span>
+
+            <span class="n">masks</span> <span class="o">=</span> <span class="n">arch_func</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;dependencies&#39;</span><span class="p">],</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">])</span>
+
+            <span class="c1"># predict outputs</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                    <span class="n">extinction</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">scattering</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">asymmetry</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;models&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+
+        <span class="c1"># reshape outputs</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">extinction</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">sca</span> <span class="o">=</span> <span class="n">scattering</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">asym</span> <span class="o">=</span> <span class="n">asymmetry</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># check extinction scaling</span>
+        <span class="k">if</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">][</span><span class="s1">&#39;extinction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">qext</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">ext</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qext</span> <span class="o">=</span> <span class="n">ext</span>
+
+        <span class="c1"># check scattering scaling</span>
+        <span class="k">if</span> <span class="n">model_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">][</span><span class="s1">&#39;scattering&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">qsca</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">sca</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qsca</span> <span class="o">=</span> <span class="n">sca</span>
+
+        <span class="k">return</span> <span class="n">qext</span><span class="p">,</span> <span class="n">qsca</span><span class="p">,</span> <span class="n">asym</span></div>
+
+
+<div class="viewcode-block" id="MieNet.efficiencies">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.efficiencies">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">efficiencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate mie coefficients using mie python and LLL Approximation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray or float of size N</span>
+<span class="sd">            Wavelength of the light [micron]</span>
+<span class="sd">        particle_size : np.ndarray or float of size M</span>
+<span class="sd">            Size of the cloud particle [micron]</span>
+<span class="sd">        volume_mixing_ratios : dict of np.ndarray or float of size M for each species</span>
+<span class="sd">            Fraction of each cloud material given as float or array</span>
+<span class="sd">        theory : str, optional</span>
+<span class="sd">            Mixing theory used, can either be &#39;LLL&#39; (Default) or &#39;Bruggeman&#39;</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ------</span>
+<span class="sd">        optical properties : np.ndarray of size (M, N)</span>
+<span class="sd">            extinction coefficient, scattering coefficient, and asymmetries parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ==== Prepare inputs ===========================================================</span>
+        <span class="k">if</span> <span class="n">theory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">theory</span> <span class="o">=</span> <span class="s1">&#39;LLL&#39;</span>
+
+        <span class="c1"># define species list according to entries in vmr</span>
+        <span class="n">species_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># check if all species are available</span>
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">species_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_species</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;[ERROR] The species &quot;</span> <span class="o">+</span> <span class="n">spec</span> <span class="o">+</span> <span class="s2">&quot; is not available</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;   -&gt; Available are: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">available_species</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># check input validity</span>
+        <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">vmr</span> <span class="o">=</span> <span class="n">input_check</span><span class="p">(</span>
+            <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">species_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ==== Information</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Perform full Mie calculation for &#39;</span><span class="p">,</span>
+                  <span class="nb">list</span><span class="p">(</span><span class="n">volume_mixing_ratios</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="c1"># ==== Radius averaging =========================================================</span>
+        <span class="n">sub_rad</span><span class="p">,</span> <span class="n">vmr</span> <span class="o">=</span> <span class="n">calculate_subradii</span><span class="p">(</span><span class="n">particle_size</span><span class="p">,</span> <span class="n">vmr</span><span class="p">)</span>
+
+        <span class="c1"># ==== Load data for each species from files and get refractive index ===========</span>
+        <span class="n">ref_index</span> <span class="o">=</span> <span class="n">read_in_refindex</span><span class="p">(</span><span class="n">species_list</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+
+        <span class="c1"># ==== Combination of all wavelengths and particle size =========================</span>
+        <span class="n">final_wavelength</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_rad</span><span class="p">))</span>
+        <span class="n">final_sub_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">sub_rad</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">))</span>
+        <span class="n">final_vmr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">vmr</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">final_ref_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">ref_index</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_rad</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">mixed_ref_index</span> <span class="o">=</span> <span class="n">mixing_theory</span><span class="p">(</span>
+            <span class="n">final_wavelength</span><span class="p">,</span> <span class="n">final_ref_index</span><span class="p">,</span> <span class="n">final_vmr</span><span class="p">,</span> <span class="n">theory</span><span class="o">=</span><span class="n">theory</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ==== Calculate Mie Efficiencies ===============================================</span>
+        <span class="n">size_param</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">final_sub_rad</span><span class="p">)</span> <span class="o">/</span> <span class="n">final_wavelength</span>
+
+        <span class="c1"># qe_temp = extinction, qs_temp = scattering, g_temp = asymmetry</span>
+        <span class="n">qe_temp</span><span class="p">,</span> <span class="n">qs_temp</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">g_temp</span> <span class="o">=</span> <span class="n">mie</span><span class="o">.</span><span class="n">efficiencies_mx</span><span class="p">(</span><span class="n">mixed_ref_index</span><span class="p">,</span> <span class="n">size_param</span><span class="p">)</span>
+
+        <span class="c1"># ==== Prepare outputs ==========================================================</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_rad</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">):</span>
+            <span class="n">extinction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="n">qe_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="mi">6</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">scattering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="n">qs_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="mi">6</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">asymmetry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="n">g_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="mi">6</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">extinction</span> <span class="o">=</span> <span class="n">qe_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">scattering</span> <span class="o">=</span> <span class="n">qs_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">asymmetry</span> <span class="o">=</span> <span class="n">g_temp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">particle_size</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span></div>
+
+
+<div class="viewcode-block" id="MieNet.auto_efficiencies">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.auto_efficiencies">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_efficiencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span>
+                          <span class="n">theory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate mie coefficients using mie fastest method available.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray or float of size N</span>
+<span class="sd">            Wavelength of the light [micron]</span>
+<span class="sd">        particle_size : np.ndarray or float of size M</span>
+<span class="sd">            Size of the cloud particle [micron]</span>
+<span class="sd">        volume_mixing_ratios : dict of np.ndarray or float of size M for each species</span>
+<span class="sd">            Fraction of each cloud material given as float or array</span>
+<span class="sd">        theory : str, optional</span>
+<span class="sd">            Mixing theory used, can either be &#39;LLL&#39; (Default) or &#39;Burggeman&#39;</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ------</span>
+<span class="sd">        optical properties : np.ndarray of size (M, N)</span>
+<span class="sd">            extinction coefficient, scattering coefficient, and asymmetries parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span><span class="p">:</span>
+            <span class="c1"># check models</span>
+            <span class="n">best_model</span> <span class="o">=</span> <span class="n">select_best_dataset</span><span class="p">(</span>
+                <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models_dict</span><span class="p">,</span> <span class="n">theory</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">)</span>
+
+            <span class="c1"># use model if it exists</span>
+            <span class="k">if</span> <span class="n">best_model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ai_efficiencies</span><span class="p">(</span>
+                    <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span>
+
+        <span class="n">best_dataset</span> <span class="o">=</span> <span class="n">select_best_dataset</span><span class="p">(</span>
+            <span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grids_dict</span><span class="p">,</span> <span class="n">theory</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="c1"># use grid if it exists</span>
+        <span class="k">if</span> <span class="n">best_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_efficiencies</span><span class="p">(</span>
+                <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span>
+
+        <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiencies</span><span class="p">(</span>
+            <span class="n">wavelength</span><span class="p">,</span> <span class="n">particle_size</span><span class="p">,</span> <span class="n">volume_mixing_ratios</span><span class="p">,</span> <span class="n">theory</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">extinction</span><span class="p">,</span> <span class="n">scattering</span><span class="p">,</span> <span class="n">asymmetry</span></div>
+
+
+
+<div class="viewcode-block" id="MieNet.download_models">
+<a class="viewcode-back" href="../../autoapi/mienet/mienet/index.html#mienet.MieNet.download_models">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download MieNet data from Zenodo and load all data/specified model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True, old files will be overwritten.</span>
+<span class="sd">        url : str, optional</span>
+<span class="sd">            Download link. If None is given, use the default zotero repository.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># info</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span> <span class="ow">and</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Downloading data from Zenodo&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[INFO] Downloading data from: &#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Saving data to: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">)</span>
+
+        <span class="c1"># download models</span>
+        <span class="n">get_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># done</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mute</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   -&gt; Download successful&#39;</span><span class="p">)</span>
+
+        <span class="c1"># load data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_grid_efficiency</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ai</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize_ai_models</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Daisy Attaway.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

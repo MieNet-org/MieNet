@@ -1,0 +1,44 @@
+TUTORIAL_MODEL:
+  architecture: one_network
+  theory: LLL
+  dependencies: {}
+  quality_metric: 1
+  species:
+  - Fe
+  - Mg2SiO4
+  range:
+    wavelength:
+    - 0.01
+    - 50
+    particle_size:
+    - 0.001
+    - 0.01
+  scale:
+    wavelength: log
+    particle_size: log
+    extinction: log
+    scattering: log
+  files:
+  - tutorial_model.keras
+
+TEST_SIX_NETWORK:
+
+  architecture: 'six_network'
+  theory: 'LLL'
+  dependencies: {'low_wave': 1, 'high_wave': 100, 'size_cutoff': 1}
+  quality_metric: 6
+  species:
+    - 'SiO2'
+    - 'MgSiO3'
+
+  range: {'wavelength': [0.001, 1000], 'particle_size': [0.000159, 159]}
+
+  scale: {'wavelength': 'normal', 'particle_size': 'normal', 'extinction': 'normal', 'scattering': 'normal'}
+
+  files:
+    - 'vmodeltest_six_net_1A.keras'
+    - 'vmodeltest_six_net_1B.keras'
+    - 'vmodeltest_six_net_1C.keras'
+    - 'vmodeltest_six_net_2A.keras'
+    - 'vmodeltest_six_net_2B.keras'
+    - 'vmodeltest_six_net_2C.keras'

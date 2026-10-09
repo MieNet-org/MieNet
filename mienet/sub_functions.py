@@ -1,0 +1,311 @@
+""" General functionalities """
+# pylint: disable=R0912,R0913,R0914,R0917
+
+import os
+import numpy as np
+
+def read_in_refindex(species, wavelength, files):
+    """
+    Read in and interpolate refractive index files.
+
+    Parameters
+    ----------
+    species : List with size N
+        Name of cloud species.
+    wavelength : np.ndarray of size M
+        Wavelength of the light [micron]
+    files : List
+        Refractive index files
+
+    Returns
+    -------
+    ref_index : np.ndarray of size (N, M, 2)
+        Refractive index data: real, and imaginary part.
+    """
+
+    # ==== Input handling
+    # make wavelength to array if it is a float
+    if not isinstance(wavelength, np.ndarray):
+        wavelength = np.asarray([wavelength])
+
+    # prepare output
+    ref_index = np.zeros((len(species), len(wavelength), 2))
+    for s, spec in enumerate(species):
+
+        # ==== Load data from files =====================================================
+
+        # find species in files
+        data = None
+        for file in files:
+            sp_name = os.path.basename(file).split('/')[0][:-8]
+            if spec == sp_name:
+                # read in refractive index data
+                content = np.genfromtxt(file, usecols=[1, 2, 3])
+                # convert to array and flip vertically so wavelength increases
+                data = np.flip(content, axis=0)
+        if data is None:
+            raise ValueError('[ERROR] No refindex file found for ' + spec)
+
+        # ==== Get the real(n) and imaginary (k) refractory index =======================
+        # loop over all wavelengths
+        for wav, wave in enumerate(wavelength):
+            # if desired wavelength is smaller than data, use the smallest wavelength
+            # data available
+            if wave < float(data[0, 0]):
+                ref_index[s, wav, 0] = float(data[0, 1])
+                ref_index[s, wav, 1] = float(data[0, 2])
+                continue
+
+            # if wavelength is within range log-log interpolation
+            for dnr, _ in enumerate(data):
+                cur_wave = float(data[dnr, 0])  # current wavelength
+                if wave < cur_wave:
+                    nlo = float(data[dnr - 1, 1])  # lower n value
+                    nhi = float(data[dnr, 1])  # higher n value
+                    klo = float(data[dnr - 1, 2])  # lower k value
+                    khi = float(data[dnr, 2])  # higher k value
+                    prev_wave = float(data[dnr - 1, 0])  # previous wavelength
+                    # calculate interpolation
+                    fac = np.log(wave / prev_wave) / np.log(cur_wave / prev_wave)
+                    ref_index[s, wav, 0] = np.exp(np.log(nlo) + fac * np.log(nhi / nlo))
+                    if klo <= 0 or khi <= 0:
+                        ref_index[s, wav, 1] = 0
+                    else:
+                        ref_index[s, wav, 1] = np.exp(np.log(klo) + fac * np.log(khi / klo))
+
+                    break
+
+            else:
+                # if wavelength is out of range, extrapolate
+                # non-conducting interpolation, linear decreasing k, constant n
+                ref_index[s, wav, 0] = float(data[-1, 1])
+                ref_index[s, wav, 1] = float(data[-1, 2]) * float(data[-1, 0]) / wave
+
+    return ref_index
+
+
+def calculate_subradii(particle_size, vmr):
+    """
+    Calculate subgrid for each radius.
+
+    Parameters
+    ----------
+    particle_size : np.ndarray or float of size M
+        Size of the cloud particle [micron]
+    vmr : ndarray
+        Fraction of each cloud material
+
+    Returns
+    -------
+    sub_rad, vmr : (ndarray(M*6), ndarray)
+        Sub-spacing of radii and adjusted vmr.
+    """
+    if len(particle_size) > 1:
+        if len(set(particle_size)) != 1:
+            # check if particle sizes are sorted
+            idx = np.argsort(particle_size)
+            ps_sorted = particle_size[idx]
+
+            # prepare outputs
+            rad_min = np.zeros_like(ps_sorted)
+            rad_max = np.zeros_like(ps_sorted)
+            mid_points = (ps_sorted[1:] + ps_sorted[:-1]) / 2
+
+            # radius minimum and maximum from midpoints
+            rad_min[1:] = mid_points
+            # smallest radius value >0
+            rad_min[0] = np.max([ps_sorted[0] - mid_points[0], 0])
+            rad_max[:-1] = mid_points
+            rad_max[-1] = ps_sorted[-1] + mid_points[-1]
+
+            # prepare output
+            sub_rad = np.zeros((len(ps_sorted) * 6))
+            i = 0  # index
+
+            # revert sorting
+            inv_idx = np.argsort(idx)
+            rad_max = rad_max[inv_idx]
+            rad_min = rad_min[inv_idx]
+
+            for r_max, r_min in zip(rad_max, rad_min):
+                # six radius points to average over
+                r = (r_max - r_min) / 6
+                rad_range = r_min + np.array([r, 2 * r, 3 * r, 4 * r, 5 * r, 6 * r])
+                sub_rad[i:i + 6] = rad_range
+                # index
+                i += 6
+            # make volume mixing ratios the same size as particle size
+            vmr = np.repeat(vmr, 6, axis=0)
+
+        else:
+            sub_rad = np.zeros((len(particle_size) * 6))
+            i = 0
+            for rad in particle_size:
+                sub_rad[i:i + 6] = np.linspace(rad * 0.7, rad * 1.3, 6)
+                i += 6
+            vmr = np.repeat(vmr, 6, axis=0)
+
+    else:
+        sub_rad = particle_size
+
+    return sub_rad, vmr
+
+def select_best_dataset(typ, wave, size, vmrs, datasets, theory=None, stop=True):
+    """
+    Choose best grid or model.
+
+    Parameters
+    ----------
+    typ : String
+        Either 'model' or 'grid'
+    wave : np.ndarray
+        wavelength
+    size : np.ndarray
+        particle sizes
+    vmrs: Dictionary
+        Species in each mixture with respective volume mixing ratios.
+    datasets: Dictionary
+        Dictionary with information about each model/grid.
+    theory : str, optional
+        Checks if mixing theory agrees, ignored if set to None
+    stop: Bool, optional
+        If True, an error is raised if no set is found. If False, (None, None) is returned.
+
+    Returns
+    -------
+    best_dataset : tuple, (name, species)
+        name: str of model/grid name
+        species: list of species names
+    """
+
+    # ==== Initialization
+    # Start with all datasets
+    valid_datasets = [] #list(datasets.keys())
+    # species selected
+    l_set = set(vmrs.keys())
+
+    # ==== Minimum Requirement
+    # go through the sets and check if minimum requirements are fulfilled
+    for name in datasets.keys():
+        # A dataset must include all species to be considered
+        if not l_set.issubset(datasets[name]['species']):
+            continue
+        # A dataset must have the correct mixing theory
+        if theory is not None and datasets[name]['theory'] != theory:
+            continue
+        # This is removed for now since accessing out-of-scope variables works
+        # in most instances and is needed for integration into other frameworks
+        # A dataset must cover the whole wavelength and particle size range
+        # if (datasets[name]['range']['wavelength'][0] > np.min([wave]) or
+        #     datasets[name]['range']['wavelength'][1] < np.max([wave]) or
+        #     datasets[name]['range']['particle_size'][0] > np.min([size]) or
+        #     datasets[name]['range']['particle_size'][1] < np.max([size])):
+        #     continue
+        # if all tests passed, add it to the valid datasets
+        valid_datasets.append(name)
+
+    # ==== First check if we are already done
+    # if only one entry remains return this entry
+    if len(valid_datasets) == 1:
+        winner = valid_datasets[0]
+        return winner, datasets[winner]['species']
+    # if only one entry remains return this entry
+    if len(valid_datasets) == 0:
+        if stop:
+            raise ValueError("[ERROR] No " + f'{typ}' + " for " + str(l_set) +
+                             " is available. Please provide one.")
+        return None, None
+
+    # ==== Select best dataset
+    # first selection is done by number of species
+    nr = [len(datasets[name]['species']) for name in valid_datasets]
+    valid_datasets = [name for name, val in zip(valid_datasets, nr) if val == min(nr)]
+    # then select according to the quality metric
+    nr = [datasets[name]['quality_metric'] for name in valid_datasets]
+    valid_datasets = [name for name, val in zip(valid_datasets, nr) if val == max(nr)]
+    # Either there is only 1 dataset left, or we need to make a random choice
+    # in both cases, we decide to return the first dataset in the list
+    winner = valid_datasets[0]
+    return winner, datasets[winner]['species']
+
+
+def input_check(wavelength, particle_size, volume_mixing_ratios, species_list, mute=True):
+    """
+    This function assures that all inputs are in the correct format.
+
+    Parameters
+    ----------
+    wavelength : np.ndarray or float of size N
+        Wavelength of the light [micron]
+    particle_size : np.ndarray or float of size M
+        Size of the cloud particle [micron]
+    volume_mixing_ratios : dict of np.ndarray or float of size M for each species
+        Fraction of each cloud material given as float or array
+    species_list : List of strings of size P
+        Name of species that must be included
+    mute : bool, optional
+        If True, MieNet will produce no diagnostic outputs and run quietly.
+
+
+    Returns
+    -------
+    wavelength : np.ndarray of size N
+        Wavelength of the light [micron]
+    particle_size : np.ndarray of size M
+        Size of the cloud particle [micron]
+    vmrs : np.ndarray of size (M, P)
+        Fraction of each cloud material given as float or array
+    """
+
+    # check inputs are correct type
+    if (not isinstance(wavelength, np.ndarray)
+            and not isinstance(wavelength, (float, int))):
+        raise ValueError("[ERROR] Wavelength must be of type np.ndarray or float\n"
+                         "   -> currently given: " + str(type(wavelength)))
+    if (not isinstance(particle_size, np.ndarray)
+            and not isinstance(particle_size, (float, int))):
+        raise ValueError("[ERROR] Particle size must be of type np.ndarray or float\n"
+                         "   -> currently given: " + str(type(particle_size)))
+    if not isinstance(volume_mixing_ratios, dict):
+        raise ValueError("[ERROR] Volume mixing ratio must be of type dict\n"
+                         "   -> currently given: " + str(type(volume_mixing_ratios)))
+
+    # convert floats to arrays
+    if isinstance(wavelength, (float, int)):
+        wavelength = np.array([wavelength])
+    if isinstance(particle_size, (float, int)):
+        particle_size = np.array([particle_size])
+    for key, ratios in volume_mixing_ratios.items():
+        if isinstance(ratios, (float, int)):
+            volume_mixing_ratios[key] = np.array([ratios])
+
+    # there must be the same number of VMRs for each species
+    if len(set(map(len, volume_mixing_ratios.values()))) != 1:
+        ers = ""
+        for key in volume_mixing_ratios:
+            ers += "   -> Shape " + key + ': ' + str(len(volume_mixing_ratios[key])) + '\n'
+        raise ValueError('[ERROR] Volume mixing ratios must have same shape\n' + ers)
+    # each particle size needs a VMR
+    vmr_len = len(volume_mixing_ratios[next(iter(volume_mixing_ratios))])
+    if len(particle_size) != vmr_len:
+        raise ValueError(
+            "[ERROR] Particle size and volume mixing ratio must have same shape:\n"
+            "   -> Shape particle size: " + str(len(particle_size)) + "\n"
+            "   -> Shape VMR: " + str(vmr_len) + "\n"
+        )
+
+    # create array with vmr values
+    vmr = np.zeros((len(particle_size), len(species_list)))
+    for s, spec in enumerate(species_list):
+        vmr[:, s] = volume_mixing_ratios[spec]
+
+    # Check if all VMRs add up to 1 and normalize if necessary
+    vmr_sum = np.sum(vmr, axis=1)
+    if any(vmr_sum != 1) and not mute:
+        print("[WARN] Volume mixing ratios do not add up to 1. "
+              "The ratios have been renormalized.")
+    idx = np.asarray(np.where(vmr_sum != 1))
+    for i in idx[0]:
+        vmr[i] = vmr[i] / sum(vmr[i])
+
+    return wavelength, particle_size, vmr

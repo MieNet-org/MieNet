@@ -1,0 +1,294 @@
+mienet
+======
+
+.. py:module:: mienet
+
+.. autoapi-nested-parse::
+
+   
+   Basic mienet class import 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/mienet/architecture_functions/index
+   /autoapi/mienet/grid/index
+   /autoapi/mienet/mienet/index
+   /autoapi/mienet/mixing_theory/index
+   /autoapi/mienet/model_handling/index
+   /autoapi/mienet/plot_routines/index
+   /autoapi/mienet/sub_functions/index
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   mienet.MieNet
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   mienet.get_models
+
+
+Package Contents
+----------------
+
+.. py:class:: MieNet(use_ai=True, default_data_location=None, mute=True, load_ai_model='all', grid_file='all')
+
+   
+   MieNet class to calculate mie opacities. For more information please see the
+   Documentation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+   .. py:attribute:: use_ai
+      :value: True
+
+
+
+   .. py:attribute:: use_grid
+      :value: False
+
+
+
+   .. py:attribute:: mute
+      :value: True
+
+
+
+   .. py:attribute:: force_disabled_ai
+      :value: False
+
+
+
+   .. py:attribute:: files
+
+
+   .. py:attribute:: available_species
+
+
+   .. py:attribute:: models_dict
+
+
+   .. py:attribute:: grids_dict
+
+
+   .. py:method:: ai_efficiencies(wavelength, particle_size, volume_mixing_ratios, theory='LLL')
+
+      
+      Calculate mie coefficients using a pre-trained neural network.
+
+
+      :Parameters:
+
+          **wavelength** : np.ndarray or float of size N
+              Wavelength of the light [micron]
+
+          **particle_size** : np.ndarray or float of size M
+              Size of the cloud particle [micron]
+
+          **volume_mixing_ratios** : dict of np.ndarray or float of size M for each species
+              Fraction of each cloud material given as float or array
+
+          **theory: str, optional**
+              Mixing theory used to train ai model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: efficiencies(wavelength, particle_size, volume_mixing_ratios, theory=None)
+
+      
+      Calculate mie coefficients using mie python and LLL Approximation.
+
+
+      :Parameters:
+
+          **wavelength** : np.ndarray or float of size N
+              Wavelength of the light [micron]
+
+          **particle_size** : np.ndarray or float of size M
+              Size of the cloud particle [micron]
+
+          **volume_mixing_ratios** : dict of np.ndarray or float of size M for each species
+              Fraction of each cloud material given as float or array
+
+          **theory** : str, optional
+              Mixing theory used, can either be 'LLL' (Default) or 'Bruggeman'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: auto_efficiencies(wavelength, particle_size, volume_mixing_ratios, theory=None)
+
+      
+      Calculate mie coefficients using mie fastest method available.
+
+
+      :Parameters:
+
+          **wavelength** : np.ndarray or float of size N
+              Wavelength of the light [micron]
+
+          **particle_size** : np.ndarray or float of size M
+              Size of the cloud particle [micron]
+
+          **volume_mixing_ratios** : dict of np.ndarray or float of size M for each species
+              Fraction of each cloud material given as float or array
+
+          **theory** : str, optional
+              Mixing theory used, can either be 'LLL' (Default) or 'Burggeman'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+   .. py:method:: download_models(overwrite=True, url=None)
+
+      
+      Download MieNet data from Zenodo and load all data/specified model.
+
+
+      :Parameters:
+
+          **overwrite** : bool, optional
+              If True, old files will be overwritten.
+
+          **url** : str, optional
+              Download link. If None is given, use the default zotero repository.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      ..
+          !! processed by numpydoc !!
+
+
+.. py:function:: get_models(data_location, overwrite=True, url=None)
+
+   
+   Download and unzip AI models from Zenodo
+
+
+   :Parameters:
+
+       **data_location** : str
+           location where the data should be stored
+
+       **overwrite** : bool, optional
+           In case some files already exist: overwrite old data if True, discard new data if False
+
+       **url** : str, optional
+           Download link. If None is given, use the default zotero repository.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
